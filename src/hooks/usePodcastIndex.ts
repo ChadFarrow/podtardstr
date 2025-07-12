@@ -268,14 +268,13 @@ export function usePodcastEpisodes(feedId: number, options: { enabled?: boolean 
 
 // Top100 Music Chart from Podcast Index (same as LNBeats)
 interface Top100MusicEntry {
-  feedId: number;
-  feedTitle: string;
-  feedImage: string;
-  episodeId: number;
-  episodeTitle: string;
-  episodeImage: string;
-  satoshis: number;
   rank: number;
+  boosts: string;
+  title: string;
+  author: string;
+  image: string;
+  feedId?: number;
+  feedUrl?: string;
 }
 
 export function useTrendingPodcasts() {
@@ -290,20 +289,21 @@ export function useTrendingPodcasts() {
           throw new Error('Failed to fetch top100 music chart');
         }
         
-        const top100Data: Top100MusicEntry[] = await response.json();
+        const top100Response = await response.json();
+        const top100Data: Top100MusicEntry[] = top100Response.items || [];
         
         // Convert to our PodcastIndexPodcast format
         const musicFeeds: PodcastIndexPodcast[] = top100Data.slice(0, 20).map((entry, index) => ({
-          id: entry.feedId,
-          title: entry.feedTitle,
-          url: '', // Not provided in top100 data
+          id: entry.feedId || entry.rank,
+          title: entry.title,
+          url: entry.feedUrl || '', 
           originalUrl: '',
           link: '',
-          description: `Rank #${entry.rank} on V4V Music Chart with ${entry.satoshis.toLocaleString()} sats`,
-          author: entry.feedTitle,
+          description: `Rank #${entry.rank} on V4V Music Chart with ${entry.boosts} boosts`,
+          author: entry.author,
           ownerName: '',
-          image: entry.feedImage || entry.episodeImage,
-          artwork: entry.feedImage || entry.episodeImage,
+          image: entry.image,
+          artwork: entry.image,
           lastUpdateTime: 0,
           lastCrawlTime: 0,
           lastParseTime: 0,
@@ -330,7 +330,7 @@ export function useTrendingPodcasts() {
               suggested: '0.00000001000'
             },
             destinations: [{
-              name: entry.feedTitle,
+              name: entry.author,
               address: '',
               type: 'node',
               split: 100
