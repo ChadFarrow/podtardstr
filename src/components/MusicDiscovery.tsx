@@ -161,12 +161,6 @@ export function MusicDiscovery() {
                                 <p className="text-xs text-muted-foreground">{formatDuration(episode.duration)}</p>
                               )}
                             </div>
-                            {hasValue4Value(episode) && (
-                              <Badge variant="secondary" className="flex items-center gap-1">
-                                <Bitcoin className="h-3 w-3" />
-                                V4V
-                              </Badge>
-                            )}
                             <Button 
                               size="sm" 
                               onClick={() => handlePlayTrack(episode)}
@@ -226,12 +220,6 @@ export function MusicDiscovery() {
                         </button>
                         <p className="text-xs text-muted-foreground mt-1">{feed.description}</p>
                         <div className="flex items-center gap-2 mt-2">
-                          {hasValue4Value(feed) && (
-                            <Badge variant="secondary" className="flex items-center gap-1">
-                              <Bitcoin className="h-3 w-3" />
-                              V4V
-                            </Badge>
-                          )}
                           <Button size="sm" onClick={() => handlePlayAlbum(feed)}>
                             <Play className="h-4 w-4" />
                           </Button>
@@ -287,12 +275,6 @@ export function MusicDiscovery() {
                       <span>{new Date(episode.datePublished * 1000).toLocaleDateString()}</span>
                     </div>
                   </div>
-                  {hasValue4Value(episode) && (
-                    <Badge variant="secondary" className="flex items-center gap-1">
-                      <Zap className="h-3 w-3" />
-                      V4V
-                    </Badge>
-                  )}
                   <Button 
                     size="sm" 
                     onClick={() => handlePlayTrack(episode)}
