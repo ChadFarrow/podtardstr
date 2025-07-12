@@ -136,7 +136,7 @@ export function MusicDiscovery() {
                     <Skeleton key={i} className="h-16 w-full" />
                   ))}
                 </div>
-              ) : searchResults && (searchResults.feeds.length > 0 || searchResults.episodes.length > 0) ? (
+              ) : searchResults && searchResults.episodes.length > 0 ? (
                 <div className="space-y-4">
                   {searchResults.episodes.length > 0 && (
                     <div>
@@ -179,96 +179,7 @@ export function MusicDiscovery() {
                     </div>
                   )}
 
-                  {searchResults.feeds.length > 0 && (
-                    <div>
-                      <h4 className="font-medium mb-2">Albums & Artists</h4>
-                      <div className="grid gap-3">
-                        {searchResults.feeds.map((feed) => (
-                          <div key={feed.id} className="border rounded-lg">
-                            <div className="flex items-center gap-3 p-3 hover:bg-muted">
-                              <img 
-                                src={feed.image || feed.artwork} 
-                                alt={feed.title}
-                                className="h-12 w-12 rounded object-cover"
-                              />
-                              <div className="flex-1 min-w-0">
-                                <h5 className="font-medium truncate">{feed.title}</h5>
-                                <button 
-                                  onClick={() => handleArtistClick(feed.author)}
-                                  className="text-sm text-muted-foreground truncate hover:text-primary transition-colors text-left"
-                                >
-                                  {feed.author}
-                                </button>
-                                <p className="text-xs text-muted-foreground">{feed.episodeCount} tracks</p>
-                              </div>
-                              {hasValue4Value(feed) && (
-                                <Badge variant="secondary" className="flex items-center gap-1">
-                                  <Zap className="h-3 w-3" />
-                                  V4V
-                                </Badge>
-                              )}
-                              <Button 
-                                variant="ghost"
-                                size="sm" 
-                                onClick={() => handleAlbumClick(feed)}
-                                className="flex items-center gap-1"
-                              >
-                                <Album className="h-4 w-4" />
-                                {expandedAlbum === feed.id ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                              </Button>
-                              <Button 
-                                size="sm" 
-                                onClick={() => handlePlayAlbum(feed)}
-                              >
-                                <Play className="h-4 w-4" />
-                              </Button>
-                            </div>
-                            
-                            {/* Expanded track listing */}
-                            {expandedAlbum === feed.id && (
-                              <div className="border-t bg-muted/30">
-                                {albumTracksData?.episodes ? (
-                                  <div className="p-3 space-y-2">
-                                    <h6 className="text-sm font-medium text-muted-foreground">All Tracks</h6>
-                                    {albumTracksData.episodes.map((episode, index) => (
-                                      <div key={episode.id} className="flex items-center gap-3 p-2 hover:bg-background rounded">
-                                        <span className="text-xs text-muted-foreground w-6">{index + 1}</span>
-                                        <img 
-                                          src={episode.image || episode.feedImage} 
-                                          alt={episode.title}
-                                          className="h-8 w-8 rounded object-cover"
-                                        />
-                                        <div className="flex-1 min-w-0">
-                                          <p className="text-sm font-medium truncate">{episode.title}</p>
-                                          {episode.duration && (
-                                            <p className="text-xs text-muted-foreground">{formatDuration(episode.duration)}</p>
-                                          )}
-                                        </div>
-                                        {hasValue4Value(episode) && (
-                                          <Badge variant="outline" size="sm">V4V</Badge>
-                                        )}
-                                        <Button 
-                                          size="sm" 
-                                          variant="ghost"
-                                          onClick={() => handlePlayTrack(episode)}
-                                        >
-                                          <Play className="h-3 w-3" />
-                                        </Button>
-                                      </div>
-                                    ))}
-                                  </div>
-                                ) : (
-                                  <div className="p-3">
-                                    <p className="text-sm text-muted-foreground">Loading tracks...</p>
-                                  </div>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
+                  {/* Albums & Artists section temporarily hidden to focus on individual tracks only */}
                 </div>
               ) : (
                 <p className="text-muted-foreground">No music found for "{searchQuery}"</p>
