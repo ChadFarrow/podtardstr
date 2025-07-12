@@ -24,17 +24,12 @@ declare global {
 }
 
 // --- SupportArtistButton ---
-function SupportArtistButton({ valueBlock }: { valueBlock?: any }) {
-  // Find a lud16 address in the valueBlock destinations
-  const lightningAddress = valueBlock?.destinations?.find((d: any) => d.type === 'lud16')?.address;
+function SupportArtistButton() {
+  const lightningAddress = 'dave@getalby.com';
   const [status, setStatus] = useState('');
   const handleSupport = async () => {
     if (!window.webln) {
       setStatus('Alby or a WebLN wallet is not installed.');
-      return;
-    }
-    if (!lightningAddress) {
-      setStatus('No Lightning address available for this artist.');
       return;
     }
     try {
@@ -49,13 +44,11 @@ function SupportArtistButton({ valueBlock }: { valueBlock?: any }) {
   };
   return (
     <div className="mt-2">
-      <Button onClick={handleSupport} size="sm" disabled={!lightningAddress} variant="secondary">
+      <Button onClick={handleSupport} size="sm" variant="secondary">
         <Zap className="h-4 w-4 mr-1" />
         Send 33 sats
       </Button>
-      {/* Show the Lightning address for debugging */}
-      {lightningAddress && <div className="text-xs text-muted-foreground">{lightningAddress}</div>}
-      {!lightningAddress && <div className="text-xs text-muted-foreground">No lud16 Lightning address found</div>}
+      <div className="text-xs text-muted-foreground">{lightningAddress}</div>
       {status && <div className="text-xs mt-1">{status}</div>}
     </div>
   );
@@ -210,7 +203,7 @@ export function MusicDiscovery() {
                                 <p className="text-xs text-muted-foreground">{formatDuration(episode.duration)}</p>
                               )}
                               {/* SupportArtistButton for track */}
-                              <SupportArtistButton valueBlock={episode.value} />
+                              <SupportArtistButton />
                             </div>
                             <Button 
                               size="sm" 
@@ -279,7 +272,7 @@ export function MusicDiscovery() {
                         </button>
                         <p className="text-xs text-muted-foreground mt-1">{feed.description}</p>
                         {/* SupportArtistButton for album */}
-                        <SupportArtistButton valueBlock={feed.value} />
+                        <SupportArtistButton />
                       </div>
                     </div>
                   </CardContent>
@@ -331,7 +324,7 @@ export function MusicDiscovery() {
                       <span>{new Date(episode.datePublished * 1000).toLocaleDateString()}</span>
                     </div>
                     {/* SupportArtistButton for track */}
-                    <SupportArtistButton valueBlock={episode.value} />
+                    <SupportArtistButton />
                   </div>
                   <Button 
                     size="sm" 
