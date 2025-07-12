@@ -1,7 +1,7 @@
 {
   "name": "Podtardstr",
   "short_name": "Podtardstr",
-  "description": "Podtardstr where music meets Nostr - discover and stream music with Value4Value",
+  "description": "Podtardstr where audio meets Nostr - discover and stream content with Value4Value",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

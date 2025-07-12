@@ -17,7 +17,7 @@ const Index = () => {
 
   useSeoMeta({
     title: 'Podtardstr',
-    description: 'Podtardstr where music meets Nostr - discover and stream music with Value4Value',
+    description: 'Podtardstr where audio meets Nostr - discover and stream content with Value4Value',
   });
 
   return (
@@ -29,7 +29,7 @@ const Index = () => {
               <Music className="h-8 w-8 text-primary" />
               <div>
                 <h1 className="text-2xl font-bold">Podtardstr</h1>
-                <p className="text-xs text-muted-foreground">Music + Nostr + Value4Value</p>
+                <p className="text-xs text-muted-foreground">Audio + Nostr + Value4Value</p>
               </div>
             </div>
 
@@ -91,14 +91,14 @@ const Index = () => {
               <SidebarTrigger />
               <div>
                 <h2 className="text-xl font-semibold">
-                  {activeTab === 'discover' && 'Discover Music'}
-                  {activeTab === 'search' && 'Search Music'}
-                  {activeTab === 'nostr' && 'Music on Nostr'}
+                  {activeTab === 'discover' && 'Discover'}
+                  {activeTab === 'search' && 'Search'}
+                  {activeTab === 'nostr' && 'Nostr Feed'}
                 </h2>
                 <p className="text-sm text-muted-foreground">
-                  {activeTab === 'discover' && 'Trending music and recent releases'}
-                  {activeTab === 'search' && 'Find music and tracks from Podcast Index'}
-                  {activeTab === 'nostr' && 'Music recommendations and discussions on Nostr'}
+                  {activeTab === 'discover' && 'Trending content and recent releases'}
+                  {activeTab === 'search' && 'Find audio content from Podcast Index'}
+                  {activeTab === 'nostr' && 'Audio recommendations and discussions on Nostr'}
                 </p>
               </div>
             </div>
