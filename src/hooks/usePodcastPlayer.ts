@@ -15,8 +15,16 @@ interface PodcastPlayerState {
   isPlaying: boolean;
   queue: PodcastEpisode[];
   currentIndex: number;
+  currentTime: number;
+  duration: number;
+  volume: number;
+  isMuted: boolean;
   playPodcast: (podcast: PodcastEpisode) => void;
   setIsPlaying: (playing: boolean) => void;
+  setCurrentTime: (time: number) => void;
+  setDuration: (duration: number) => void;
+  setVolume: (volume: number) => void;
+  setIsMuted: (muted: boolean) => void;
   addToQueue: (podcast: PodcastEpisode) => void;
   removeFromQueue: (id: string) => void;
   clearQueue: () => void;
@@ -31,6 +39,10 @@ export const usePodcastPlayer = create<PodcastPlayerState>()(
       isPlaying: false,
       queue: [],
       currentIndex: -1,
+      currentTime: 0,
+      duration: 0,
+      volume: 1,
+      isMuted: false,
 
       playPodcast: (podcast) => {
         const state = get();
@@ -58,6 +70,22 @@ export const usePodcastPlayer = create<PodcastPlayerState>()(
 
       setIsPlaying: (playing) => {
         set({ isPlaying: playing });
+      },
+
+      setCurrentTime: (time) => {
+        set({ currentTime: time });
+      },
+
+      setDuration: (duration) => {
+        set({ duration });
+      },
+
+      setVolume: (volume) => {
+        set({ volume, isMuted: false });
+      },
+
+      setIsMuted: (muted) => {
+        set({ isMuted: muted });
       },
 
       addToQueue: (podcast) => {

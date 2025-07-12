@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import React from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
@@ -11,78 +11,34 @@ interface NowPlayingModalProps {
 }
 
 export function NowPlayingModal({ open, onOpenChange }: NowPlayingModalProps) {
-  const { currentPodcast, isPlaying, setIsPlaying } = usePodcastPlayer();
-  const audioRef = useRef<HTMLAudioElement>(null);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const [volume, setVolume] = useState(1);
-  const [isMuted, setIsMuted] = useState(false);
+  const { 
+    currentPodcast, 
+    isPlaying, 
+    setIsPlaying,
+    currentTime,
+    duration,
+    volume,
+    isMuted,
+    setVolume,
+    setIsMuted
+  } = usePodcastPlayer();
 
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    const updateTime = () => setCurrentTime(audio.currentTime);
-    const updateDuration = () => setDuration(audio.duration);
-
-    audio.addEventListener('timeupdate', updateTime);
-    audio.addEventListener('loadedmetadata', updateDuration);
-    audio.addEventListener('ended', () => setIsPlaying(false));
-
-    return () => {
-      audio.removeEventListener('timeupdate', updateTime);
-      audio.removeEventListener('loadedmetadata', updateDuration);
-      audio.removeEventListener('ended', () => setIsPlaying(false));
-    };
-  }, [setIsPlaying]);
-
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    if (isPlaying) {
-      audio.play().catch(console.error);
-    } else {
-      audio.pause();
-    }
-  }, [isPlaying]);
-
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio || !currentPodcast) return;
-
-    setCurrentTime(0);
-    setDuration(0);
-    audio.load();
-
-    if (isPlaying) {
-      audio.play().catch(console.error);
-    }
-  }, [currentPodcast?.url, isPlaying]);
-
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    audio.volume = isMuted ? 0 : volume;
-  }, [volume, isMuted]);
 
   const handlePlayPause = () => {
     setIsPlaying(!isPlaying);
   };
 
   const handleSeek = (value: number[]) => {
-    const audio = audioRef.current;
-    if (!audio) return;
+    // Get the main audio element from the PodcastPlayer component
+    const mainAudio = document.querySelector('audio') as HTMLAudioElement;
+    if (!mainAudio) return;
 
     const newTime = value[0];
-    audio.currentTime = newTime;
-    setCurrentTime(newTime);
+    mainAudio.currentTime = newTime;
   };
 
   const handleVolumeChange = (value: number[]) => {
     setVolume(value[0]);
-    setIsMuted(false);
   };
 
   const handleMute = () => {
@@ -90,15 +46,15 @@ export function NowPlayingModal({ open, onOpenChange }: NowPlayingModalProps) {
   };
 
   const skipBackward = () => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    audio.currentTime = Math.max(0, audio.currentTime - 15);
+    const mainAudio = document.querySelector('audio') as HTMLAudioElement;
+    if (!mainAudio) return;
+    mainAudio.currentTime = Math.max(0, mainAudio.currentTime - 15);
   };
 
   const skipForward = () => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    audio.currentTime = Math.min(duration, audio.currentTime + 15);
+    const mainAudio = document.querySelector('audio') as HTMLAudioElement;
+    if (!mainAudio) return;
+    mainAudio.currentTime = Math.min(duration, mainAudio.currentTime + 15);
   };
 
   const formatTime = (time: number) => {
@@ -115,12 +71,6 @@ export function NowPlayingModal({ open, onOpenChange }: NowPlayingModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl p-0 bg-gradient-to-br from-background via-background to-muted [&>button]:hidden">
-        <audio
-          ref={audioRef}
-          src={currentPodcast.url}
-          preload="metadata"
-        />
-        
         <div className="relative p-8">
           {/* Close button */}
           <Button

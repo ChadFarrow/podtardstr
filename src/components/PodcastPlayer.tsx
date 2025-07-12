@@ -7,12 +7,20 @@ import { usePodcastPlayer } from '@/hooks/usePodcastPlayer';
 import { NowPlayingModal } from '@/components/NowPlayingModal';
 
 export function PodcastPlayer() {
-  const { currentPodcast, isPlaying, setIsPlaying } = usePodcastPlayer();
+  const { 
+    currentPodcast, 
+    isPlaying, 
+    setIsPlaying,
+    currentTime,
+    duration,
+    volume,
+    isMuted,
+    setCurrentTime,
+    setDuration,
+    setVolume,
+    setIsMuted
+  } = usePodcastPlayer();
   const audioRef = useRef<HTMLAudioElement>(null);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const [volume, setVolume] = useState(1);
-  const [isMuted, setIsMuted] = useState(false);
   const [showNowPlaying, setShowNowPlaying] = useState(false);
 
   useEffect(() => {
@@ -31,7 +39,7 @@ export function PodcastPlayer() {
       audio.removeEventListener('loadedmetadata', updateDuration);
       audio.removeEventListener('ended', () => setIsPlaying(false));
     };
-  }, [setIsPlaying]);
+  }, [setIsPlaying, setCurrentTime, setDuration]);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -60,7 +68,7 @@ export function PodcastPlayer() {
     if (isPlaying) {
       audio.play().catch(console.error);
     }
-  }, [currentPodcast?.url, isPlaying]);
+  }, [currentPodcast?.url, isPlaying, setCurrentTime, setDuration]);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -84,7 +92,6 @@ export function PodcastPlayer() {
 
   const handleVolumeChange = (value: number[]) => {
     setVolume(value[0]);
-    setIsMuted(false);
   };
 
   const handleMute = () => {
