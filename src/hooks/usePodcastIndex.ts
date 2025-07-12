@@ -151,26 +151,9 @@ export function useSearchPodcasts(query: string, options: { enabled?: boolean } 
         clean: 'true',
       });
 
-      // Filter for music content
-      const musicFeeds = (response.feeds || []).filter(feed => {
-        const title = feed.title?.toLowerCase() || '';
-        const description = feed.description?.toLowerCase() || '';
-        const categories = Object.values(feed.categories || {}).join(' ').toLowerCase();
-        
-        // Look for music-related keywords
-        const musicKeywords = ['music', 'album', 'song', 'track', 'artist', 'band', 'indie', 'rock', 'pop', 'jazz', 'electronic', 'hip hop', 'rap', 'classical'];
-        
-        return musicKeywords.some(keyword => 
-          title.includes(keyword) || 
-          description.includes(keyword) || 
-          categories.includes(keyword) ||
-          feed.itunesType === 'music'
-        );
-      });
-
       return {
-        feeds: musicFeeds,
-        count: musicFeeds.length,
+        feeds: response.feeds || [],
+        count: response.count,
       };
     },
     enabled: options.enabled !== false && query.trim().length > 0,
@@ -190,25 +173,9 @@ export function useSearchEpisodes(query: string, options: { enabled?: boolean } 
         clean: 'true',
       });
 
-      // Filter for music content
-      const musicEpisodes = (response.episodes || []).filter(episode => {
-        const title = episode.title?.toLowerCase() || '';
-        const description = episode.description?.toLowerCase() || '';
-        const feedTitle = episode.feedTitle?.toLowerCase() || '';
-        
-        // Look for music-related keywords
-        const musicKeywords = ['music', 'album', 'song', 'track', 'artist', 'band', 'indie', 'rock', 'pop', 'jazz', 'electronic', 'hip hop', 'rap', 'classical'];
-        
-        return musicKeywords.some(keyword => 
-          title.includes(keyword) || 
-          description.includes(keyword) || 
-          feedTitle.includes(keyword)
-        );
-      });
-
       return {
-        episodes: musicEpisodes,
-        count: musicEpisodes.length,
+        episodes: response.episodes || [],
+        count: response.count,
       };
     },
     enabled: options.enabled !== false && query.trim().length > 0,
@@ -240,30 +207,13 @@ export function useTrendingPodcasts() {
     queryKey: ['podcast-index', 'trending'],
     queryFn: async () => {
       const response = await podcastIndexFetch<PodcastIndexPodcast>('/podcasts/trending', {
-        max: '50', // Get more to filter for music
+        max: '20',
         lang: 'en',
       });
 
-      // Filter for music content
-      const musicFeeds = (response.feeds || []).filter(feed => {
-        const title = feed.title?.toLowerCase() || '';
-        const description = feed.description?.toLowerCase() || '';
-        const categories = Object.values(feed.categories || {}).join(' ').toLowerCase();
-        
-        // Look for music-related keywords
-        const musicKeywords = ['music', 'album', 'song', 'track', 'artist', 'band', 'indie', 'rock', 'pop', 'jazz', 'electronic', 'hip hop', 'rap', 'classical'];
-        
-        return musicKeywords.some(keyword => 
-          title.includes(keyword) || 
-          description.includes(keyword) || 
-          categories.includes(keyword) ||
-          feed.itunesType === 'music'
-        );
-      }).slice(0, 20); // Take top 20 music feeds
-
       return {
-        feeds: musicFeeds,
-        count: musicFeeds.length,
+        feeds: response.feeds || [],
+        count: response.count,
       };
     },
     staleTime: 30 * 60 * 1000, // 30 minutes
@@ -275,29 +225,13 @@ export function useRecentEpisodes() {
     queryKey: ['podcast-index', 'recent-episodes'],
     queryFn: async () => {
       const response = await podcastIndexFetch<PodcastIndexEpisode>('/recent/episodes', {
-        max: '50', // Get more to filter for music
+        max: '20',
         excludeString: 'trailer,preview',
       });
 
-      // Filter for music content
-      const musicEpisodes = (response.episodes || []).filter(episode => {
-        const title = episode.title?.toLowerCase() || '';
-        const description = episode.description?.toLowerCase() || '';
-        const feedTitle = episode.feedTitle?.toLowerCase() || '';
-        
-        // Look for music-related keywords
-        const musicKeywords = ['music', 'album', 'song', 'track', 'artist', 'band', 'indie', 'rock', 'pop', 'jazz', 'electronic', 'hip hop', 'rap', 'classical'];
-        
-        return musicKeywords.some(keyword => 
-          title.includes(keyword) || 
-          description.includes(keyword) || 
-          feedTitle.includes(keyword)
-        );
-      }).slice(0, 20); // Take top 20 music episodes
-
       return {
-        episodes: musicEpisodes,
-        count: musicEpisodes.length,
+        episodes: response.episodes || [],
+        count: response.count,
       };
     },
     staleTime: 15 * 60 * 1000, // 15 minutes
