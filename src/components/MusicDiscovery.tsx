@@ -52,6 +52,11 @@ function SupportArtistButton({ destination, amount = 100 }: {
   }, 'isLightning:', isLightningAddress);
 
   const handleSupport = async () => {
+    if (!destination.address) {
+      setStatus('No payment address available');
+      return;
+    }
+    
     if (!window.webln) {
       setStatus('Alby or a WebLN wallet is not installed.');
       return;
@@ -87,21 +92,20 @@ function SupportArtistButton({ destination, amount = 100 }: {
         console.log('Keysend address:', nodeAddress, 'Length:', nodeAddress.length);
         
         // Node pubkeys should be 66 characters (33 bytes in hex)
-        if (nodeAddress.length !== 66) {
-          console.error('Invalid node pubkey length:', nodeAddress.length, 'expected 66');
-          setStatus(`Invalid node address (length: ${nodeAddress.length})`);
-          // Open Alby page as fallback
-          const keysendUrl = `https://getalby.com/keysend/${nodeAddress}?amount=${amount}&memo=Podtardstr%20Music%20Payment`;
-          window.open(keysendUrl, '_blank');
+        if (nodeAddress.length !== 66 || !/^[0-9a-fA-F]{66}$/.test(nodeAddress)) {
+          console.error('Invalid node pubkey:', {
+            address: nodeAddress,
+            length: nodeAddress.length,
+            expected: 66,
+            isHex: /^[0-9a-fA-F]+$/.test(nodeAddress)
+          });
+          setStatus(`Invalid node address format`);
           return;
         }
         
         // Check if the WebLN provider supports keysend
         if (!window.webln.keysend) {
-          // Fallback to Alby keysend page if not supported
-          const keysendUrl = `https://getalby.com/keysend/${nodeAddress}?amount=${amount}&memo=Podtardstr%20Music%20Payment`;
-          window.open(keysendUrl, '_blank');
-          setStatus('Opened Alby keysend page');
+          setStatus('Keysend not supported by wallet');
           return;
         }
         
