@@ -12,6 +12,51 @@ import { usePodcastEpisodes } from '@/hooks/usePodcastIndex';
 import type { PodcastIndexPodcast, PodcastIndexEpisode } from '@/hooks/usePodcastIndex';
 
 
+// Add WebLN type declaration for TypeScript
+declare global {
+  interface WebLN {
+    enable: () => Promise<void>;
+    lnurlPay: (lnurlOrAddress: string, opts?: { amount?: number }) => Promise<any>;
+  }
+  interface Window {
+    webln?: WebLN;
+  }
+}
+
+// --- SupportArtistButton ---
+function SupportArtistButton({ lightningAddress }: { lightningAddress?: string }) {
+  const [status, setStatus] = useState('');
+  const handleSupport = async () => {
+    if (!window.webln) {
+      setStatus('Alby or a WebLN wallet is not installed.');
+      return;
+    }
+    if (!lightningAddress) {
+      setStatus('No Lightning address available for this artist.');
+      return;
+    }
+    try {
+      setStatus('Connecting to wallet...');
+      await window.webln.enable();
+      setStatus('Sending 33 sats...');
+      await window.webln.lnurlPay(lightningAddress, { amount: 33 });
+      setStatus('Payment sent! Thank you for supporting the artist.');
+    } catch (err) {
+      setStatus('Payment failed or cancelled.');
+    }
+  };
+  return (
+    <div className="mt-2">
+      <Button onClick={handleSupport} size="sm" disabled={!lightningAddress} variant="secondary">
+        <Zap className="h-4 w-4 mr-1" />
+        Send 33 sats
+      </Button>
+      {status && <div className="text-xs mt-1">{status}</div>}
+    </div>
+  );
+}
+
+
 export function MusicDiscovery() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFeedId, setSelectedFeedId] = useState<number | null>(null);
@@ -159,6 +204,8 @@ export function MusicDiscovery() {
                               {episode.duration && (
                                 <p className="text-xs text-muted-foreground">{formatDuration(episode.duration)}</p>
                               )}
+                              {/* SupportArtistButton for track */}
+                              <SupportArtistButton lightningAddress={episode.value?.destinations?.[0]?.address} />
                             </div>
                             <Button 
                               size="sm" 
@@ -204,16 +251,18 @@ export function MusicDiscovery() {
                 <Card key={feed.id} className="hover:shadow-md transition-shadow">
                   <CardContent className="p-4">
                     <div className="flex items-center gap-3">
-                      <img 
-                        src={feed.image || feed.artwork} 
-                        alt={feed.title}
-                        className="h-16 w-16 rounded object-cover"
-                      />
-                      {/* Centered play button column */}
-                      <div className="flex flex-col items-center justify-center flex-shrink-0 w-16">
-                        <Button size="icon" onClick={() => handlePlayAlbum(feed)} className="h-10 w-10 flex items-center justify-center">
-                          <Play className="h-5 w-5" />
-                        </Button>
+                      <div className="relative group h-16 w-16 flex-shrink-0">
+                        <img 
+                          src={feed.image || feed.artwork} 
+                          alt={feed.title}
+                          className="h-16 w-16 rounded object-cover"
+                        />
+                        <button
+                          onClick={() => handlePlayAlbum(feed)}
+                          className="absolute inset-0 bg-black/50 rounded flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <Play className="h-6 w-6 text-white" />
+                        </button>
                       </div>
                       <div className="flex-1 min-w-0">
                         <h5 className="font-medium truncate">{feed.title}</h5>
@@ -224,6 +273,8 @@ export function MusicDiscovery() {
                           {feed.author}
                         </button>
                         <p className="text-xs text-muted-foreground mt-1">{feed.description}</p>
+                        {/* SupportArtistButton for album */}
+                        <SupportArtistButton lightningAddress={feed.value?.destinations?.[0]?.address} />
                       </div>
                     </div>
                   </CardContent>
@@ -274,6 +325,8 @@ export function MusicDiscovery() {
                       {episode.duration && <span>{formatDuration(episode.duration)}</span>}
                       <span>{new Date(episode.datePublished * 1000).toLocaleDateString()}</span>
                     </div>
+                    {/* SupportArtistButton for track */}
+                    <SupportArtistButton lightningAddress={episode.value?.destinations?.[0]?.address} />
                   </div>
                   <Button 
                     size="sm" 
