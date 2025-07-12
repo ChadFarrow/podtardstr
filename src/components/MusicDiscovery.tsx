@@ -23,102 +23,36 @@ declare global {
   }
 }
 
-// --- ValueBlock Component ---
-function ValueBlockInfo({ value }: { value?: PodcastIndexEpisode['value'] | PodcastIndexPodcast['value'] }) {
-  if (!value || !value.destinations?.length) {
-    return null;
-  }
-
-  const { model, destinations } = value;
-  const suggestedSats = model?.suggested ? parseInt(model.suggested) : 10;
-
-  return (
-    <div className="mt-2 p-2 bg-muted/50 rounded text-xs">
-      <div className="flex items-center gap-1 mb-1">
-        <Zap className="h-3 w-3" />
-        <span className="font-medium">Value4Value</span>
-        {model?.suggested && (
-          <span className="text-muted-foreground">• {suggestedSats} sats/min</span>
-        )}
-      </div>
-      
-      <div className="space-y-1">
-        {destinations.slice(0, 3).map((dest, i) => (
-          <div key={i} className="flex items-center justify-between">
-            <span className="truncate">{dest.name || 'Artist'}</span>
-            <div className="flex items-center gap-1">
-              <span>{dest.split}%</span>
-              {dest.address && (
-                <SupportArtistButton 
-                  lightningAddress={dest.address} 
-                  artistName={dest.name}
-                  amount={suggestedSats}
-                />
-              )}
-            </div>
-          </div>
-        ))}
-        {destinations.length > 3 && (
-          <div className="text-muted-foreground">+{destinations.length - 3} more</div>
-        )}
-      </div>
-    </div>
-  );
-}
-
 // --- SupportArtistButton ---
-function SupportArtistButton({ 
-  lightningAddress, 
-  artistName = 'Artist',
-  amount = 33 
-}: { 
-  lightningAddress?: string;
-  artistName?: string;
-  amount?: number;
-}) {
+function SupportArtistButton() {
+  const lightningAddress = 'dave@getalby.com';
   const [status, setStatus] = useState('');
   
   const handleSupport = async () => {
-    if (!lightningAddress) {
-      setStatus('No Lightning address available.');
-      return;
-    }
     if (!window.webln) {
-      setStatus('Install Alby or WebLN wallet.');
+      setStatus('Alby or a WebLN wallet is not installed.');
       return;
     }
     try {
-      setStatus('Connecting...');
+      setStatus('Connecting to wallet...');
       await window.webln.enable();
-      setStatus(`Sending ${amount} sats...`);
-      console.log('Attempting payment:', { lightningAddress, amount });
-      await window.webln.lnurlPay(lightningAddress, { amount });
-      setStatus('Payment sent! ⚡');
+      setStatus('Sending 33 sats...');
+      await window.webln.lnurlPay(lightningAddress, { amount: 33 });
+      setStatus('Payment sent! Thank you for supporting the artist.');
     } catch (err) {
-      console.error('WebLN payment error:', err);
-      console.error('Error details:', {
-        message: err.message,
-        name: err.name,
-        lightningAddress,
-        amount
-      });
-      setStatus(`Payment failed: ${err.message || 'Unknown error'}`);
+      setStatus('Payment failed or cancelled.');
     }
   };
-
-  if (!lightningAddress) return null;
-
+  
   return (
-    <Button 
-      onClick={handleSupport} 
-      size="sm" 
-      variant="ghost" 
-      className="h-6 px-2 text-xs"
-      disabled={!lightningAddress}
-    >
-      <Zap className="h-3 w-3 mr-1" />
-      {amount}
-    </Button>
+    <div className="mt-2">
+      <Button onClick={handleSupport} size="sm" variant="secondary">
+        <Zap className="h-4 w-4 mr-1" />
+        Send 33 sats
+      </Button>
+      <div className="text-xs text-muted-foreground">{lightningAddress}</div>
+      {status && <div className="text-xs mt-1">{status}</div>}
+    </div>
   );
 }
 
@@ -270,8 +204,8 @@ export function MusicDiscovery() {
                               {episode.duration && (
                                 <p className="text-xs text-muted-foreground">{formatDuration(episode.duration)}</p>
                               )}
-                              {/* ValueBlock info for track */}
-                              <ValueBlockInfo value={episode.value} />
+                              {/* SupportArtistButton for track */}
+                              <SupportArtistButton />
                             </div>
                             <Button 
                               size="sm" 
@@ -339,8 +273,8 @@ export function MusicDiscovery() {
                           {feed.author}
                         </button>
                         <p className="text-xs text-muted-foreground mt-1">{feed.description}</p>
-                        {/* ValueBlock info for album */}
-                        <ValueBlockInfo value={feed.value} />
+                        {/* SupportArtistButton for album */}
+                        <SupportArtistButton />
                       </div>
                     </div>
                   </CardContent>
@@ -391,8 +325,8 @@ export function MusicDiscovery() {
                       {episode.duration && <span>{formatDuration(episode.duration)}</span>}
                       <span>{new Date(episode.datePublished * 1000).toLocaleDateString()}</span>
                     </div>
-                    {/* ValueBlock info for track */}
-                    <ValueBlockInfo value={episode.value} />
+                    {/* SupportArtistButton for track */}
+                    <SupportArtistButton />
                   </div>
                   <Button 
                     size="sm" 
