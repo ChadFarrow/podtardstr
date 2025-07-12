@@ -24,7 +24,9 @@ declare global {
 }
 
 // --- SupportArtistButton ---
-function SupportArtistButton({ lightningAddress }: { lightningAddress?: string }) {
+function SupportArtistButton({ valueBlock }: { valueBlock?: any }) {
+  // Find a lud16 address in the valueBlock destinations
+  const lightningAddress = valueBlock?.destinations?.find((d: any) => d.type === 'lud16')?.address;
   const [status, setStatus] = useState('');
   const handleSupport = async () => {
     if (!window.webln) {
@@ -51,6 +53,9 @@ function SupportArtistButton({ lightningAddress }: { lightningAddress?: string }
         <Zap className="h-4 w-4 mr-1" />
         Send 33 sats
       </Button>
+      {/* Show the Lightning address for debugging */}
+      {lightningAddress && <div className="text-xs text-muted-foreground">{lightningAddress}</div>}
+      {!lightningAddress && <div className="text-xs text-muted-foreground">No lud16 Lightning address found</div>}
       {status && <div className="text-xs mt-1">{status}</div>}
     </div>
   );
@@ -205,7 +210,7 @@ export function MusicDiscovery() {
                                 <p className="text-xs text-muted-foreground">{formatDuration(episode.duration)}</p>
                               )}
                               {/* SupportArtistButton for track */}
-                              <SupportArtistButton lightningAddress={episode.value?.destinations?.[0]?.address} />
+                              <SupportArtistButton valueBlock={episode.value} />
                             </div>
                             <Button 
                               size="sm" 
@@ -274,7 +279,7 @@ export function MusicDiscovery() {
                         </button>
                         <p className="text-xs text-muted-foreground mt-1">{feed.description}</p>
                         {/* SupportArtistButton for album */}
-                        <SupportArtistButton lightningAddress={feed.value?.destinations?.[0]?.address} />
+                        <SupportArtistButton valueBlock={feed.value} />
                       </div>
                     </div>
                   </CardContent>
@@ -326,7 +331,7 @@ export function MusicDiscovery() {
                       <span>{new Date(episode.datePublished * 1000).toLocaleDateString()}</span>
                     </div>
                     {/* SupportArtistButton for track */}
-                    <SupportArtistButton lightningAddress={episode.value?.destinations?.[0]?.address} />
+                    <SupportArtistButton valueBlock={episode.value} />
                   </div>
                   <Button 
                     size="sm" 
