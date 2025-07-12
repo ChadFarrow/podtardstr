@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX } from 'lucide-react';
 import { usePodcastPlayer } from '@/hooks/usePodcastPlayer';
+import { NowPlayingModal } from '@/components/NowPlayingModal';
 
 export function PodcastPlayer() {
   const { currentPodcast, isPlaying, setIsPlaying } = usePodcastPlayer();
@@ -12,6 +13,7 @@ export function PodcastPlayer() {
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(1);
   const [isMuted, setIsMuted] = useState(false);
+  const [showNowPlaying, setShowNowPlaying] = useState(false);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -125,11 +127,16 @@ export function PodcastPlayer() {
           {/* Episode Info */}
           <div className="flex items-center gap-3 min-w-0 flex-1">
             {currentPodcast.imageUrl && (
-              <img 
-                src={currentPodcast.imageUrl} 
-                alt={currentPodcast.title}
-                className="h-12 w-12 rounded object-cover flex-shrink-0"
-              />
+              <button 
+                onClick={() => setShowNowPlaying(true)}
+                className="h-12 w-12 rounded object-cover flex-shrink-0 hover:ring-2 hover:ring-primary transition-all"
+              >
+                <img 
+                  src={currentPodcast.imageUrl} 
+                  alt={currentPodcast.title}
+                  className="h-12 w-12 rounded object-cover"
+                />
+              </button>
             )}
             <div className="min-w-0">
               <h4 className="font-medium text-sm truncate">{currentPodcast.title}</h4>
@@ -192,6 +199,11 @@ export function PodcastPlayer() {
           </div>
         </div>
       </div>
+      
+      <NowPlayingModal 
+        open={showNowPlaying} 
+        onOpenChange={setShowNowPlaying} 
+      />
     </Card>
   );
 }
