@@ -146,20 +146,42 @@ export function useSearchPodcasts(query: string, options: { enabled?: boolean } 
       if (!query.trim()) return { feeds: [], count: 0 };
 
       const response = await podcastIndexFetch<PodcastIndexPodcast>('/search/byterm', {
-        q: query.trim(),
-        max: '20',
+        q: `${query.trim()} music`,  // Add 'music' to search to bias towards music content
+        max: '50',
         clean: 'true',
-        medium: 'music', // Only show music content like LNBeats
       });
 
-      // Sort by Value4Value (prioritize V4V content)
-      const musicFeeds = (response.feeds || []).sort((a, b) => {
+      // Filter for actual music content
+      const musicFeeds = (response.feeds || []).filter((feed: PodcastIndexPodcast) => {
+        const title = feed.title?.toLowerCase() || '';
+        const description = feed.description?.toLowerCase() || '';
+        const categories = Object.values(feed.categories || {}).join(' ').toLowerCase();
+        const queryLower = query.toLowerCase();
+        
+        // Must contain search query and music indicators
+        const hasQuery = title.includes(queryLower) || description.includes(queryLower);
+        const musicKeywords = ['music', 'album', 'song', 'track', 'artist', 'band', 'musician', 'singer'];
+        const hasMusicKeyword = musicKeywords.some(keyword => 
+          title.includes(keyword) || description.includes(keyword) || categories.includes(keyword)
+        );
+
+        // Exclude obvious non-music content
+        const excludeKeywords = ['podcast', 'news', 'sports', 'talk', 'interview', 'radio show', 'comedy'];
+        const hasExcludeKeyword = excludeKeywords.some(keyword => 
+          title.includes(keyword) || description.includes(keyword)
+        );
+
+        return hasQuery && hasMusicKeyword && !hasExcludeKeyword;
+      })
+      .sort((a, b) => {
+        // Sort by Value4Value (prioritize V4V content)
         const aHasValue = a.value?.destinations?.length > 0;
         const bHasValue = b.value?.destinations?.length > 0;
         if (aHasValue && !bHasValue) return -1;
         if (!aHasValue && bHasValue) return 1;
         return 0;
-      });
+      })
+      .slice(0, 20);
 
       return {
         feeds: musicFeeds,
@@ -178,20 +200,42 @@ export function useSearchEpisodes(query: string, options: { enabled?: boolean } 
       if (!query.trim()) return { episodes: [], count: 0 };
 
       const response = await podcastIndexFetch<PodcastIndexEpisode>('/search/byterm', {
-        q: query.trim(),
-        max: '20',
+        q: `${query.trim()} music`,  // Add 'music' to search to bias towards music content
+        max: '50',
         clean: 'true',
-        medium: 'music', // Only show music content like LNBeats
       });
 
-      // Sort by Value4Value (prioritize V4V content)
-      const musicEpisodes = (response.episodes || []).sort((a, b) => {
+      // Filter for actual music episodes
+      const musicEpisodes = (response.episodes || []).filter((episode: PodcastIndexEpisode) => {
+        const title = episode.title?.toLowerCase() || '';
+        const description = episode.description?.toLowerCase() || '';
+        const feedTitle = episode.feedTitle?.toLowerCase() || '';
+        const queryLower = query.toLowerCase();
+        
+        // Must contain search query and music indicators
+        const hasQuery = title.includes(queryLower) || description.includes(queryLower) || feedTitle.includes(queryLower);
+        const musicKeywords = ['music', 'album', 'song', 'track', 'artist', 'band', 'musician', 'singer'];
+        const hasMusicKeyword = musicKeywords.some(keyword => 
+          title.includes(keyword) || description.includes(keyword) || feedTitle.includes(keyword)
+        );
+
+        // Exclude obvious non-music content
+        const excludeKeywords = ['podcast', 'news', 'sports', 'talk', 'interview', 'radio show', 'comedy'];
+        const hasExcludeKeyword = excludeKeywords.some(keyword => 
+          title.includes(keyword) || description.includes(keyword) || feedTitle.includes(keyword)
+        );
+
+        return hasQuery && hasMusicKeyword && !hasExcludeKeyword;
+      })
+      .sort((a, b) => {
+        // Sort by Value4Value (prioritize V4V content)
         const aHasValue = a.value?.destinations?.length > 0;
         const bHasValue = b.value?.destinations?.length > 0;
         if (aHasValue && !bHasValue) return -1;
         if (!aHasValue && bHasValue) return 1;
         return 0;
-      });
+      })
+      .slice(0, 20);
 
       return {
         episodes: musicEpisodes,
@@ -226,20 +270,64 @@ export function useTrendingPodcasts() {
   return useQuery({
     queryKey: ['podcast-index', 'trending'],
     queryFn: async () => {
-      const response = await podcastIndexFetch<PodcastIndexPodcast>('/podcasts/trending', {
+      // Try to get music content specifically first
+      const musicResponse = await podcastIndexFetch<PodcastIndexPodcast>('/podcasts/bymedium', {
+        medium: 'music',
         max: '20',
-        lang: 'en',
-        medium: 'music', // Only show music content like LNBeats
       });
 
-      // Sort by Value4Value (prioritize V4V content)
-      const musicFeeds = (response.feeds || []).sort((a, b) => {
+      if (musicResponse.feeds && musicResponse.feeds.length > 0) {
+        // Sort by Value4Value (prioritize V4V content)
+        const musicFeeds = musicResponse.feeds.sort((a, b) => {
+          const aHasValue = a.value?.destinations?.length > 0;
+          const bHasValue = b.value?.destinations?.length > 0;
+          if (aHasValue && !bHasValue) return -1;
+          if (!aHasValue && bHasValue) return 1;
+          return 0;
+        });
+
+        return {
+          feeds: musicFeeds,
+          count: musicFeeds.length,
+        };
+      }
+
+      // Fallback: search for music-related content
+      const searchResponse = await podcastIndexFetch<PodcastIndexPodcast>('/search/byterm', {
+        q: 'music',
+        max: '50',
+        clean: 'true',
+      });
+
+      // Filter for actual music content
+      const musicFeeds = (searchResponse.feeds || []).filter((feed: PodcastIndexPodcast) => {
+        const title = feed.title?.toLowerCase() || '';
+        const description = feed.description?.toLowerCase() || '';
+        const categories = Object.values(feed.categories || {}).join(' ').toLowerCase();
+        
+        // Strong music indicators
+        const musicKeywords = ['music', 'album', 'song', 'track', 'artist', 'band', 'musician', 'singer'];
+        const hasMusicKeyword = musicKeywords.some(keyword => 
+          title.includes(keyword) || description.includes(keyword) || categories.includes(keyword)
+        );
+
+        // Exclude obvious non-music content
+        const excludeKeywords = ['podcast', 'news', 'sports', 'talk', 'interview', 'radio show', 'comedy'];
+        const hasExcludeKeyword = excludeKeywords.some(keyword => 
+          title.includes(keyword) || description.includes(keyword)
+        );
+
+        return hasMusicKeyword && !hasExcludeKeyword;
+      })
+      .sort((a, b) => {
+        // Sort by Value4Value (prioritize V4V content)
         const aHasValue = a.value?.destinations?.length > 0;
         const bHasValue = b.value?.destinations?.length > 0;
         if (aHasValue && !bHasValue) return -1;
         if (!aHasValue && bHasValue) return 1;
         return 0;
-      });
+      })
+      .slice(0, 20);
 
       return {
         feeds: musicFeeds,
@@ -254,20 +342,41 @@ export function useRecentEpisodes() {
   return useQuery({
     queryKey: ['podcast-index', 'recent-episodes'],
     queryFn: async () => {
+      // Get more episodes to filter through
       const response = await podcastIndexFetch<PodcastIndexEpisode>('/recent/episodes', {
-        max: '20',
+        max: '100',
         excludeString: 'trailer,preview',
-        medium: 'music', // Only show music content like LNBeats
       });
 
-      // Sort by Value4Value (prioritize V4V content)
-      const musicEpisodes = (response.episodes || []).sort((a, b) => {
+      // Filter for actual music episodes
+      const musicEpisodes = (response.episodes || []).filter((episode: PodcastIndexEpisode) => {
+        const title = episode.title?.toLowerCase() || '';
+        const description = episode.description?.toLowerCase() || '';
+        const feedTitle = episode.feedTitle?.toLowerCase() || '';
+        
+        // Must have music indicators
+        const musicKeywords = ['music', 'album', 'song', 'track', 'artist', 'band', 'musician', 'singer'];
+        const hasMusicKeyword = musicKeywords.some(keyword => 
+          title.includes(keyword) || description.includes(keyword) || feedTitle.includes(keyword)
+        );
+
+        // Exclude obvious non-music content
+        const excludeKeywords = ['podcast', 'news', 'sports', 'talk', 'interview', 'radio show', 'comedy'];
+        const hasExcludeKeyword = excludeKeywords.some(keyword => 
+          title.includes(keyword) || description.includes(keyword) || feedTitle.includes(keyword)
+        );
+
+        return hasMusicKeyword && !hasExcludeKeyword;
+      })
+      .sort((a, b) => {
+        // Sort by Value4Value (prioritize V4V content)
         const aHasValue = a.value?.destinations?.length > 0;
         const bHasValue = b.value?.destinations?.length > 0;
         if (aHasValue && !bHasValue) return -1;
         if (!aHasValue && bHasValue) return 1;
         return 0;
-      });
+      })
+      .slice(0, 20);
 
       return {
         episodes: musicEpisodes,
