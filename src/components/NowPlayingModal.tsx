@@ -114,7 +114,7 @@ export function NowPlayingModal({ open, onOpenChange }: NowPlayingModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl p-0 bg-gradient-to-br from-background via-background to-muted">
+      <DialogContent className="max-w-2xl p-0 bg-gradient-to-br from-background via-background to-muted [&>button]:hidden">
         <audio
           ref={audioRef}
           src={currentPodcast.url}
