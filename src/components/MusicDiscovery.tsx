@@ -91,10 +91,18 @@ function SupportArtistButton({
       setStatus('Connecting...');
       await window.webln.enable();
       setStatus(`Sending ${amount} sats...`);
+      console.log('Attempting payment:', { lightningAddress, amount });
       await window.webln.lnurlPay(lightningAddress, { amount });
       setStatus('Payment sent! ⚡');
     } catch (err) {
-      setStatus('Payment failed.');
+      console.error('WebLN payment error:', err);
+      console.error('Error details:', {
+        message: err.message,
+        name: err.name,
+        lightningAddress,
+        amount
+      });
+      setStatus(`Payment failed: ${err.message || 'Unknown error'}`);
     }
   };
 
