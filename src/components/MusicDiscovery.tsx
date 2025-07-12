@@ -26,9 +26,12 @@ declare global {
 // --- SupportArtistButton ---
 function SupportArtistButton({ value }: { value?: PodcastIndexEpisode['value'] | PodcastIndexPodcast['value'] }) {
   // Find the first lud16 address in the value block
-  const destination = value?.destinations?.find(dest => dest.type === 'lud16');
+  const destination = value?.destinations?.find(dest => dest.address?.includes('@'));
   const lightningAddress = destination?.address;
   const [status, setStatus] = useState('');
+  
+  console.log('SupportArtistButton - value block:', value);
+  console.log('SupportArtistButton - found destination:', destination);
 
   const handleSupport = async () => {
     if (!lightningAddress) {
@@ -131,6 +134,13 @@ export function MusicDiscovery() {
   const { data: albumTracksData } = usePodcastEpisodes(expandedAlbum || 0, { enabled: expandedAlbum !== null });
 
   const handlePlayTrack = (episode: PodcastIndexEpisode) => {
+    // Log the value block data for debugging
+    console.log('Track value block:', {
+      title: episode.title,
+      value: episode.value,
+      hasDestinations: episode.value?.destinations?.length > 0
+    });
+    
     playPodcast({
       id: episode.id.toString(),
       title: episode.title,
@@ -143,6 +153,7 @@ export function MusicDiscovery() {
 
   const handlePlayAlbum = async (podcast: PodcastIndexPodcast) => {
     console.log('Play button clicked for:', podcast.title, 'Feed ID:', podcast.id);
+    console.log('Album value block:', podcast.value);
     
     // First try to fetch episodes for this feed
     setSelectedFeedId(podcast.id);
@@ -177,6 +188,7 @@ export function MusicDiscovery() {
     if (episodesData && Array.isArray(episodesData.episodes) && episodesData.episodes.length > 0) {
       const firstEpisode = episodesData.episodes[0];
       console.log('Episodes loaded for feed:', selectedFeedId, episodesData.episodes);
+      console.log('First episode value block:', firstEpisode.value);
       console.log('First episode:', firstEpisode);
       if (firstEpisode && firstEpisode.enclosureUrl) {
         console.log('Playing episode:', firstEpisode.title, firstEpisode.enclosureUrl);
