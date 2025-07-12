@@ -176,8 +176,9 @@ function SupportArtistButton({ destination, amount = 100 }: {
 
 // --- ValueBlockInfo Component ---
 function ValueBlockInfo({ value }: { value?: PodcastIndexEpisode['value'] | PodcastIndexPodcast['value'] }) {
-  console.log('ValueBlockInfo rendering with:', value);
-  console.log('Raw destinations:', JSON.stringify(value?.destinations, null, 2));
+  console.log('💰 VALUEBLOCK COMPONENT CALLED');
+  console.log('💰 ValueBlockInfo rendering with:', value);
+  console.log('💰 Raw destinations:', JSON.stringify(value?.destinations, null, 2));
   
   if (!value || !value.destinations?.length) {
     console.log('ValueBlockInfo not rendering - no value or destinations');
@@ -252,7 +253,8 @@ export function MusicDiscovery() {
 
   const handlePlayTrack = (episode: PodcastIndexEpisode) => {
     // Log the value block data for debugging
-    console.log('Track value block:', {
+    console.log('🎵 TRACK CLICKED:', episode.title);
+    console.log('🎵 Track value block:', {
       title: episode.title,
       value: episode.value,
       hasDestinations: episode.value?.destinations?.length > 0
