@@ -266,73 +266,123 @@ export function usePodcastEpisodes(feedId: number, options: { enabled?: boolean 
   });
 }
 
+// Top100 Music Chart from Podcast Index (same as LNBeats)
+interface Top100MusicEntry {
+  feedId: number;
+  feedTitle: string;
+  feedImage: string;
+  episodeId: number;
+  episodeTitle: string;
+  episodeImage: string;
+  satoshis: number;
+  rank: number;
+}
+
 export function useTrendingPodcasts() {
   return useQuery({
     queryKey: ['podcast-index', 'trending'],
     queryFn: async () => {
-      // Try to get music content specifically first
-      const musicResponse = await podcastIndexFetch<PodcastIndexPodcast>('/podcasts/bymedium', {
-        medium: 'music',
-        max: '20',
-      });
+      try {
+        // Use official Podcast Index Top100 Music chart (same as LNBeats)
+        const response = await fetch('https://stats.podcastindex.org/v4vmusic.json');
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch top100 music chart');
+        }
+        
+        const top100Data: Top100MusicEntry[] = await response.json();
+        
+        // Convert to our PodcastIndexPodcast format
+        const musicFeeds: PodcastIndexPodcast[] = top100Data.slice(0, 20).map((entry, index) => ({
+          id: entry.feedId,
+          title: entry.feedTitle,
+          url: '', // Not provided in top100 data
+          originalUrl: '',
+          link: '',
+          description: `Rank #${entry.rank} on V4V Music Chart with ${entry.satoshis.toLocaleString()} sats`,
+          author: entry.feedTitle,
+          ownerName: '',
+          image: entry.feedImage || entry.episodeImage,
+          artwork: entry.feedImage || entry.episodeImage,
+          lastUpdateTime: 0,
+          lastCrawlTime: 0,
+          lastParseTime: 0,
+          lastGoodHttpStatusTime: 0,
+          lastHttpStatus: 200,
+          contentType: '',
+          itunesType: 'music',
+          generator: '',
+          language: 'en',
+          type: 0,
+          dead: 0,
+          crawlErrors: 0,
+          parseErrors: 0,
+          categories: { 'music': 'Music' },
+          locked: 0,
+          imageUrlHash: 0,
+          newestItemPubdate: 0,
+          episodeCount: 1,
+          // Mark as Value4Value enabled (these are all from V4V chart)
+          value: {
+            model: {
+              type: 'lightning',
+              method: 'keysend',
+              suggested: '0.00000001000'
+            },
+            destinations: [{
+              name: entry.feedTitle,
+              address: '',
+              type: 'node',
+              split: 100
+            }]
+          }
+        }));
 
-      if (musicResponse.feeds && musicResponse.feeds.length > 0) {
-        // Sort by Value4Value (prioritize V4V content)
-        const musicFeeds = musicResponse.feeds.sort((a, b) => {
+        return {
+          feeds: musicFeeds,
+          count: musicFeeds.length,
+        };
+      } catch (error) {
+        console.error('Failed to fetch top100 music chart, falling back to search:', error);
+        
+        // Fallback to search-based approach
+        const searchResponse = await podcastIndexFetch<PodcastIndexPodcast>('/search/byterm', {
+          q: 'music',
+          max: '50',
+          clean: 'true',
+        });
+
+        const musicFeeds = (searchResponse.feeds || []).filter((feed: PodcastIndexPodcast) => {
+          const title = feed.title?.toLowerCase() || '';
+          const description = feed.description?.toLowerCase() || '';
+          const categories = Object.values(feed.categories || {}).join(' ').toLowerCase();
+          
+          const musicKeywords = ['music', 'album', 'song', 'track', 'artist', 'band', 'musician', 'singer'];
+          const hasMusicKeyword = musicKeywords.some(keyword => 
+            title.includes(keyword) || description.includes(keyword) || categories.includes(keyword)
+          );
+
+          const excludeKeywords = ['podcast', 'news', 'sports', 'talk', 'interview', 'radio show', 'comedy'];
+          const hasExcludeKeyword = excludeKeywords.some(keyword => 
+            title.includes(keyword) || description.includes(keyword)
+          );
+
+          return hasMusicKeyword && !hasExcludeKeyword;
+        })
+        .sort((a, b) => {
           const aHasValue = a.value?.destinations?.length > 0;
           const bHasValue = b.value?.destinations?.length > 0;
           if (aHasValue && !bHasValue) return -1;
           if (!aHasValue && bHasValue) return 1;
           return 0;
-        });
+        })
+        .slice(0, 20);
 
         return {
           feeds: musicFeeds,
           count: musicFeeds.length,
         };
       }
-
-      // Fallback: search for music-related content
-      const searchResponse = await podcastIndexFetch<PodcastIndexPodcast>('/search/byterm', {
-        q: 'music',
-        max: '50',
-        clean: 'true',
-      });
-
-      // Filter for actual music content
-      const musicFeeds = (searchResponse.feeds || []).filter((feed: PodcastIndexPodcast) => {
-        const title = feed.title?.toLowerCase() || '';
-        const description = feed.description?.toLowerCase() || '';
-        const categories = Object.values(feed.categories || {}).join(' ').toLowerCase();
-        
-        // Strong music indicators
-        const musicKeywords = ['music', 'album', 'song', 'track', 'artist', 'band', 'musician', 'singer'];
-        const hasMusicKeyword = musicKeywords.some(keyword => 
-          title.includes(keyword) || description.includes(keyword) || categories.includes(keyword)
-        );
-
-        // Exclude obvious non-music content
-        const excludeKeywords = ['podcast', 'news', 'sports', 'talk', 'interview', 'radio show', 'comedy'];
-        const hasExcludeKeyword = excludeKeywords.some(keyword => 
-          title.includes(keyword) || description.includes(keyword)
-        );
-
-        return hasMusicKeyword && !hasExcludeKeyword;
-      })
-      .sort((a, b) => {
-        // Sort by Value4Value (prioritize V4V content)
-        const aHasValue = a.value?.destinations?.length > 0;
-        const bHasValue = b.value?.destinations?.length > 0;
-        if (aHasValue && !bHasValue) return -1;
-        if (!aHasValue && bHasValue) return 1;
-        return 0;
-      })
-      .slice(0, 20);
-
-      return {
-        feeds: musicFeeds,
-        count: musicFeeds.length,
-      };
     },
     staleTime: 30 * 60 * 1000, // 30 minutes
   });
