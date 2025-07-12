@@ -1,7 +1,7 @@
 {
   "name": "Podtardstr - Decentralized Podcasting",
   "short_name": "Podtardstr",
-  "description": "Discover podcasts from Podcast Index and share recommendations on Nostr",
+  "description": "Podtardstr where Podcasting 2.0 meets Nostr",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

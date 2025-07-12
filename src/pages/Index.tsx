@@ -17,7 +17,7 @@ const Index = () => {
 
   useSeoMeta({
     title: 'Podtardstr - Decentralized Podcasting',
-    description: 'Discover podcasts from Podcast Index and share recommendations on Nostr. A decentralized podcasting platform built with React and Nostrify.',
+    description: 'Podtardstr where Podcasting 2.0 meets Nostr',
   });
 
   return (
