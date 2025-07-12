@@ -5,27 +5,21 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Play, Search, Zap, Bitcoin, Heart, ExternalLink } from 'lucide-react';
-import { useRecentMusicEpisodes, useMusicSearch, useMusicByCategory } from '@/hooks/useMusicIndex';
+import { useRecentMusicEpisodes, useMusicSearch } from '@/hooks/useMusicIndex';
 import { useTrendingPodcasts } from '@/hooks/usePodcastIndex';
 import { usePodcastPlayer } from '@/hooks/usePodcastPlayer';
 import { usePodcastEpisodes } from '@/hooks/usePodcastIndex';
 import type { PodcastIndexPodcast, PodcastIndexEpisode } from '@/hooks/usePodcastIndex';
 
-const musicCategories = [
-  'Rock', 'Pop', 'Jazz', 'Electronic', 'Hip Hop', 'Classical', 
-  'Folk', 'Country', 'Blues', 'Metal', 'Indie', 'Alternative'
-];
 
 export function MusicDiscovery() {
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedFeedId, setSelectedFeedId] = useState<number | null>(null);
   const { playPodcast } = usePodcastPlayer();
 
   const { data: trendingMusic, isLoading: trendingLoading } = useTrendingPodcasts(); // Use same hook as main trending
   const { data: recentEpisodes, isLoading: recentLoading } = useRecentMusicEpisodes();
   const { data: searchResults, isLoading: searchLoading } = useMusicSearch(searchQuery, { enabled: searchQuery.length > 2 });
-  const { data: categoryResults, isLoading: categoryLoading } = useMusicByCategory(selectedCategory);
   const { data: episodesData } = usePodcastEpisodes(selectedFeedId || 0, { enabled: selectedFeedId !== null });
 
   const handlePlayTrack = (episode: PodcastIndexEpisode) => {
@@ -206,71 +200,6 @@ export function MusicDiscovery() {
         </CardContent>
       </Card>
 
-      {/* Music Categories */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Browse by Genre</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap gap-2 mb-4">
-            {musicCategories.map((category) => (
-              <Button
-                key={category}
-                variant={selectedCategory === category ? "default" : "outline"}
-                size="sm"
-                onClick={() => setSelectedCategory(selectedCategory === category ? '' : category)}
-              >
-                {category}
-              </Button>
-            ))}
-          </div>
-          
-          {selectedCategory && (
-            <div className="mt-4">
-              {categoryLoading ? (
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                  {[...Array(6)].map((_, i) => (
-                    <Skeleton key={i} className="h-32 w-full" />
-                  ))}
-                </div>
-              ) : categoryResults && categoryResults.feeds.length > 0 ? (
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                  {categoryResults.feeds.map((feed) => (
-                    <Card key={feed.id} className="hover:shadow-md transition-shadow">
-                      <CardContent className="p-4">
-                        <div className="flex items-center gap-3">
-                          <img 
-                            src={feed.image || feed.artwork} 
-                            alt={feed.title}
-                            className="h-16 w-16 rounded object-cover"
-                          />
-                          <div className="flex-1 min-w-0">
-                            <h5 className="font-medium truncate">{feed.title}</h5>
-                            <p className="text-sm text-muted-foreground truncate">{feed.author}</p>
-                            <div className="flex items-center gap-2 mt-2">
-                              {hasValue4Value(feed) && (
-                                <Badge variant="secondary" className="flex items-center gap-1">
-                                  <Zap className="h-3 w-3" />
-                                  V4V
-                                </Badge>
-                              )}
-                              <Button size="sm" onClick={() => handlePlayAlbum(feed)}>
-                                <Play className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-muted-foreground">No {selectedCategory.toLowerCase()} music found</p>
-              )}
-            </div>
-          )}
-        </CardContent>
-      </Card>
 
       {/* Trending Music */}
       <Card>
