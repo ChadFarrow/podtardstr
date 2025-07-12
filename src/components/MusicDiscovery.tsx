@@ -17,6 +17,11 @@ declare global {
   interface WebLN {
     enable: () => Promise<void>;
     sendPayment: (paymentRequest: string) => Promise<any>;
+    keysend: (args: {
+      destination: string;
+      amount: number;
+      customRecords?: Record<string, string>;
+    }) => Promise<any>;
   }
   interface Window {
     webln?: WebLN;
@@ -68,12 +73,40 @@ function SupportArtistButton({ destination, amount = 100 }: {
         await window.webln.sendPayment(invoice);
         setStatus('Payment sent! ⚡');
       } else {
-        // Handle keysend - use a service to convert to invoice
-        setStatus('Creating keysend invoice...');
-        // Option 1: Use getalby.com keysend service
-        const keysendUrl = `https://getalby.com/keysend/${destination.address}?amount=${amount}&memo=Podtardstr%20Music%20Payment`;
-        window.open(keysendUrl, '_blank');
-        setStatus('Opened Alby keysend page');
+        // Handle keysend directly through WebLN
+        setStatus('Sending keysend payment...');
+        
+        // Check if the WebLN provider supports keysend
+        if (!window.webln.keysend) {
+          // Fallback to Alby keysend page if not supported
+          const keysendUrl = `https://getalby.com/keysend/${destination.address}?amount=${amount}&memo=Podtardstr%20Music%20Payment`;
+          window.open(keysendUrl, '_blank');
+          setStatus('Opened Alby keysend page');
+          return;
+        }
+        
+        // V4V spec uses customKey/customValue for metadata
+        const customRecords: Record<string, string> = {};
+        
+        // Add podcast metadata if available (7629169 is the standard podcast TLV type)
+        if (destination.name) {
+          customRecords['7629169'] = JSON.stringify({
+            podcast: 'Podtardstr Music',
+            feedID: 'music',
+            episode: destination.name,
+            ts: 0,
+            name: destination.name,
+            sender_name: 'Podtardstr User'
+          });
+        }
+        
+        await window.webln.keysend({
+          destination: destination.address,
+          amount: amount,
+          customRecords
+        });
+        
+        setStatus('Keysend payment sent! ⚡');
       }
     } catch (err) {
       console.error('WebLN payment error:', err);
