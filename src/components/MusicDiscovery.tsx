@@ -40,6 +40,7 @@ function SupportArtistButton() {
       await window.webln.lnurlPay(lightningAddress, { amount: 33 });
       setStatus('Payment sent! Thank you for supporting the artist.');
     } catch (err) {
+      console.error('WebLN payment error:', err);
       setStatus('Payment failed or cancelled.');
     }
   };
