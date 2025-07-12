@@ -121,24 +121,6 @@ const Index = () => {
 
           <main className="flex-1 p-6 overflow-auto">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-4 mb-6">
-                <TabsTrigger value="discover" className="flex items-center gap-2">
-                  <TrendingUp className="h-4 w-4" />
-                  Discover
-                </TabsTrigger>
-                <TabsTrigger value="search" className="flex items-center gap-2">
-                  <Search className="h-4 w-4" />
-                  Search
-                </TabsTrigger>
-                <TabsTrigger value="music" className="flex items-center gap-2">
-                  <Radio className="h-4 w-4" />
-                  Music
-                </TabsTrigger>
-                <TabsTrigger value="nostr" className="flex items-center gap-2">
-                  <MessageSquare className="h-4 w-4" />
-                  Nostr
-                </TabsTrigger>
-              </TabsList>
 
               <TabsContent value="discover" className="space-y-6">
                 <PodcastDiscovery />
