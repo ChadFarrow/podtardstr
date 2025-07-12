@@ -24,6 +24,7 @@ export function useMusicSearch(query: string, options: { enabled?: boolean } = {
           max: '50', 
           clean: 'true',
           medium: 'music',
+          type: 'episode',
         })
       ]);
 
@@ -39,7 +40,7 @@ export function useMusicSearch(query: string, options: { enabled?: boolean } = {
         return 0;
       });
 
-      const musicEpisodes = (episodeResponse.episodes || episodeResponse.items || []).sort((a, b) => {
+      const musicEpisodes = (episodeResponse.episodes || episodeResponse.items || episodeResponse.feeds || []).sort((a, b) => {
         const aHasValue = a.value?.destinations?.length > 0;
         const bHasValue = b.value?.destinations?.length > 0;
         if (aHasValue && !bHasValue) return -1;
