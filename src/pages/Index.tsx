@@ -8,7 +8,7 @@ import { RelaySelector } from '@/components/RelaySelector';
 import { Sidebar, SidebarContent, SidebarHeader, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Radio, Search, TrendingUp, MessageSquare } from 'lucide-react';
+import { Music, Search, TrendingUp, MessageSquare } from 'lucide-react';
 import { useState } from 'react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 
@@ -17,7 +17,7 @@ const Index = () => {
 
   useSeoMeta({
     title: 'Podtardstr',
-    description: 'Podtardstr where Podcasting 2.0 meets Nostr - bringing together podcasting, music, audiobooks, poetry, self-hosting, Bitcoin, and whatever else we can dream up together',
+    description: 'Podtardstr where music meets Nostr - discover and stream music with Value4Value',
   });
 
   return (
@@ -26,10 +26,10 @@ const Index = () => {
         <Sidebar className="border-r">
           <SidebarHeader className="p-6">
             <div className="flex items-center gap-2 mb-6">
-              <Radio className="h-8 w-8 text-primary" />
+              <Music className="h-8 w-8 text-primary" />
               <div>
                 <h1 className="text-2xl font-bold">Podtardstr</h1>
-                <p className="text-xs text-muted-foreground">Podcast Index + Nostr</p>
+                <p className="text-xs text-muted-foreground">Music + Nostr + Value4Value</p>
               </div>
             </div>
 
@@ -91,14 +91,14 @@ const Index = () => {
               <SidebarTrigger />
               <div>
                 <h2 className="text-xl font-semibold">
-                  {activeTab === 'discover' && 'Discover Podcasts'}
-                  {activeTab === 'search' && 'Search Podcast Index'}
-                  {activeTab === 'nostr' && 'Nostr Discussions'}
+                  {activeTab === 'discover' && 'Discover Music'}
+                  {activeTab === 'search' && 'Search Music'}
+                  {activeTab === 'nostr' && 'Music on Nostr'}
                 </h2>
                 <p className="text-sm text-muted-foreground">
-                  {activeTab === 'discover' && 'Trending podcasts and recent episodes'}
-                  {activeTab === 'search' && 'Find podcasts and episodes from Podcast Index'}
-                  {activeTab === 'nostr' && 'Podcast recommendations and discussions on Nostr'}
+                  {activeTab === 'discover' && 'Trending music and recent releases'}
+                  {activeTab === 'search' && 'Find music and tracks from Podcast Index'}
+                  {activeTab === 'nostr' && 'Music recommendations and discussions on Nostr'}
                 </p>
               </div>
             </div>

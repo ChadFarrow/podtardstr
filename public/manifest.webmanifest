@@ -1,7 +1,7 @@
 {
   "name": "Podtardstr",
   "short_name": "Podtardstr",
-  "description": "Podtardstr where Podcasting 2.0 meets Nostr - bringing together podcasting, music, audiobooks, poetry, self-hosting, Bitcoin, and whatever else we can dream up together",
+  "description": "Podtardstr where music meets Nostr - discover and stream music with Value4Value",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
