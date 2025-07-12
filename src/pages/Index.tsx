@@ -17,7 +17,7 @@ const Index = () => {
 
   useSeoMeta({
     title: 'Podtardstr',
-    description: 'Podtardstr where Podcasting 2.0 meets Nostr',
+    description: 'Podtardstr where Podcasting 2.0 meets Nostr - bringing together podcasting, music, audiobooks, poetry, self-hosting, Bitcoin, and whatever else we can dream up together',
   });
 
   return (
