@@ -9,8 +9,6 @@ export function useMusicSearch(query: string, options: { enabled?: boolean } = {
     queryFn: async () => {
       if (!query.trim()) return { feeds: [], episodes: [], count: 0 };
 
-      console.log('Searching for:', query);
-
       // Search for music content only using medium=music filter
       const [podcastResponse, episodeResponse] = await Promise.all([
         podcastIndexFetch<PodcastIndexPodcast>('/search/byterm', {
@@ -27,9 +25,6 @@ export function useMusicSearch(query: string, options: { enabled?: boolean } = {
           type: 'episode',
         })
       ]);
-
-      console.log('Podcast search response:', podcastResponse);
-      console.log('Episode search response:', episodeResponse);
 
       // Sort by Value4Value (prioritize V4V content)
       const musicFeeds = (podcastResponse.feeds || []).sort((a, b) => {
