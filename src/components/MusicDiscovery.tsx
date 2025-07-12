@@ -68,15 +68,14 @@ export function MusicDiscovery() {
 
   // Auto-play first episode when episodes are loaded
   React.useEffect(() => {
-    if (episodesData?.episodes?.length > 0) {
+    if (episodesData && Array.isArray(episodesData.episodes) && episodesData.episodes.length > 0) {
       const firstEpisode = episodesData.episodes[0];
       console.log('Episodes loaded for feed:', selectedFeedId, episodesData.episodes);
       console.log('First episode:', firstEpisode);
-      
-      if (firstEpisode.enclosureUrl) {
+      if (firstEpisode && firstEpisode.enclosureUrl) {
         console.log('Playing episode:', firstEpisode.title, firstEpisode.enclosureUrl);
         handlePlayTrack(firstEpisode);
-      } else {
+      } else if (firstEpisode) {
         console.log('No enclosure URL found for episode:', firstEpisode.title);
       }
       setSelectedFeedId(null); // Reset after playing
@@ -210,6 +209,12 @@ export function MusicDiscovery() {
                         alt={feed.title}
                         className="h-16 w-16 rounded object-cover"
                       />
+                      {/* Centered play button column */}
+                      <div className="flex flex-col items-center justify-center flex-shrink-0 w-16">
+                        <Button size="icon" onClick={() => handlePlayAlbum(feed)} className="h-10 w-10 flex items-center justify-center">
+                          <Play className="h-5 w-5" />
+                        </Button>
+                      </div>
                       <div className="flex-1 min-w-0">
                         <h5 className="font-medium truncate">{feed.title}</h5>
                         <button 
@@ -219,11 +224,6 @@ export function MusicDiscovery() {
                           {feed.author}
                         </button>
                         <p className="text-xs text-muted-foreground mt-1">{feed.description}</p>
-                        <div className="flex items-center gap-2 mt-2">
-                          <Button size="sm" onClick={() => handlePlayAlbum(feed)}>
-                            <Play className="h-4 w-4" />
-                          </Button>
-                        </div>
                       </div>
                     </div>
                   </CardContent>
