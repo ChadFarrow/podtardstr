@@ -9,9 +9,10 @@ import { RelaySelector } from '@/components/RelaySelector';
 import { Sidebar, SidebarContent, SidebarHeader, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Radio, Upload, Settings, Search, TrendingUp, MessageSquare, Rss } from 'lucide-react';
+import { Radio, Upload, Search, TrendingUp, MessageSquare, Rss } from 'lucide-react';
 import { useState } from 'react';
 import { PublishPodcastDialog } from '@/components/PublishPodcastDialog';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 const Index = () => {
   const [showPublishDialog, setShowPublishDialog] = useState(false);
@@ -124,9 +125,7 @@ const Index = () => {
             </div>
 
             <div className="flex items-center gap-2">
-              <Button variant="ghost" size="icon">
-                <Settings className="h-4 w-4" />
-              </Button>
+              <ThemeToggle />
             </div>
           </header>
 
