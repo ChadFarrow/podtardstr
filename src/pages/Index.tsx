@@ -1,5 +1,4 @@
 import { useSeoMeta } from '@unhead/react';
-import { PodcastFeed } from '@/components/PodcastFeed';
 import { PodcastPlayer } from '@/components/PodcastPlayer';
 import { PodcastSearch } from '@/components/PodcastSearch';
 import { PodcastDiscovery } from '@/components/PodcastDiscovery';
@@ -9,17 +8,15 @@ import { RelaySelector } from '@/components/RelaySelector';
 import { Sidebar, SidebarContent, SidebarHeader, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Radio, Upload, Search, TrendingUp, MessageSquare, Rss } from 'lucide-react';
+import { Radio, Search, TrendingUp, MessageSquare } from 'lucide-react';
 import { useState } from 'react';
-import { PublishPodcastDialog } from '@/components/PublishPodcastDialog';
 import { ThemeToggle } from '@/components/ThemeToggle';
 
 const Index = () => {
-  const [showPublishDialog, setShowPublishDialog] = useState(false);
   const [activeTab, setActiveTab] = useState('discover');
 
   useSeoMeta({
-    title: 'NostrCast - Decentralized Podcasting',
+    title: 'Podtardstr - Decentralized Podcasting',
     description: 'Discover podcasts from Podcast Index and share recommendations on Nostr. A decentralized podcasting platform built with React and Nostrify.',
   });
 
@@ -31,7 +28,7 @@ const Index = () => {
             <div className="flex items-center gap-2 mb-6">
               <Radio className="h-8 w-8 text-primary" />
               <div>
-                <h1 className="text-2xl font-bold">NostrCast</h1>
+                <h1 className="text-2xl font-bold">Podtardstr</h1>
                 <p className="text-xs text-muted-foreground">Podcast Index + Nostr</p>
               </div>
             </div>
@@ -39,14 +36,6 @@ const Index = () => {
             <div className="space-y-4">
               <LoginArea className="w-full" />
 
-              <Button
-                onClick={() => setShowPublishDialog(true)}
-                className="w-full"
-                variant="outline"
-              >
-                <Upload className="h-4 w-4 mr-2" />
-                Publish Episode
-              </Button>
             </div>
           </SidebarHeader>
 
@@ -84,14 +73,6 @@ const Index = () => {
                     <MessageSquare className="h-4 w-4 mr-2" />
                     Nostr Feed
                   </Button>
-                  <Button
-                    variant={activeTab === 'published' ? 'secondary' : 'ghost'}
-                    className="w-full justify-start text-sm"
-                    onClick={() => setActiveTab('published')}
-                  >
-                    <Rss className="h-4 w-4 mr-2" />
-                    Published
-                  </Button>
                 </div>
               </div>
 
@@ -113,13 +94,11 @@ const Index = () => {
                   {activeTab === 'discover' && 'Discover Podcasts'}
                   {activeTab === 'search' && 'Search Podcast Index'}
                   {activeTab === 'nostr' && 'Nostr Discussions'}
-                  {activeTab === 'published' && 'Published Episodes'}
                 </h2>
                 <p className="text-sm text-muted-foreground">
                   {activeTab === 'discover' && 'Trending podcasts and recent episodes'}
                   {activeTab === 'search' && 'Find podcasts and episodes from Podcast Index'}
                   {activeTab === 'nostr' && 'Podcast recommendations and discussions on Nostr'}
-                  {activeTab === 'published' && 'Episodes published on Nostr'}
                 </p>
               </div>
             </div>
@@ -131,7 +110,7 @@ const Index = () => {
 
           <main className="flex-1 p-6 overflow-auto">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-4 mb-6">
+              <TabsList className="grid w-full grid-cols-3 mb-6">
                 <TabsTrigger value="discover" className="flex items-center gap-2">
                   <TrendingUp className="h-4 w-4" />
                   Discover
@@ -143,10 +122,6 @@ const Index = () => {
                 <TabsTrigger value="nostr" className="flex items-center gap-2">
                   <MessageSquare className="h-4 w-4" />
                   Nostr
-                </TabsTrigger>
-                <TabsTrigger value="published" className="flex items-center gap-2">
-                  <Rss className="h-4 w-4" />
-                  Published
                 </TabsTrigger>
               </TabsList>
 
@@ -162,9 +137,6 @@ const Index = () => {
                 <NostrPodcastFeed />
               </TabsContent>
 
-              <TabsContent value="published" className="space-y-6">
-                <PodcastFeed />
-              </TabsContent>
             </Tabs>
           </main>
 
@@ -172,10 +144,6 @@ const Index = () => {
         </div>
       </div>
 
-      <PublishPodcastDialog
-        open={showPublishDialog}
-        onOpenChange={setShowPublishDialog}
-      />
     </SidebarProvider>
   );
 };
