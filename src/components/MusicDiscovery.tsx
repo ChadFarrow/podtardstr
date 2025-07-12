@@ -123,39 +123,6 @@ export function MusicDiscovery() {
                 </div>
               ) : searchResults && (searchResults.feeds.length > 0 || searchResults.episodes.length > 0) ? (
                 <div className="space-y-4">
-                  {searchResults.feeds.length > 0 && (
-                    <div>
-                      <h4 className="font-medium mb-2">Albums & Artists</h4>
-                      <div className="grid gap-3">
-                        {searchResults.feeds.map((feed) => (
-                          <div key={feed.id} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-muted">
-                            <img 
-                              src={feed.image || feed.artwork} 
-                              alt={feed.title}
-                              className="h-12 w-12 rounded object-cover"
-                            />
-                            <div className="flex-1 min-w-0">
-                              <h5 className="font-medium truncate">{feed.title}</h5>
-                              <p className="text-sm text-muted-foreground truncate">{feed.author}</p>
-                            </div>
-                            {hasValue4Value(feed) && (
-                              <Badge variant="secondary" className="flex items-center gap-1">
-                                <Zap className="h-3 w-3" />
-                                V4V
-                              </Badge>
-                            )}
-                            <Button 
-                              size="sm" 
-                              onClick={() => handlePlayAlbum(feed)}
-                            >
-                              <Play className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  
                   {searchResults.episodes.length > 0 && (
                     <div>
                       <h4 className="font-medium mb-2">Tracks</h4>
@@ -183,6 +150,39 @@ export function MusicDiscovery() {
                             <Button 
                               size="sm" 
                               onClick={() => handlePlayTrack(episode)}
+                            >
+                              <Play className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {searchResults.feeds.length > 0 && (
+                    <div>
+                      <h4 className="font-medium mb-2">Albums & Artists</h4>
+                      <div className="grid gap-3">
+                        {searchResults.feeds.map((feed) => (
+                          <div key={feed.id} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-muted">
+                            <img 
+                              src={feed.image || feed.artwork} 
+                              alt={feed.title}
+                              className="h-12 w-12 rounded object-cover"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <h5 className="font-medium truncate">{feed.title}</h5>
+                              <p className="text-sm text-muted-foreground truncate">{feed.author}</p>
+                            </div>
+                            {hasValue4Value(feed) && (
+                              <Badge variant="secondary" className="flex items-center gap-1">
+                                <Zap className="h-3 w-3" />
+                                V4V
+                              </Badge>
+                            )}
+                            <Button 
+                              size="sm" 
+                              onClick={() => handlePlayAlbum(feed)}
                             >
                               <Play className="h-4 w-4" />
                             </Button>

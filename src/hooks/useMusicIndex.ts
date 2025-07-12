@@ -19,7 +19,7 @@ export function useMusicSearch(query: string, options: { enabled?: boolean } = {
         }),
         podcastIndexFetch<PodcastIndexEpisode>('/search/byterm', {
           q: query.trim(),
-          max: '20', 
+          max: '50', 
           clean: 'true',
           medium: 'music',
         })
@@ -34,7 +34,7 @@ export function useMusicSearch(query: string, options: { enabled?: boolean } = {
         return 0;
       });
 
-      const musicEpisodes = (episodeResponse.episodes || []).sort((a, b) => {
+      const musicEpisodes = (episodeResponse.episodes || episodeResponse.items || []).sort((a, b) => {
         const aHasValue = a.value?.destinations?.length > 0;
         const bHasValue = b.value?.destinations?.length > 0;
         if (aHasValue && !bHasValue) return -1;
@@ -66,7 +66,7 @@ export function useRecentMusicEpisodes() {
       });
 
       // Sort by Value4Value (prioritize V4V content)
-      const musicEpisodes = (response.episodes || []).sort((a, b) => {
+      const musicEpisodes = (response.episodes || response.items || []).sort((a, b) => {
         const aHasValue = a.value?.destinations?.length > 0;
         const bHasValue = b.value?.destinations?.length > 0;
         if (aHasValue && !bHasValue) return -1;
