@@ -118,7 +118,7 @@ function generateAuthHeaders() {
   };
 }
 
-async function podcastIndexFetch<T>(endpoint: string, params: Record<string, string> = {}): Promise<PodcastIndexResponse<T>> {
+export async function podcastIndexFetch<T>(endpoint: string, params: Record<string, string> = {}): Promise<PodcastIndexResponse<T>> {
   const url = new URL(`${BASE_URL}${endpoint}`);
   Object.entries(params).forEach(([key, value]) => {
     url.searchParams.append(key, value);
