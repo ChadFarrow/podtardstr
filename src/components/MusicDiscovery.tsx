@@ -413,8 +413,8 @@ export function MusicDiscovery() {
                               {episode.duration && (
                                 <p className="text-xs text-muted-foreground">{formatDuration(episode.duration)}</p>
                               )}
-                              {/* SupportArtistButton for track */}
-                              <ValueBlockInfo value={episode.value} />
+                              {/* ValueBlock info for track - always show for music */}
+                              <ValueBlockInfo value={episode.value || { model: { type: 'streaming', method: 'keysend', suggested: '10' }, destinations: [] }} />
                             </div>
                             <Button 
                               size="sm" 
@@ -482,8 +482,8 @@ export function MusicDiscovery() {
                           {feed.author}
                         </button>
                         <p className="text-xs text-muted-foreground mt-1">{feed.description}</p>
-                        {/* SupportArtistButton for album */}
-                        <ValueBlockInfo value={feed.value} />
+                        {/* ValueBlock info for album - always show for music */}
+                        <ValueBlockInfo value={feed.value || { model: { type: 'streaming', method: 'keysend', suggested: '10' }, destinations: [] }} />
                       </div>
                     </div>
                   </CardContent>
@@ -534,8 +534,8 @@ export function MusicDiscovery() {
                       {episode.duration && <span>{formatDuration(episode.duration)}</span>}
                       <span>{new Date(episode.datePublished * 1000).toLocaleDateString()}</span>
                     </div>
-                    {/* SupportArtistButton for track */}
-                    <ValueBlockInfo value={episode.value} />
+                    {/* ValueBlock info for track - always show for music */}
+                    <ValueBlockInfo value={episode.value || { model: { type: 'streaming', method: 'keysend', suggested: '10' }, destinations: [] }} />
                   </div>
                   <Button 
                     size="sm" 
