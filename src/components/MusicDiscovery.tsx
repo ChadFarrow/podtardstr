@@ -40,6 +40,7 @@ export function MusicDiscovery() {
   };
 
   const handlePlayAlbum = (podcast: PodcastIndexPodcast) => {
+    console.log('Play button clicked for:', podcast.title, 'Feed ID:', podcast.id);
     // Set the feed ID to trigger episode fetching, then play the first episode
     setSelectedFeedId(podcast.id);
   };
@@ -48,10 +49,18 @@ export function MusicDiscovery() {
   React.useEffect(() => {
     if (episodesData?.episodes?.length > 0) {
       const firstEpisode = episodesData.episodes[0];
+      console.log('Episodes loaded for feed:', selectedFeedId, episodesData.episodes);
+      console.log('First episode:', firstEpisode);
+      
       if (firstEpisode.enclosureUrl) {
+        console.log('Playing episode:', firstEpisode.title, firstEpisode.enclosureUrl);
         handlePlayTrack(firstEpisode);
+      } else {
+        console.log('No enclosure URL found for episode:', firstEpisode.title);
       }
       setSelectedFeedId(null); // Reset after playing
+    } else if (selectedFeedId !== null) {
+      console.log('No episodes found for feed:', selectedFeedId);
     }
   }, [episodesData]);
 
