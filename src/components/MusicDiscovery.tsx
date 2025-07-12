@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -8,6 +8,7 @@ import { Play, Search, Zap, Bitcoin, Heart, ExternalLink } from 'lucide-react';
 import { useRecentMusicEpisodes, useMusicSearch, useMusicByCategory } from '@/hooks/useMusicIndex';
 import { useTrendingPodcasts } from '@/hooks/usePodcastIndex';
 import { usePodcastPlayer } from '@/hooks/usePodcastPlayer';
+import { usePodcastEpisodes } from '@/hooks/usePodcastIndex';
 import type { PodcastIndexPodcast, PodcastIndexEpisode } from '@/hooks/usePodcastIndex';
 
 const musicCategories = [
@@ -18,12 +19,14 @@ const musicCategories = [
 export function MusicDiscovery() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedFeedId, setSelectedFeedId] = useState<number | null>(null);
   const { playPodcast } = usePodcastPlayer();
 
   const { data: trendingMusic, isLoading: trendingLoading } = useTrendingPodcasts(); // Use same hook as main trending
   const { data: recentEpisodes, isLoading: recentLoading } = useRecentMusicEpisodes();
   const { data: searchResults, isLoading: searchLoading } = useMusicSearch(searchQuery, { enabled: searchQuery.length > 2 });
   const { data: categoryResults, isLoading: categoryLoading } = useMusicByCategory(selectedCategory);
+  const { data: episodesData } = usePodcastEpisodes(selectedFeedId || 0, { enabled: selectedFeedId !== null });
 
   const handlePlayTrack = (episode: PodcastIndexEpisode) => {
     playPodcast({
@@ -37,10 +40,20 @@ export function MusicDiscovery() {
   };
 
   const handlePlayAlbum = (podcast: PodcastIndexPodcast) => {
-    // For albums/podcasts, we could play the first episode or show episodes
-    // For now, we'll just show it's a Value4Value enabled album
-    console.log('Album selected:', podcast);
+    // Set the feed ID to trigger episode fetching, then play the first episode
+    setSelectedFeedId(podcast.id);
   };
+
+  // Auto-play first episode when episodes are loaded
+  React.useEffect(() => {
+    if (episodesData?.episodes?.length > 0) {
+      const firstEpisode = episodesData.episodes[0];
+      if (firstEpisode.enclosureUrl) {
+        handlePlayTrack(firstEpisode);
+      }
+      setSelectedFeedId(null); // Reset after playing
+    }
+  }, [episodesData]);
 
   const formatDuration = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
