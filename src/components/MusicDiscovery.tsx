@@ -254,6 +254,7 @@ export function MusicDiscovery() {
                       <div className="flex-1 min-w-0">
                         <h5 className="font-medium truncate">{feed.title}</h5>
                         <p className="text-sm text-muted-foreground truncate">{feed.author}</p>
+                        <p className="text-xs text-muted-foreground mt-1">{feed.description}</p>
                         <div className="flex items-center gap-2 mt-2">
                           {hasValue4Value(feed) && (
                             <Badge variant="secondary" className="flex items-center gap-1">
