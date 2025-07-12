@@ -177,12 +177,27 @@ function SupportArtistButton({ destination, amount = 100 }: {
 // --- ValueBlockInfo Component ---
 function ValueBlockInfo({ value }: { value?: PodcastIndexEpisode['value'] | PodcastIndexPodcast['value'] }) {
   console.log('ValueBlockInfo rendering with:', value);
+  console.log('Raw destinations:', JSON.stringify(value?.destinations, null, 2));
+  
   if (!value || !value.destinations?.length) {
     console.log('ValueBlockInfo not rendering - no value or destinations');
     return null;
   }
   const { model, destinations } = value;
   const suggestedSats = model?.suggested ? parseInt(model.suggested) : 10;
+  
+  // Log each destination to see what's missing
+  destinations.forEach((dest, i) => {
+    console.log(`Destination ${i}:`, {
+      name: dest.name,
+      address: dest.address,
+      type: dest.type,
+      split: dest.split,
+      hasAddress: !!dest.address,
+      addressLength: dest.address?.length
+    });
+  });
+  
   return (
     <div className="mt-2 p-2 bg-muted/50 rounded text-xs">
       <div className="flex items-center gap-1 mb-1">
@@ -196,10 +211,14 @@ function ValueBlockInfo({ value }: { value?: PodcastIndexEpisode['value'] | Podc
         {destinations.slice(0, 3).map((dest, i) => (
           <div key={i} className="flex items-center justify-between gap-2">
             <span className="truncate flex-1">{dest.name || 'Recipient'} ({dest.split}%)</span>
-            <SupportArtistButton 
-              destination={dest} 
-              amount={Math.max(10, Math.floor(suggestedSats * (dest.split / 100)))}
-            />
+            {dest.address ? (
+              <SupportArtistButton 
+                destination={dest} 
+                amount={Math.max(10, Math.floor(suggestedSats * (dest.split / 100)))}
+              />
+            ) : (
+              <span className="text-xs text-muted-foreground">No address</span>
+            )}
           </div>
         ))}
         {destinations.length > 3 && (
