@@ -42,6 +42,24 @@ export function PodcastPlayer() {
     }
   }, [isPlaying]);
 
+  // Handle new track loading
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio || !currentPodcast) return;
+
+    // Reset time when a new track is loaded
+    setCurrentTime(0);
+    setDuration(0);
+
+    // Load the new audio source
+    audio.load();
+
+    // Auto-play if the player state indicates it should be playing
+    if (isPlaying) {
+      audio.play().catch(console.error);
+    }
+  }, [currentPodcast?.url, isPlaying]);
+
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
