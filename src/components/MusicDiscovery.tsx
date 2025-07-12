@@ -24,62 +24,74 @@ declare global {
 }
 
 // --- SupportArtistButton ---
-function SupportArtistButton({ value }: { value?: PodcastIndexEpisode['value'] | PodcastIndexPodcast['value'] }) {
-  // Find the first lud16 address in the value block
-  const destination = value?.destinations?.find(dest => dest.address?.includes('@'));
-  const lightningAddress = destination?.address;
+function SupportArtistButton({ destination, amount = 100 }: { 
+  destination?: { 
+    name?: string; 
+    address: string; 
+    type: string; 
+    split: number 
+  };
+  amount?: number;
+}) {
   const [status, setStatus] = useState('');
   
-  console.log('SupportArtistButton - value block:', value);
-  console.log('SupportArtistButton - destinations:', value?.destinations);
-  console.log('SupportArtistButton - found destination:', destination);
+  if (!destination) return null;
+  
+  const isLightningAddress = destination.address?.includes('@');
+  console.log('SupportArtistButton - destination:', destination, 'isLightning:', isLightningAddress);
 
   const handleSupport = async () => {
-    if (!lightningAddress) {
-      setStatus('No Lightning address available.');
-      return;
-    }
     if (!window.webln) {
       setStatus('Alby or a WebLN wallet is not installed.');
       return;
     }
+    
     try {
       setStatus('Connecting to wallet...');
       await window.webln.enable();
-      setStatus('Fetching invoice...');
-      // Convert lightning address to LNURL endpoint
-      const [name, domain] = lightningAddress.split('@');
-      const lnurlp = `https://${domain}/.well-known/lnurlp/${name}`;
-      const lnurlRes = await fetch(lnurlp);
-      if (!lnurlRes.ok) throw new Error('Failed to fetch LNURL-pay endpoint');
-      const lnurlData = await lnurlRes.json();
-      const amount = 100; // 100 sats (minimum for most LNURL-pay endpoints)
-      const msats = amount * 1000;
-      setStatus('Requesting invoice...');
-      const invoiceRes = await fetch(`${lnurlData.callback}?amount=${msats}`);
-      if (!invoiceRes.ok) throw new Error('Failed to get invoice');
-      const invoiceData = await invoiceRes.json();
-      const invoice = invoiceData.pr;
-      setStatus('Paying invoice...');
-      await window.webln.sendPayment(invoice);
-      setStatus('Payment sent! Thank you for supporting the artist.');
+      
+      if (isLightningAddress) {
+        // Handle Lightning address (LNURL)
+        setStatus('Fetching invoice...');
+        const [name, domain] = destination.address.split('@');
+        const lnurlp = `https://${domain}/.well-known/lnurlp/${name}`;
+        const lnurlRes = await fetch(lnurlp);
+        if (!lnurlRes.ok) throw new Error('Failed to fetch LNURL-pay endpoint');
+        const lnurlData = await lnurlRes.json();
+        const msats = amount * 1000;
+        setStatus('Requesting invoice...');
+        const invoiceRes = await fetch(`${lnurlData.callback}?amount=${msats}`);
+        if (!invoiceRes.ok) throw new Error('Failed to get invoice');
+        const invoiceData = await invoiceRes.json();
+        const invoice = invoiceData.pr;
+        setStatus('Paying invoice...');
+        await window.webln.sendPayment(invoice);
+        setStatus('Payment sent! ⚡');
+      } else {
+        // Handle keysend - use a service to convert to invoice
+        setStatus('Creating keysend invoice...');
+        // Option 1: Use getalby.com keysend service
+        const keysendUrl = `https://getalby.com/keysend/${destination.address}?amount=${amount}&memo=Podtardstr%20Music%20Payment`;
+        window.open(keysendUrl, '_blank');
+        setStatus('Opened Alby keysend page');
+      }
     } catch (err) {
       console.error('WebLN payment error:', err);
-      setStatus('Payment failed or cancelled.');
+      setStatus('Payment failed.');
     }
   };
 
-  if (!lightningAddress) return null;
-
   return (
-    <div className="mt-2">
-      <Button onClick={handleSupport} size="sm" variant="secondary">
-        <Zap className="h-4 w-4 mr-1" />
-        Send 100 sats
-      </Button>
-      <div className="text-xs text-muted-foreground">{lightningAddress}</div>
-      {status && <div className="text-xs mt-1">{status}</div>}
-    </div>
+    <Button 
+      onClick={handleSupport} 
+      size="sm" 
+      variant="ghost" 
+      className="h-6 px-2 text-xs"
+      title={`Send ${amount} sats to ${destination.name || 'artist'}`}
+    >
+      <Zap className="h-3 w-3 mr-1" />
+      {amount}
+    </Button>
   );
 }
 
@@ -103,25 +115,18 @@ function ValueBlockInfo({ value }: { value?: PodcastIndexEpisode['value'] | Podc
       </div>
       <div className="space-y-1">
         {destinations.slice(0, 3).map((dest, i) => (
-          <div key={i} className="flex items-center justify-between">
-            <span className="truncate">{dest.name || 'Recipient'} ({dest.split}%)</span>
-            <div className="flex items-center gap-1">
-              <span className="truncate text-xs">{dest.address?.slice(0, 20)}...</span>
-              {dest.address?.includes('@') ? (
-                <span className="text-green-500">✓ Lightning</span>
-              ) : (
-                <span className="text-muted-foreground" title="Node address">
-                  Node: {dest.type}
-                </span>
-              )}
-            </div>
+          <div key={i} className="flex items-center justify-between gap-2">
+            <span className="truncate flex-1">{dest.name || 'Recipient'} ({dest.split}%)</span>
+            <SupportArtistButton 
+              destination={dest} 
+              amount={Math.max(10, Math.floor(suggestedSats * (dest.split / 100)))}
+            />
           </div>
         ))}
         {destinations.length > 3 && (
           <div className="text-muted-foreground">+{destinations.length - 3} more</div>
         )}
       </div>
-      <SupportArtistButton value={value} />
     </div>
   );
 }
