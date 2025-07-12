@@ -136,7 +136,7 @@ export function MusicDiscovery() {
                     <Skeleton key={i} className="h-16 w-full" />
                   ))}
                 </div>
-              ) : searchResults && searchResults.episodes.length > 0 ? (
+              ) : searchResults && (searchResults.episodes.length > 0 || searchResults.feeds.length > 0) ? (
                 <div className="space-y-4">
                   {searchResults.episodes.length > 0 && (
                     <div>
