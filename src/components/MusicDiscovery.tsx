@@ -217,7 +217,9 @@ function ValueBlockInfo({ value }: { value?: PodcastIndexEpisode['value'] | Podc
                 amount={Math.max(10, Math.floor(suggestedSats * (dest.split / 100)))}
               />
             ) : (
-              <span className="text-xs text-muted-foreground">No address</span>
+              <span className="text-xs text-orange-500" title="Payment address not published publicly">
+                🔒 Private
+              </span>
             )}
           </div>
         ))}
@@ -225,6 +227,12 @@ function ValueBlockInfo({ value }: { value?: PodcastIndexEpisode['value'] | Podc
           <div className="text-muted-foreground">+{destinations.length - 3} more</div>
         )}
       </div>
+      
+      {!destinations.some(dest => dest.address) && (
+        <div className="mt-2 text-xs text-muted-foreground border-t pt-2">
+          💡 This artist hasn't published payment addresses publicly. Try searching for other artists.
+        </div>
+      )}
     </div>
   );
 }
