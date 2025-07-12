@@ -149,11 +149,21 @@ export function useSearchPodcasts(query: string, options: { enabled?: boolean } 
         q: query.trim(),
         max: '20',
         clean: 'true',
+        medium: 'music', // Only show music content like LNBeats
+      });
+
+      // Sort by Value4Value (prioritize V4V content)
+      const musicFeeds = (response.feeds || []).sort((a, b) => {
+        const aHasValue = a.value?.destinations?.length > 0;
+        const bHasValue = b.value?.destinations?.length > 0;
+        if (aHasValue && !bHasValue) return -1;
+        if (!aHasValue && bHasValue) return 1;
+        return 0;
       });
 
       return {
-        feeds: response.feeds || [],
-        count: response.count,
+        feeds: musicFeeds,
+        count: musicFeeds.length,
       };
     },
     enabled: options.enabled !== false && query.trim().length > 0,
@@ -171,11 +181,21 @@ export function useSearchEpisodes(query: string, options: { enabled?: boolean } 
         q: query.trim(),
         max: '20',
         clean: 'true',
+        medium: 'music', // Only show music content like LNBeats
+      });
+
+      // Sort by Value4Value (prioritize V4V content)
+      const musicEpisodes = (response.episodes || []).sort((a, b) => {
+        const aHasValue = a.value?.destinations?.length > 0;
+        const bHasValue = b.value?.destinations?.length > 0;
+        if (aHasValue && !bHasValue) return -1;
+        if (!aHasValue && bHasValue) return 1;
+        return 0;
       });
 
       return {
-        episodes: response.episodes || [],
-        count: response.count,
+        episodes: musicEpisodes,
+        count: musicEpisodes.length,
       };
     },
     enabled: options.enabled !== false && query.trim().length > 0,
@@ -209,11 +229,21 @@ export function useTrendingPodcasts() {
       const response = await podcastIndexFetch<PodcastIndexPodcast>('/podcasts/trending', {
         max: '20',
         lang: 'en',
+        medium: 'music', // Only show music content like LNBeats
+      });
+
+      // Sort by Value4Value (prioritize V4V content)
+      const musicFeeds = (response.feeds || []).sort((a, b) => {
+        const aHasValue = a.value?.destinations?.length > 0;
+        const bHasValue = b.value?.destinations?.length > 0;
+        if (aHasValue && !bHasValue) return -1;
+        if (!aHasValue && bHasValue) return 1;
+        return 0;
       });
 
       return {
-        feeds: response.feeds || [],
-        count: response.count,
+        feeds: musicFeeds,
+        count: musicFeeds.length,
       };
     },
     staleTime: 30 * 60 * 1000, // 30 minutes
@@ -227,11 +257,21 @@ export function useRecentEpisodes() {
       const response = await podcastIndexFetch<PodcastIndexEpisode>('/recent/episodes', {
         max: '20',
         excludeString: 'trailer,preview',
+        medium: 'music', // Only show music content like LNBeats
+      });
+
+      // Sort by Value4Value (prioritize V4V content)
+      const musicEpisodes = (response.episodes || []).sort((a, b) => {
+        const aHasValue = a.value?.destinations?.length > 0;
+        const bHasValue = b.value?.destinations?.length > 0;
+        if (aHasValue && !bHasValue) return -1;
+        if (!aHasValue && bHasValue) return 1;
+        return 0;
       });
 
       return {
-        episodes: response.episodes || [],
-        count: response.count,
+        episodes: musicEpisodes,
+        count: musicEpisodes.length,
       };
     },
     staleTime: 15 * 60 * 1000, // 15 minutes
