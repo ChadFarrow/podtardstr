@@ -1,31 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { podcastIndexFetch, PodcastIndexPodcast, PodcastIndexEpisode } from './usePodcastIndex';
 
-// Music-specific filtering function
-function isMusicContent(title: string, description: string, categories: string, itunesType?: string): boolean {
-  const text = `${title} ${description} ${categories}`.toLowerCase();
-  
-  // Strong music indicators
-  const musicKeywords = [
-    'music', 'album', 'song', 'track', 'artist', 'band', 'ep', 'single',
-    'indie', 'rock', 'pop', 'jazz', 'electronic', 'hip hop', 'rap', 'classical',
-    'folk', 'country', 'blues', 'metal', 'punk', 'alternative', 'ambient',
-    'techno', 'house', 'trance', 'dubstep', 'drum and bass', 'acoustic',
-    'singer-songwriter', 'vocalist', 'musician', 'composer', 'producer'
-  ];
-  
-  // Value4Value and Podcasting 2.0 indicators
-  const value4valueKeywords = [
-    'value4value', 'v4v', 'lightning', 'bitcoin', 'sats', 'boost', 'streaming sats'
-  ];
-  
-  const hasMusic = musicKeywords.some(keyword => text.includes(keyword));
-  const hasValue4Value = value4valueKeywords.some(keyword => text.includes(keyword));
-  const isItunesMusic = itunesType === 'music';
-  
-  // Prioritize content that has both music and value4value
-  return hasMusic || isItunesMusic || hasValue4Value;
-}
+// Using medium=music parameter for proper music filtering like LNBeats
 
 export function useMusicSearch(query: string, options: { enabled?: boolean } = {}) {
   return useQuery({
@@ -33,29 +9,38 @@ export function useMusicSearch(query: string, options: { enabled?: boolean } = {
     queryFn: async () => {
       if (!query.trim()) return { feeds: [], episodes: [], count: 0 };
 
-      // Search for both podcasts and episodes
+      // Search for music content only using medium=music filter
       const [podcastResponse, episodeResponse] = await Promise.all([
         podcastIndexFetch<PodcastIndexPodcast>('/search/byterm', {
           q: query.trim(),
-          max: '50',
+          max: '20',
           clean: 'true',
+          medium: 'music',
         }),
         podcastIndexFetch<PodcastIndexEpisode>('/search/byterm', {
           q: query.trim(),
-          max: '50',
+          max: '20', 
           clean: 'true',
+          medium: 'music',
         })
       ]);
 
-      // Filter for music content
-      const musicFeeds = (podcastResponse.feeds || []).filter((feed: PodcastIndexPodcast) => {
-        const categories = Object.values(feed.categories || {}).join(' ');
-        return isMusicContent(feed.title, feed.description, categories, feed.itunesType);
-      }).slice(0, 20);
+      // Sort by Value4Value (prioritize V4V content)
+      const musicFeeds = (podcastResponse.feeds || []).sort((a, b) => {
+        const aHasValue = a.value?.destinations?.length > 0;
+        const bHasValue = b.value?.destinations?.length > 0;
+        if (aHasValue && !bHasValue) return -1;
+        if (!aHasValue && bHasValue) return 1;
+        return 0;
+      });
 
-      const musicEpisodes = (episodeResponse.episodes || []).filter((episode: PodcastIndexEpisode) => {
-        return isMusicContent(episode.title, episode.description, episode.feedTitle);
-      }).slice(0, 20);
+      const musicEpisodes = (episodeResponse.episodes || []).sort((a, b) => {
+        const aHasValue = a.value?.destinations?.length > 0;
+        const bHasValue = b.value?.destinations?.length > 0;
+        if (aHasValue && !bHasValue) return -1;
+        if (!aHasValue && bHasValue) return 1;
+        return 0;
+      });
 
       return {
         feeds: musicFeeds,
@@ -73,24 +58,19 @@ export function useTrendingMusic() {
     queryKey: ['music-index', 'trending'],
     queryFn: async () => {
       const response = await podcastIndexFetch<PodcastIndexPodcast>('/podcasts/trending', {
-        max: '100', // Get more to filter for music
+        max: '20',
         lang: 'en',
+        medium: 'music', // Filter for music content only
       });
 
-      // Filter for music content and prioritize Value4Value
-      const musicFeeds = (response.feeds || []).filter((feed: PodcastIndexPodcast) => {
-        const categories = Object.values(feed.categories || {}).join(' ');
-        return isMusicContent(feed.title, feed.description, categories, feed.itunesType);
-      })
-      .sort((a, b) => {
-        // Prioritize feeds with Value4Value
+      // Sort by Value4Value (prioritize V4V content)
+      const musicFeeds = (response.feeds || []).sort((a, b) => {
         const aHasValue = a.value?.destinations?.length > 0;
         const bHasValue = b.value?.destinations?.length > 0;
         if (aHasValue && !bHasValue) return -1;
         if (!aHasValue && bHasValue) return 1;
         return 0;
-      })
-      .slice(0, 20);
+      });
 
       return {
         feeds: musicFeeds,
@@ -106,23 +86,19 @@ export function useRecentMusicEpisodes() {
     queryKey: ['music-index', 'recent-episodes'],
     queryFn: async () => {
       const response = await podcastIndexFetch<PodcastIndexEpisode>('/recent/episodes', {
-        max: '100', // Get more to filter for music
+        max: '20',
         excludeString: 'trailer,preview',
+        medium: 'music', // Filter for music content only
       });
 
-      // Filter for music content
-      const musicEpisodes = (response.episodes || []).filter((episode: PodcastIndexEpisode) => {
-        return isMusicContent(episode.title, episode.description, episode.feedTitle);
-      })
-      .sort((a, b) => {
-        // Prioritize episodes with Value4Value
+      // Sort by Value4Value (prioritize V4V content)
+      const musicEpisodes = (response.episodes || []).sort((a, b) => {
         const aHasValue = a.value?.destinations?.length > 0;
         const bHasValue = b.value?.destinations?.length > 0;
         if (aHasValue && !bHasValue) return -1;
         if (!aHasValue && bHasValue) return 1;
         return 0;
-      })
-      .slice(0, 20);
+      });
 
       return {
         episodes: musicEpisodes,
@@ -139,18 +115,19 @@ export function useMusicByCategory(category: string) {
     queryFn: async () => {
       const response = await podcastIndexFetch<PodcastIndexPodcast>('/search/byterm', {
         q: category,
-        max: '50',
+        max: '15',
         clean: 'true',
+        medium: 'music', // Filter for music content only
       });
 
-      // Filter for music content in this category
-      const musicFeeds = (response.feeds || []).filter((feed: PodcastIndexPodcast) => {
-        const categories = Object.values(feed.categories || {}).join(' ');
-        const isMusic = isMusicContent(feed.title, feed.description, categories, feed.itunesType);
-        const hasCategory = categories.toLowerCase().includes(category.toLowerCase()) ||
-                           feed.title.toLowerCase().includes(category.toLowerCase());
-        return isMusic && hasCategory;
-      }).slice(0, 15);
+      // Sort by Value4Value (prioritize V4V content)
+      const musicFeeds = (response.feeds || []).sort((a, b) => {
+        const aHasValue = a.value?.destinations?.length > 0;
+        const bHasValue = b.value?.destinations?.length > 0;
+        if (aHasValue && !bHasValue) return -1;
+        if (!aHasValue && bHasValue) return 1;
+        return 0;
+      });
 
       return {
         feeds: musicFeeds,
