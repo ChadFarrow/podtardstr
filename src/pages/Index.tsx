@@ -36,14 +36,6 @@ const Index = () => {
 
             <div className="space-y-4">
               <LoginArea className="w-full" />
-              <Button
-                variant={activeTab === 'music' ? 'secondary' : 'ghost'}
-                className="w-full justify-start text-sm"
-                onClick={() => setActiveTab('music')}
-              >
-                <Radio className="h-4 w-4 mr-2" />
-                Music
-              </Button>
             </div>
           </SidebarHeader>
 
@@ -52,6 +44,14 @@ const Index = () => {
               <div>
                 <h3 className="text-sm font-medium text-muted-foreground mb-3">Navigation</h3>
                 <div className="space-y-2">
+                  <Button
+                    variant={activeTab === 'music' ? 'secondary' : 'ghost'}
+                    className="w-full justify-start text-sm"
+                    onClick={() => setActiveTab('music')}
+                  >
+                    <Radio className="h-4 w-4 mr-2" />
+                    Music
+                  </Button>
                   <Button
                     variant={activeTab === 'discover' ? 'secondary' : 'ghost'}
                     className="w-full justify-start text-sm"
