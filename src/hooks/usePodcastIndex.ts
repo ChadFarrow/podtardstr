@@ -95,6 +95,7 @@ interface PodcastIndexResponse<T> {
   status: string;
   feeds?: T[];
   episodes?: T[];
+  items?: T[];
   count: number;
   query: string;
   description: string;
@@ -288,7 +289,7 @@ export function usePodcastEpisodes(feedId: number, options: { enabled?: boolean 
         console.log('Episodes API response for feed', feedId, ':', response);
 
         return {
-          episodes: response.episodes || [],
+          episodes: response.episodes || response.items || [],
           count: response.count,
         };
       } catch (error) {
