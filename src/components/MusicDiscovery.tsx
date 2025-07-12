@@ -79,6 +79,44 @@ function SupportArtistButton({ value }: { value?: PodcastIndexEpisode['value'] |
   );
 }
 
+// --- ValueBlockInfo Component ---
+function ValueBlockInfo({ value }: { value?: PodcastIndexEpisode['value'] | PodcastIndexPodcast['value'] }) {
+  if (!value || !value.destinations?.length) return null;
+  const { model, destinations } = value;
+  const suggestedSats = model?.suggested ? parseInt(model.suggested) : 10;
+  return (
+    <div className="mt-2 p-2 bg-muted/50 rounded text-xs">
+      <div className="flex items-center gap-1 mb-1">
+        <Zap className="h-3 w-3" />
+        <span className="font-medium">Value4Value</span>
+        {model?.suggested && (
+          <span className="text-muted-foreground">• {suggestedSats} sats/min</span>
+        )}
+      </div>
+      <div className="space-y-1">
+        {destinations.slice(0, 3).map((dest, i) => (
+          <div key={i} className="flex items-center justify-between">
+            <span className="truncate">{dest.name || 'Recipient'} ({dest.split}%)</span>
+            <div className="flex items-center gap-1">
+              <span className="truncate">{dest.address}</span>
+              {dest.type === 'lud16' ? (
+                <SupportArtistButton value={value} />
+              ) : (
+                <span className="text-muted-foreground" title="Keysend not supported in browser wallets">
+                  Keysend only
+                </span>
+              )}
+            </div>
+          </div>
+        ))}
+        {destinations.length > 3 && (
+          <div className="text-muted-foreground">+{destinations.length - 3} more</div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 
 export function MusicDiscovery() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -228,7 +266,7 @@ export function MusicDiscovery() {
                                 <p className="text-xs text-muted-foreground">{formatDuration(episode.duration)}</p>
                               )}
                               {/* SupportArtistButton for track */}
-                              <SupportArtistButton value={episode.value} />
+                              <ValueBlockInfo value={episode.value} />
                             </div>
                             <Button 
                               size="sm" 
@@ -297,7 +335,7 @@ export function MusicDiscovery() {
                         </button>
                         <p className="text-xs text-muted-foreground mt-1">{feed.description}</p>
                         {/* SupportArtistButton for album */}
-                        <SupportArtistButton value={feed.value} />
+                        <ValueBlockInfo value={feed.value} />
                       </div>
                     </div>
                   </CardContent>
@@ -349,7 +387,7 @@ export function MusicDiscovery() {
                       <span>{new Date(episode.datePublished * 1000).toLocaleDateString()}</span>
                     </div>
                     {/* SupportArtistButton for track */}
-                    <SupportArtistButton value={episode.value} />
+                    <ValueBlockInfo value={episode.value} />
                   </div>
                   <Button 
                     size="sm" 
