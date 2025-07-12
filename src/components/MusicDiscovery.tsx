@@ -5,7 +5,8 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Play, Search, Zap, Bitcoin, Heart, ExternalLink } from 'lucide-react';
-import { useTrendingMusic, useRecentMusicEpisodes, useMusicSearch, useMusicByCategory } from '@/hooks/useMusicIndex';
+import { useRecentMusicEpisodes, useMusicSearch, useMusicByCategory } from '@/hooks/useMusicIndex';
+import { useTrendingPodcasts } from '@/hooks/usePodcastIndex';
 import { usePodcastPlayer } from '@/hooks/usePodcastPlayer';
 import type { PodcastIndexPodcast, PodcastIndexEpisode } from '@/hooks/usePodcastIndex';
 
@@ -19,7 +20,7 @@ export function MusicDiscovery() {
   const [selectedCategory, setSelectedCategory] = useState('');
   const { playPodcast } = usePodcastPlayer();
 
-  const { data: trendingMusic, isLoading: trendingLoading } = useTrendingMusic();
+  const { data: trendingMusic, isLoading: trendingLoading } = useTrendingPodcasts(); // Use same hook as main trending
   const { data: recentEpisodes, isLoading: recentLoading } = useRecentMusicEpisodes();
   const { data: searchResults, isLoading: searchLoading } = useMusicSearch(searchQuery, { enabled: searchQuery.length > 2 });
   const { data: categoryResults, isLoading: categoryLoading } = useMusicByCategory(selectedCategory);
