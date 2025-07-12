@@ -36,8 +36,22 @@ function SupportArtistButton() {
     try {
       setStatus('Connecting to wallet...');
       await window.webln.enable();
-      setStatus('Sending 33 sats...');
-      await window.webln.lnurlPay(lightningAddress, { amount: 33 });
+      setStatus('Fetching invoice...');
+      // Convert lightning address to LNURL endpoint
+      const [name, domain] = lightningAddress.split('@');
+      const lnurlp = `https://${domain}/.well-known/lnurlp/${name}`;
+      const lnurlRes = await fetch(lnurlp);
+      if (!lnurlRes.ok) throw new Error('Failed to fetch LNURL-pay endpoint');
+      const lnurlData = await lnurlRes.json();
+      const amount = 100; // 100 sats (minimum for most LNURL-pay endpoints)
+      const msats = amount * 1000;
+      setStatus('Requesting invoice...');
+      const invoiceRes = await fetch(`${lnurlData.callback}?amount=${msats}`);
+      if (!invoiceRes.ok) throw new Error('Failed to get invoice');
+      const invoiceData = await invoiceRes.json();
+      const invoice = invoiceData.pr;
+      setStatus('Paying invoice...');
+      await window.webln.sendPayment(invoice);
       setStatus('Payment sent! Thank you for supporting the artist.');
     } catch (err) {
       console.error('WebLN payment error:', err);
@@ -49,7 +63,7 @@ function SupportArtistButton() {
     <div className="mt-2">
       <Button onClick={handleSupport} size="sm" variant="secondary">
         <Zap className="h-4 w-4 mr-1" />
-        Send 33 sats
+        Send 100 sats
       </Button>
       <div className="text-xs text-muted-foreground">{lightningAddress}</div>
       {status && <div className="text-xs mt-1">{status}</div>}
