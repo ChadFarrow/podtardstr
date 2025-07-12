@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Play, Search, Zap, Bitcoin, Heart, ExternalLink } from 'lucide-react';
+import { Play, Search, Zap, Bitcoin, Heart, ExternalLink, ChevronDown, ChevronRight, Album } from 'lucide-react';
 import { useRecentMusicEpisodes, useMusicSearch } from '@/hooks/useMusicIndex';
 import { useTrendingPodcasts } from '@/hooks/usePodcastIndex';
 import { usePodcastPlayer } from '@/hooks/usePodcastPlayer';
@@ -15,12 +15,14 @@ import type { PodcastIndexPodcast, PodcastIndexEpisode } from '@/hooks/usePodcas
 export function MusicDiscovery() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFeedId, setSelectedFeedId] = useState<number | null>(null);
+  const [expandedAlbum, setExpandedAlbum] = useState<number | null>(null);
   const { playPodcast } = usePodcastPlayer();
 
   const { data: trendingMusic, isLoading: trendingLoading } = useTrendingPodcasts(); // Use same hook as main trending
   const { data: recentEpisodes, isLoading: recentLoading } = useRecentMusicEpisodes();
   const { data: searchResults, isLoading: searchLoading } = useMusicSearch(searchQuery, { enabled: searchQuery.length > 2 });
   const { data: episodesData } = usePodcastEpisodes(selectedFeedId || 0, { enabled: selectedFeedId !== null });
+  const { data: albumTracksData } = usePodcastEpisodes(expandedAlbum || 0, { enabled: expandedAlbum !== null });
 
   const handlePlayTrack = (episode: PodcastIndexEpisode) => {
     playPodcast({
@@ -91,6 +93,14 @@ export function MusicDiscovery() {
 
   const hasValue4Value = (item: PodcastIndexPodcast | PodcastIndexEpisode) => {
     return item.value?.destinations && item.value.destinations.length > 0;
+  };
+
+  const handleAlbumClick = (podcast: PodcastIndexPodcast) => {
+    if (expandedAlbum === podcast.id) {
+      setExpandedAlbum(null); // Collapse if already expanded
+    } else {
+      setExpandedAlbum(podcast.id); // Expand this album
+    }
   };
 
   return (
@@ -164,28 +174,81 @@ export function MusicDiscovery() {
                       <h4 className="font-medium mb-2">Albums & Artists</h4>
                       <div className="grid gap-3">
                         {searchResults.feeds.map((feed) => (
-                          <div key={feed.id} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-muted">
-                            <img 
-                              src={feed.image || feed.artwork} 
-                              alt={feed.title}
-                              className="h-12 w-12 rounded object-cover"
-                            />
-                            <div className="flex-1 min-w-0">
-                              <h5 className="font-medium truncate">{feed.title}</h5>
-                              <p className="text-sm text-muted-foreground truncate">{feed.author}</p>
+                          <div key={feed.id} className="border rounded-lg">
+                            <div className="flex items-center gap-3 p-3 hover:bg-muted">
+                              <img 
+                                src={feed.image || feed.artwork} 
+                                alt={feed.title}
+                                className="h-12 w-12 rounded object-cover"
+                              />
+                              <div className="flex-1 min-w-0">
+                                <h5 className="font-medium truncate">{feed.title}</h5>
+                                <p className="text-sm text-muted-foreground truncate">{feed.author}</p>
+                                <p className="text-xs text-muted-foreground">{feed.episodeCount} tracks</p>
+                              </div>
+                              {hasValue4Value(feed) && (
+                                <Badge variant="secondary" className="flex items-center gap-1">
+                                  <Zap className="h-3 w-3" />
+                                  V4V
+                                </Badge>
+                              )}
+                              <Button 
+                                variant="ghost"
+                                size="sm" 
+                                onClick={() => handleAlbumClick(feed)}
+                                className="flex items-center gap-1"
+                              >
+                                <Album className="h-4 w-4" />
+                                {expandedAlbum === feed.id ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                onClick={() => handlePlayAlbum(feed)}
+                              >
+                                <Play className="h-4 w-4" />
+                              </Button>
                             </div>
-                            {hasValue4Value(feed) && (
-                              <Badge variant="secondary" className="flex items-center gap-1">
-                                <Zap className="h-3 w-3" />
-                                V4V
-                              </Badge>
+                            
+                            {/* Expanded track listing */}
+                            {expandedAlbum === feed.id && (
+                              <div className="border-t bg-muted/30">
+                                {albumTracksData?.episodes ? (
+                                  <div className="p-3 space-y-2">
+                                    <h6 className="text-sm font-medium text-muted-foreground">All Tracks</h6>
+                                    {albumTracksData.episodes.map((episode, index) => (
+                                      <div key={episode.id} className="flex items-center gap-3 p-2 hover:bg-background rounded">
+                                        <span className="text-xs text-muted-foreground w-6">{index + 1}</span>
+                                        <img 
+                                          src={episode.image || episode.feedImage} 
+                                          alt={episode.title}
+                                          className="h-8 w-8 rounded object-cover"
+                                        />
+                                        <div className="flex-1 min-w-0">
+                                          <p className="text-sm font-medium truncate">{episode.title}</p>
+                                          {episode.duration && (
+                                            <p className="text-xs text-muted-foreground">{formatDuration(episode.duration)}</p>
+                                          )}
+                                        </div>
+                                        {hasValue4Value(episode) && (
+                                          <Badge variant="outline" size="sm">V4V</Badge>
+                                        )}
+                                        <Button 
+                                          size="sm" 
+                                          variant="ghost"
+                                          onClick={() => handlePlayTrack(episode)}
+                                        >
+                                          <Play className="h-3 w-3" />
+                                        </Button>
+                                      </div>
+                                    ))}
+                                  </div>
+                                ) : (
+                                  <div className="p-3">
+                                    <p className="text-sm text-muted-foreground">Loading tracks...</p>
+                                  </div>
+                                )}
+                              </div>
                             )}
-                            <Button 
-                              size="sm" 
-                              onClick={() => handlePlayAlbum(feed)}
-                            >
-                              <Play className="h-4 w-4" />
-                            </Button>
                           </div>
                         ))}
                       </div>
