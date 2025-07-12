@@ -180,9 +180,26 @@ function ValueBlockInfo({ value }: { value?: PodcastIndexEpisode['value'] | Podc
   console.log('💰 ValueBlockInfo rendering with:', value);
   console.log('💰 Raw destinations:', JSON.stringify(value?.destinations, null, 2));
   
+  // Check if the API response has any value-related fields at all
+  React.useEffect(() => {
+    console.log('🔍 LOOKING FOR VALUE DATA - API might be missing ValueBlock fields');
+  }, []);
+  
   if (!value || !value.destinations?.length) {
-    console.log('ValueBlockInfo not rendering - no value or destinations');
-    return null;
+    console.log('💰 No ValueBlock data - API limitation');
+    // Show a message explaining why payments aren't available
+    return (
+      <div className="mt-2 p-2 bg-orange-50 dark:bg-orange-950 border border-orange-200 dark:border-orange-800 rounded text-xs">
+        <div className="flex items-center gap-1 mb-1">
+          <Zap className="h-3 w-3 text-orange-600" />
+          <span className="font-medium text-orange-700 dark:text-orange-300">Value4Value Available</span>
+        </div>
+        <p className="text-orange-600 dark:text-orange-400">
+          💡 This track supports Lightning payments, but addresses aren't shown in search results for privacy. 
+          Visit the artist's podcast page for direct payments.
+        </p>
+      </div>
+    );
   }
   const { model, destinations } = value;
   const suggestedSats = model?.suggested ? parseInt(model.suggested) : 10;
