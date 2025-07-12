@@ -36,17 +36,19 @@ const Index = () => {
 
             <div className="space-y-4">
               <LoginArea className="w-full" />
-
+              <Button
+                variant={activeTab === 'music' ? 'secondary' : 'ghost'}
+                className="w-full justify-start text-sm"
+                onClick={() => setActiveTab('music')}
+              >
+                <Radio className="h-4 w-4 mr-2" />
+                Music
+              </Button>
             </div>
           </SidebarHeader>
 
           <SidebarContent className="p-6">
             <div className="space-y-6">
-              <div>
-                <h3 className="text-sm font-medium text-muted-foreground mb-3">Relay</h3>
-                <RelaySelector className="w-full" />
-              </div>
-
               <div>
                 <h3 className="text-sm font-medium text-muted-foreground mb-3">Navigation</h3>
                 <div className="space-y-2">
@@ -67,14 +69,6 @@ const Index = () => {
                     Search
                   </Button>
                   <Button
-                    variant={activeTab === 'music' ? 'secondary' : 'ghost'}
-                    className="w-full justify-start text-sm"
-                    onClick={() => setActiveTab('music')}
-                  >
-                    <Radio className="h-4 w-4 mr-2" />
-                    Music
-                  </Button>
-                  <Button
                     variant={activeTab === 'nostr' ? 'secondary' : 'ghost'}
                     className="w-full justify-start text-sm"
                     onClick={() => setActiveTab('nostr')}
@@ -83,6 +77,11 @@ const Index = () => {
                     Nostr Feed
                   </Button>
                 </div>
+              </div>
+
+              <div>
+                <h3 className="text-sm font-medium text-muted-foreground mb-3">Relay</h3>
+                <RelaySelector className="w-full" />
               </div>
 
               <div className="pt-4 border-t">
