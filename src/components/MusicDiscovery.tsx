@@ -103,6 +103,11 @@ export function MusicDiscovery() {
     }
   };
 
+  const handleArtistClick = (artistName: string) => {
+    setSearchQuery(artistName);
+    setExpandedAlbum(null); // Collapse any expanded albums
+  };
+
   return (
     <div className="space-y-8">
       {/* Search Section */}
@@ -146,7 +151,12 @@ export function MusicDiscovery() {
                             />
                             <div className="flex-1 min-w-0">
                               <h5 className="font-medium truncate">{episode.title}</h5>
-                              <p className="text-sm text-muted-foreground truncate">{episode.feedTitle}</p>
+                              <button 
+                                onClick={() => handleArtistClick(episode.feedTitle)}
+                                className="text-sm text-muted-foreground truncate hover:text-primary transition-colors text-left"
+                              >
+                                {episode.feedTitle}
+                              </button>
                               {episode.duration && (
                                 <p className="text-xs text-muted-foreground">{formatDuration(episode.duration)}</p>
                               )}
@@ -183,7 +193,12 @@ export function MusicDiscovery() {
                               />
                               <div className="flex-1 min-w-0">
                                 <h5 className="font-medium truncate">{feed.title}</h5>
-                                <p className="text-sm text-muted-foreground truncate">{feed.author}</p>
+                                <button 
+                                  onClick={() => handleArtistClick(feed.author)}
+                                  className="text-sm text-muted-foreground truncate hover:text-primary transition-colors text-left"
+                                >
+                                  {feed.author}
+                                </button>
                                 <p className="text-xs text-muted-foreground">{feed.episodeCount} tracks</p>
                               </div>
                               {hasValue4Value(feed) && (
@@ -292,7 +307,12 @@ export function MusicDiscovery() {
                       />
                       <div className="flex-1 min-w-0">
                         <h5 className="font-medium truncate">{feed.title}</h5>
-                        <p className="text-sm text-muted-foreground truncate">{feed.author}</p>
+                        <button 
+                          onClick={() => handleArtistClick(feed.author)}
+                          className="text-sm text-muted-foreground truncate hover:text-primary transition-colors text-left"
+                        >
+                          {feed.author}
+                        </button>
                         <p className="text-xs text-muted-foreground mt-1">{feed.description}</p>
                         <div className="flex items-center gap-2 mt-2">
                           {hasValue4Value(feed) && (
@@ -345,7 +365,12 @@ export function MusicDiscovery() {
                   />
                   <div className="flex-1 min-w-0">
                     <h5 className="font-medium truncate">{episode.title}</h5>
-                    <p className="text-sm text-muted-foreground truncate">{episode.feedTitle}</p>
+                    <button 
+                      onClick={() => handleArtistClick(episode.feedTitle)}
+                      className="text-sm text-muted-foreground truncate hover:text-primary transition-colors text-left"
+                    >
+                      {episode.feedTitle}
+                    </button>
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
                       {episode.duration && <span>{formatDuration(episode.duration)}</span>}
                       <span>{new Date(episode.datePublished * 1000).toLocaleDateString()}</span>
