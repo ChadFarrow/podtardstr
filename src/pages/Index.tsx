@@ -16,7 +16,7 @@ const Index = () => {
   const [activeTab, setActiveTab] = useState('discover');
 
   useSeoMeta({
-    title: 'Podtardstr - Decentralized Podcasting',
+    title: 'Podtardstr',
     description: 'Podtardstr where Podcasting 2.0 meets Nostr',
   });
 
