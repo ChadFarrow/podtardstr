@@ -247,19 +247,54 @@ export function useSearchEpisodes(query: string, options: { enabled?: boolean } 
   });
 }
 
+export function useEpisodeByGuid(guid: string, options: { enabled?: boolean } = {}) {
+  return useQuery({
+    queryKey: ['podcast-index', 'episode-by-guid', guid],
+    queryFn: async () => {
+      console.log('Fetching episode by GUID:', guid);
+      
+      try {
+        const response = await podcastIndexFetch<PodcastIndexEpisode>('/episodes/byguid', {
+          guid: guid,
+        });
+
+        console.log('Episode by GUID API response:', response);
+
+        return {
+          episode: response.episodes?.[0] || null,
+        };
+      } catch (error) {
+        console.error('Error fetching episode by GUID', guid, ':', error);
+        throw error;
+      }
+    },
+    enabled: options.enabled !== false && guid.length > 0,
+    staleTime: 10 * 60 * 1000, // 10 minutes
+  });
+}
+
 export function usePodcastEpisodes(feedId: number, options: { enabled?: boolean } = {}) {
   return useQuery({
     queryKey: ['podcast-index', 'episodes', feedId],
     queryFn: async () => {
-      const response = await podcastIndexFetch<PodcastIndexEpisode>('/episodes/byfeedid', {
-        id: feedId.toString(),
-        max: '50',
-      });
+      console.log('Fetching episodes for feed ID:', feedId);
+      
+      try {
+        const response = await podcastIndexFetch<PodcastIndexEpisode>('/episodes/byfeedid', {
+          id: feedId.toString(),
+          max: '50',
+        });
 
-      return {
-        episodes: response.episodes || [],
-        count: response.count,
-      };
+        console.log('Episodes API response for feed', feedId, ':', response);
+
+        return {
+          episodes: response.episodes || [],
+          count: response.count,
+        };
+      } catch (error) {
+        console.error('Error fetching episodes for feed', feedId, ':', error);
+        throw error;
+      }
     },
     enabled: options.enabled !== false && feedId > 0,
     staleTime: 10 * 60 * 1000, // 10 minutes
@@ -275,6 +310,7 @@ interface Top100MusicEntry {
   image: string;
   feedId?: number;
   feedUrl?: string;
+  itemGuid?: string;
 }
 
 export function useTrendingPodcasts() {

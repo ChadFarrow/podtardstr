@@ -39,10 +39,35 @@ export function MusicDiscovery() {
     });
   };
 
-  const handlePlayAlbum = (podcast: PodcastIndexPodcast) => {
+  const handlePlayAlbum = async (podcast: PodcastIndexPodcast) => {
     console.log('Play button clicked for:', podcast.title, 'Feed ID:', podcast.id);
-    // Set the feed ID to trigger episode fetching, then play the first episode
+    
+    // First try to fetch episodes for this feed
     setSelectedFeedId(podcast.id);
+    
+    // If no episodes are found after a short delay, try to play the feed URL directly
+    setTimeout(() => {
+      if (selectedFeedId === podcast.id) {
+        console.log('No episodes found, trying to play feed URL directly:', podcast.url);
+        
+        if (podcast.url) {
+          // Create a mock episode from the feed data to play directly
+          const mockEpisode = {
+            id: podcast.id.toString(),
+            title: podcast.title,
+            author: podcast.author,
+            url: podcast.url,
+            imageUrl: podcast.image || podcast.artwork,
+            duration: 0,
+          };
+          
+          console.log('Playing feed URL as episode:', mockEpisode);
+          playPodcast(mockEpisode);
+        }
+        
+        setSelectedFeedId(null);
+      }
+    }, 2000); // Wait 2 seconds for episodes to load
   };
 
   // Auto-play first episode when episodes are loaded
