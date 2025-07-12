@@ -52,19 +52,25 @@ function SupportArtistButton({ destination, amount = 100 }: {
   }, 'isLightning:', isLightningAddress);
 
   const handleSupport = async () => {
+    console.log('Payment button clicked:', { destination, amount, isLightningAddress });
+    
     if (!destination.address) {
       setStatus('No payment address available');
+      console.error('No address found in destination:', destination);
       return;
     }
     
     if (!window.webln) {
       setStatus('Alby or a WebLN wallet is not installed.');
+      console.error('WebLN not available');
       return;
     }
     
     try {
       setStatus('Connecting to wallet...');
+      console.log('Enabling WebLN...');
       await window.webln.enable();
+      console.log('WebLN enabled successfully');
       
       if (isLightningAddress) {
         // Handle Lightning address (LNURL)
@@ -136,21 +142,35 @@ function SupportArtistButton({ destination, amount = 100 }: {
       }
     } catch (err) {
       console.error('WebLN payment error:', err);
-      setStatus('Payment failed.');
+      console.error('Error details:', {
+        message: err instanceof Error ? err.message : 'Unknown error',
+        stack: err instanceof Error ? err.stack : undefined,
+        destination: destination.address,
+        amount,
+        isLightningAddress
+      });
+      setStatus(`Payment failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
     }
   };
 
   return (
-    <Button 
-      onClick={handleSupport} 
-      size="sm" 
-      variant="ghost" 
-      className="h-6 px-2 text-xs"
-      title={`Send ${amount} sats to ${destination.name || 'artist'}`}
-    >
-      <Zap className="h-3 w-3 mr-1" />
-      {amount}
-    </Button>
+    <div className="flex flex-col items-end gap-1">
+      <Button 
+        onClick={handleSupport} 
+        size="sm" 
+        variant="ghost" 
+        className="h-6 px-2 text-xs"
+        title={`Send ${amount} sats to ${destination.name || 'artist'}`}
+      >
+        <Zap className="h-3 w-3 mr-1" />
+        {amount}
+      </Button>
+      {status && (
+        <div className="text-xs text-muted-foreground max-w-32 text-right truncate">
+          {status}
+        </div>
+      )}
+    </div>
   );
 }
 
