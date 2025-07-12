@@ -16,7 +16,7 @@ import type { PodcastIndexPodcast, PodcastIndexEpisode } from '@/hooks/usePodcas
 declare global {
   interface WebLN {
     enable: () => Promise<void>;
-    lnurlPay: (lnurlOrAddress: string, opts?: { amount?: number }) => Promise<any>;
+    sendPayment: (paymentRequest: string) => Promise<any>;
   }
   interface Window {
     webln?: WebLN;
@@ -24,11 +24,17 @@ declare global {
 }
 
 // --- SupportArtistButton ---
-function SupportArtistButton() {
-  const lightningAddress = 'dave@getalby.com';
+function SupportArtistButton({ value }: { value?: PodcastIndexEpisode['value'] | PodcastIndexPodcast['value'] }) {
+  // Find the first lud16 address in the value block
+  const destination = value?.destinations?.find(dest => dest.type === 'lud16');
+  const lightningAddress = destination?.address;
   const [status, setStatus] = useState('');
-  
+
   const handleSupport = async () => {
+    if (!lightningAddress) {
+      setStatus('No Lightning address available.');
+      return;
+    }
     if (!window.webln) {
       setStatus('Alby or a WebLN wallet is not installed.');
       return;
@@ -58,7 +64,9 @@ function SupportArtistButton() {
       setStatus('Payment failed or cancelled.');
     }
   };
-  
+
+  if (!lightningAddress) return null;
+
   return (
     <div className="mt-2">
       <Button onClick={handleSupport} size="sm" variant="secondary">
@@ -220,7 +228,7 @@ export function MusicDiscovery() {
                                 <p className="text-xs text-muted-foreground">{formatDuration(episode.duration)}</p>
                               )}
                               {/* SupportArtistButton for track */}
-                              <SupportArtistButton />
+                              <SupportArtistButton value={episode.value} />
                             </div>
                             <Button 
                               size="sm" 
@@ -289,7 +297,7 @@ export function MusicDiscovery() {
                         </button>
                         <p className="text-xs text-muted-foreground mt-1">{feed.description}</p>
                         {/* SupportArtistButton for album */}
-                        <SupportArtistButton />
+                        <SupportArtistButton value={feed.value} />
                       </div>
                     </div>
                   </CardContent>
@@ -341,7 +349,7 @@ export function MusicDiscovery() {
                       <span>{new Date(episode.datePublished * 1000).toLocaleDateString()}</span>
                     </div>
                     {/* SupportArtistButton for track */}
-                    <SupportArtistButton />
+                    <SupportArtistButton value={episode.value} />
                   </div>
                   <Button 
                     size="sm" 
