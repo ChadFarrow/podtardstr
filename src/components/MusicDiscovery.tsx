@@ -43,7 +43,13 @@ function SupportArtistButton({ destination, amount = 100 }: {
   if (!destination) return null;
   
   const isLightningAddress = destination.address?.includes('@');
-  console.log('SupportArtistButton - destination:', destination, 'isLightning:', isLightningAddress);
+  console.log('SupportArtistButton - destination:', {
+    name: destination.name,
+    address: destination.address,
+    type: destination.type,
+    split: destination.split,
+    addressLength: destination.address?.length
+  }, 'isLightning:', isLightningAddress);
 
   const handleSupport = async () => {
     if (!window.webln) {
@@ -74,16 +80,32 @@ function SupportArtistButton({ destination, amount = 100 }: {
         setStatus('Payment sent! ⚡');
       } else {
         // Handle keysend directly through WebLN
-        setStatus('Sending keysend payment...');
+        setStatus('Preparing keysend payment...');
+        
+        // Validate the node pubkey
+        const nodeAddress = destination.address.trim();
+        console.log('Keysend address:', nodeAddress, 'Length:', nodeAddress.length);
+        
+        // Node pubkeys should be 66 characters (33 bytes in hex)
+        if (nodeAddress.length !== 66) {
+          console.error('Invalid node pubkey length:', nodeAddress.length, 'expected 66');
+          setStatus(`Invalid node address (length: ${nodeAddress.length})`);
+          // Open Alby page as fallback
+          const keysendUrl = `https://getalby.com/keysend/${nodeAddress}?amount=${amount}&memo=Podtardstr%20Music%20Payment`;
+          window.open(keysendUrl, '_blank');
+          return;
+        }
         
         // Check if the WebLN provider supports keysend
         if (!window.webln.keysend) {
           // Fallback to Alby keysend page if not supported
-          const keysendUrl = `https://getalby.com/keysend/${destination.address}?amount=${amount}&memo=Podtardstr%20Music%20Payment`;
+          const keysendUrl = `https://getalby.com/keysend/${nodeAddress}?amount=${amount}&memo=Podtardstr%20Music%20Payment`;
           window.open(keysendUrl, '_blank');
           setStatus('Opened Alby keysend page');
           return;
         }
+        
+        setStatus('Sending keysend payment...');
         
         // V4V spec uses customKey/customValue for metadata
         const customRecords: Record<string, string> = {};
@@ -101,7 +123,7 @@ function SupportArtistButton({ destination, amount = 100 }: {
         }
         
         await window.webln.keysend({
-          destination: destination.address,
+          destination: nodeAddress,
           amount: amount,
           customRecords
         });
