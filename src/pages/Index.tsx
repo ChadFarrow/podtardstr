@@ -14,7 +14,7 @@ import { useState } from 'react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 
 const Index = () => {
-  const [activeTab, setActiveTab] = useState('discover');
+  const [activeTab, setActiveTab] = useState('music');
 
   useSeoMeta({
     title: 'Podtardstr',
