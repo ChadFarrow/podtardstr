@@ -31,6 +31,7 @@ function SupportArtistButton({ value }: { value?: PodcastIndexEpisode['value'] |
   const [status, setStatus] = useState('');
   
   console.log('SupportArtistButton - value block:', value);
+  console.log('SupportArtistButton - destinations:', value?.destinations);
   console.log('SupportArtistButton - found destination:', destination);
 
   const handleSupport = async () => {
@@ -84,7 +85,11 @@ function SupportArtistButton({ value }: { value?: PodcastIndexEpisode['value'] |
 
 // --- ValueBlockInfo Component ---
 function ValueBlockInfo({ value }: { value?: PodcastIndexEpisode['value'] | PodcastIndexPodcast['value'] }) {
-  if (!value || !value.destinations?.length) return null;
+  console.log('ValueBlockInfo rendering with:', value);
+  if (!value || !value.destinations?.length) {
+    console.log('ValueBlockInfo not rendering - no value or destinations');
+    return null;
+  }
   const { model, destinations } = value;
   const suggestedSats = model?.suggested ? parseInt(model.suggested) : 10;
   return (
@@ -101,12 +106,12 @@ function ValueBlockInfo({ value }: { value?: PodcastIndexEpisode['value'] | Podc
           <div key={i} className="flex items-center justify-between">
             <span className="truncate">{dest.name || 'Recipient'} ({dest.split}%)</span>
             <div className="flex items-center gap-1">
-              <span className="truncate">{dest.address}</span>
-              {dest.type === 'lud16' ? (
-                <SupportArtistButton value={value} />
+              <span className="truncate text-xs">{dest.address?.slice(0, 20)}...</span>
+              {dest.address?.includes('@') ? (
+                <span className="text-green-500">✓ Lightning</span>
               ) : (
-                <span className="text-muted-foreground" title="Keysend not supported in browser wallets">
-                  Keysend only
+                <span className="text-muted-foreground" title="Node address">
+                  Node: {dest.type}
                 </span>
               )}
             </div>
@@ -116,6 +121,7 @@ function ValueBlockInfo({ value }: { value?: PodcastIndexEpisode['value'] | Podc
           <div className="text-muted-foreground">+{destinations.length - 3} more</div>
         )}
       </div>
+      <SupportArtistButton value={value} />
     </div>
   );
 }
