@@ -1,6 +1,6 @@
 {
-  "name": "NostrCast - Decentralized Podcasting",
-  "short_name": "NostrCast",
+  "name": "Podtardstr - Decentralized Podcasting",
+  "short_name": "Podtardstr",
   "description": "Discover podcasts from Podcast Index and share recommendations on Nostr",
   "start_url": "/",
   "display": "standalone",

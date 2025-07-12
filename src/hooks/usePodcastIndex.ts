@@ -114,7 +114,7 @@ function generateAuthHeaders() {
     'X-Auth-Date': apiHeaderTime.toString(),
     'X-Auth-Key': API_KEY,
     'Authorization': hash4Header,
-    'User-Agent': 'NostrCast/1.0',
+    'User-Agent': 'Podtardstr/1.0',
   };
 }
 
