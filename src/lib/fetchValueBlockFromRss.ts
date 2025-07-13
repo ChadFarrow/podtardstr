@@ -17,16 +17,12 @@ export interface ValueBlock {
   valueRecipients: ValueRecipient[];
 }
 
-// CORS proxy services with fallbacks
-const CORS_PROXIES = [
-  'https://api.allorigins.win/raw',
-  'https://cors-anywhere.herokuapp.com',
-  'https://thingproxy.freeboard.io/fetch',
-];
+// More reliable CORS proxy
+const CORS_PROXY = 'https://api.allorigins.win/raw';
 
 // Request throttling - delay between requests
 let lastRequestTime = 0;
-const REQUEST_DELAY = 1000; // 1 second between requests
+const REQUEST_DELAY = 2000; // 2 seconds between requests
 
 function delay(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -50,54 +46,20 @@ async function throttledFetch(url: string): Promise<Response> {
  */
 export async function fetchValueBlockFromRss(rssUrl: string): Promise<ValueBlock | null> {
   try {
-    // First try server-side API route (if available)
-    try {
-      const apiUrl = `/api/rss-proxy?url=${encodeURIComponent(rssUrl)}`;
-      console.log(`Trying server-side API for: ${rssUrl}`);
-      
-      const response = await fetch(apiUrl);
-      if (response.ok) {
-        const xml = await response.text();
-        return parseValueBlockFromXml(xml, rssUrl);
-      }
-    } catch (error) {
-      console.log('Server-side API not available, falling back to CORS proxies');
-    }
+    console.log(`Attempting to fetch RSS: ${rssUrl}`);
     
-    // Fallback to CORS proxies
-    let response: Response | null = null;
-    let lastError: Error | null = null;
+    // Use CORS proxy with throttling
+    const proxyUrl = `${CORS_PROXY}?url=${encodeURIComponent(rssUrl)}`;
+    const response = await throttledFetch(proxyUrl);
     
-    for (const proxyBase of CORS_PROXIES) {
-      try {
-        const proxyUrl = `${proxyBase}?url=${encodeURIComponent(rssUrl)}`;
-        console.log(`Trying proxy: ${proxyBase} for ${rssUrl}`);
-        
-        response = await throttledFetch(proxyUrl);
-        
-        if (response.ok) {
-          console.log(`Success with proxy: ${proxyBase}`);
-          break;
-        } else if (response.status === 429) {
-          console.warn(`Rate limited by ${proxyBase}, trying next proxy...`);
-          continue;
-        } else {
-          console.warn(`Proxy ${proxyBase} failed with status: ${response.status}`);
-          continue;
-        }
-      } catch (error) {
-        console.warn(`Proxy ${proxyBase} failed:`, error);
-        lastError = error as Error;
-        continue;
-      }
-    }
-    
-    if (!response || !response.ok) {
-      console.warn(`All methods failed for ${rssUrl}. Last error:`, lastError);
+    if (!response.ok) {
+      console.warn(`CORS proxy failed with status: ${response.status} for ${rssUrl}`);
       return null;
     }
     
     const xml = await response.text();
+    console.log(`Successfully fetched RSS (${xml.length} chars): ${rssUrl}`);
+    
     return parseValueBlockFromXml(xml, rssUrl);
     
   } catch (error) {
