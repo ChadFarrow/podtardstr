@@ -261,8 +261,8 @@ export function TrendingMusic() {
       // Clear existing queue
       clearQueue();
       
-      // Fetch episodes for all feeds and add them to queue
-      const allEpisodes: Array<{
+      // Create placeholder array to maintain order
+      const orderedEpisodes: Array<{
         id: string;
         title: string;
         author: string;
@@ -270,12 +270,12 @@ export function TrendingMusic() {
         imageUrl?: string;
         duration?: number;
         rank: number;
-      }> = [];
+      } | null> = new Array(trendingMusic.feeds.length).fill(null);
       
-      // Process feeds in order (Top 100 order)
-      for (let i = 0; i < trendingMusic.feeds.length; i++) {
-        const feed = trendingMusic.feeds[i];
+      // Process feeds in parallel but maintain order with Promise.allSettled
+      const episodePromises = trendingMusic.feeds.map(async (feed, index) => {
         try {
+          console.log(`🎵 Fetching episode for #${index + 1}: ${feed.title}`);
           const response = await podcastIndexFetch<PodcastIndexEpisode>('/episodes/byfeedid', {
             id: feed.id.toString(),
             max: '5', // Get first few episodes
@@ -285,32 +285,50 @@ export function TrendingMusic() {
           const firstEpisode = episodes.find(ep => ep.enclosureUrl);
           
           if (firstEpisode) {
-            allEpisodes.push({
+            const episode = {
               id: `${feed.id}-${firstEpisode.id}`,
               title: firstEpisode.title,
               author: firstEpisode.feedTitle || feed.author,
               url: firstEpisode.enclosureUrl,
               imageUrl: firstEpisode.image || firstEpisode.feedImage || feed.image || feed.artwork,
               duration: firstEpisode.duration,
-              rank: i + 1,
-            });
+              rank: index + 1,
+            };
+            orderedEpisodes[index] = episode;
+            console.log(`✅ Successfully queued #${index + 1}: ${episode.title}`);
+            return episode;
+          } else {
+            console.warn(`⚠️ No playable episodes found for #${index + 1}: ${feed.title}`);
+            return null;
           }
         } catch (error) {
-          console.warn(`Failed to fetch episodes for feed ${feed.id}:`, error);
+          console.warn(`❌ Failed to fetch episodes for #${index + 1} ${feed.title}:`, error);
+          return null;
         }
-      }
+      });
       
-      // Add all episodes to queue
-      allEpisodes.forEach(episode => {
+      // Wait for all episode fetches to complete
+      await Promise.allSettled(episodePromises);
+      
+      // Filter out failed episodes but maintain order
+      const validEpisodes = orderedEpisodes.filter((episode): episode is NonNullable<typeof episode> => episode !== null);
+      
+      // Add episodes to queue in order
+      validEpisodes.forEach(episode => {
         addToQueue(episode);
       });
       
-      // Play the first episode
-      if (allEpisodes.length > 0) {
-        playPodcast(allEpisodes[0]);
+      // Play the first valid episode
+      if (validEpisodes.length > 0) {
+        playPodcast(validEpisodes[0]);
       }
       
-      console.log(`Queued ${allEpisodes.length} tracks from Top 100 V4V chart`);
+      const skippedCount = trendingMusic.feeds.length - validEpisodes.length;
+      console.log(`🎼 Queued ${validEpisodes.length} tracks from Top 100 V4V chart${skippedCount > 0 ? ` (${skippedCount} tracks skipped due to fetch errors)` : ''}`);
+      
+      if (skippedCount > 0) {
+        console.log('📋 Successfully queued tracks:', validEpisodes.map(ep => `#${ep.rank}: ${ep.title}`));
+      }
     } catch (error) {
       console.error('Failed to queue Top 100 tracks:', error);
     } finally {
