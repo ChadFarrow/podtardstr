@@ -11,7 +11,7 @@ import { RelaySelector } from '@/components/RelaySelector';
 import { Sidebar, SidebarContent, SidebarHeader, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Music, Search, TrendingUp, MessageSquare, Radio, Code, Star } from 'lucide-react';
+import { Music, Search, TrendingUp, MessageSquare, Radio, Code, Star, ExternalLink } from 'lucide-react';
 import { useState } from 'react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 
@@ -93,6 +93,20 @@ const Index = () => {
                   >
                     <Code className="h-4 w-4 mr-2" />
                     Feed Parser
+                  </Button>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-sm font-medium text-muted-foreground mb-3">External Tools</h3>
+                <div className="space-y-2">
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start text-sm"
+                    onClick={() => window.open('https://tools.rssblue.com', '_blank')}
+                  >
+                    <ExternalLink className="h-4 w-4 mr-2" />
+                    RSS Blue Validator
                   </Button>
                 </div>
               </div>
