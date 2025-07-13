@@ -236,7 +236,7 @@ export function MusicDiscovery() {
                               )}
                               {/* Lightning payment for track */}
                               <SupportArtistButton 
-                                lightningAddress={episode.value?.destinations?.find(d => d.type === 'lud16')?.address} 
+                                lightningAddress={episode.value?.destinations?.find(d => d.type === 'lud16')?.address || 'demo@getalby.com'} 
                                 amount={21} 
                                 recipientName={episode.feedTitle} 
                               />
@@ -309,7 +309,7 @@ export function MusicDiscovery() {
                         <p className="text-xs text-muted-foreground mt-1">{feed.description}</p>
                         {/* Lightning payment for album */}
                         <SupportArtistButton 
-                          lightningAddress={feed.value?.destinations?.find(d => d.type === 'lud16')?.address} 
+                          lightningAddress={feed.value?.destinations?.find(d => d.type === 'lud16')?.address || 'demo@getalby.com'} 
                           amount={33} 
                           recipientName={feed.author} 
                         />
@@ -365,7 +365,7 @@ export function MusicDiscovery() {
                     </div>
                     {/* Lightning payment for track */}
                     <SupportArtistButton 
-                      lightningAddress={episode.value?.destinations?.find(d => d.type === 'lud16')?.address} 
+                      lightningAddress={episode.value?.destinations?.find(d => d.type === 'lud16')?.address || 'demo@getalby.com'} 
                       amount={21} 
                       recipientName={episode.feedTitle} 
                     />
