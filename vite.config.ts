@@ -44,9 +44,9 @@ export default defineConfig(() => {
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/api\/podcastindex-stats/, ''),
         },
-        // Proxy for RSS feeds and other external URLs
-        '/api/proxy': {
-          target: 'http://localhost',
+        // Simple proxy for RSS feeds - bypass CORS for any external URL
+        '/api/proxy/*': {
+          target: 'http://placeholder.com',
           changeOrigin: true,
           configure: (proxy, _options) => {
             proxy.on('proxyReq', (proxyReq, req, _res) => {
@@ -54,43 +54,48 @@ export default defineConfig(() => {
               const urlPath = req.url?.replace('/api/proxy/', '') || '';
               const targetUrl = decodeURIComponent(urlPath);
               
+              console.log(`🔄 Proxying request to: ${targetUrl}`);
+              
               try {
                 const url = new URL(targetUrl);
-                // Update the proxy request to target the correct host
-                proxyReq.setHeader('Host', url.hostname);
+                // Completely replace the request
+                proxyReq.protocol = url.protocol;
+                proxyReq.host = url.hostname;
+                proxyReq.port = url.port || (url.protocol === 'https:' ? 443 : 80);
                 proxyReq.path = url.pathname + url.search;
                 
-                console.log(`Proxying RSS feed request to: ${targetUrl}`);
+                // Set proper headers
+                proxyReq.setHeader('Host', url.hostname);
+                proxyReq.setHeader('User-Agent', 'Podtardstr/1.0');
+                proxyReq.removeHeader('Origin');
+                proxyReq.removeHeader('Referer');
               } catch (error) {
-                console.error('Invalid proxy URL:', targetUrl, error);
+                console.error('❌ Invalid proxy URL:', targetUrl, error);
+              }
+            });
+            
+            proxy.on('error', (err, req, res) => {
+              console.error('❌ Proxy error:', err);
+              if (res && !res.headersSent) {
+                res.writeHead(500, { 'Content-Type': 'text/plain' });
+                res.end('Proxy error');
               }
             });
           },
           router: (req: { url?: string }) => {
             const urlPath = req.url?.replace('/api/proxy/', '') || '';
-            const targetUrl = decodeURIComponent(urlPath);
-            
             try {
+              const targetUrl = decodeURIComponent(urlPath);
               const url = new URL(targetUrl);
-              return `${url.protocol}//${url.hostname}${url.port ? ':' + url.port : ''}`;
+              const target = `${url.protocol}//${url.hostname}${url.port ? ':' + url.port : ''}`;
+              console.log(`🎯 Routing to: ${target}`);
+              return target;
             } catch (error) {
-              console.error('Invalid proxy URL for router:', targetUrl, error);
-              return 'http://localhost';
+              console.error('❌ Router error:', error);
+              return 'https://httpbin.org'; // Fallback
             }
           },
-          rewrite: (path) => {
-            const urlPath = path.replace('/api/proxy/', '');
-            const targetUrl = decodeURIComponent(urlPath);
-            
-            try {
-              const url = new URL(targetUrl);
-              return url.pathname + url.search;
-            } catch (error) {
-              console.error('Invalid proxy URL for rewrite:', targetUrl, error);
-              return '/';
-            }
-          },
-        } as ProxyOptions,
+        },
       },
     },
     plugins: [
