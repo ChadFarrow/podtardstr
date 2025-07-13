@@ -10,6 +10,7 @@ import { useTrendingPodcasts } from '@/hooks/usePodcastIndex';
 import { usePodcastPlayer } from '@/hooks/usePodcastPlayer';
 import { usePodcastEpisodes } from '@/hooks/usePodcastIndex';
 import type { PodcastIndexPodcast, PodcastIndexEpisode } from '@/hooks/usePodcastIndex';
+import { useValueBlockFromRss } from '@/hooks/useValueBlockFromRss';
 
 
 // Add WebLN type declaration for TypeScript
@@ -29,227 +30,134 @@ declare global {
 }
 
 // --- SupportArtistButton ---
-function SupportArtistButton({ destination, amount = 100 }: { 
-  destination?: { 
-    name?: string; 
-    address: string; 
-    type: string; 
-    split: number 
-  };
+function SupportArtistButton({ 
+  lightningAddress, 
+  amount = 33, 
+  recipientName = 'Artist' 
+}: { 
+  lightningAddress?: string;
   amount?: number;
+  recipientName?: string;
 }) {
   const [status, setStatus] = useState('');
-  
-  if (!destination) return null;
-  
-  const isLightningAddress = destination.address?.includes('@');
-  console.log('SupportArtistButton - destination:', {
-    name: destination.name,
-    address: destination.address,
-    type: destination.type,
-    split: destination.split,
-    addressLength: destination.address?.length
-  }, 'isLightning:', isLightningAddress);
 
   const handleSupport = async () => {
-    console.log('Payment button clicked:', { destination, amount, isLightningAddress });
-    
-    if (!destination.address) {
-      setStatus('No payment address available');
-      console.error('No address found in destination:', destination);
+    if (!lightningAddress) {
+      setStatus('No Lightning address available.');
       return;
     }
-    
     if (!window.webln) {
-      setStatus('Alby or a WebLN wallet is not installed.');
-      console.error('WebLN not available');
+      setStatus('Install Alby or WebLN wallet.');
       return;
     }
-    
     try {
-      setStatus('Connecting to wallet...');
-      console.log('Enabling WebLN...');
+      setStatus('Connecting...');
       await window.webln.enable();
-      console.log('WebLN enabled successfully');
+      setStatus(`Sending ${amount} sats...`);
+      console.log('Attempting payment:', { lightningAddress, amount });
       
-      if (isLightningAddress) {
-        // Handle Lightning address (LNURL)
-        setStatus('Fetching invoice...');
-        const [name, domain] = destination.address.split('@');
-        const lnurlp = `https://${domain}/.well-known/lnurlp/${name}`;
-        const lnurlRes = await fetch(lnurlp);
-        if (!lnurlRes.ok) throw new Error('Failed to fetch LNURL-pay endpoint');
-        const lnurlData = await lnurlRes.json();
-        const msats = amount * 1000;
-        setStatus('Requesting invoice...');
-        const invoiceRes = await fetch(`${lnurlData.callback}?amount=${msats}`);
-        if (!invoiceRes.ok) throw new Error('Failed to get invoice');
-        const invoiceData = await invoiceRes.json();
-        const invoice = invoiceData.pr;
-        setStatus('Paying invoice...');
-        await window.webln.sendPayment(invoice);
-        setStatus('Payment sent! ⚡');
-      } else {
-        // Handle keysend directly through WebLN
-        setStatus('Preparing keysend payment...');
-        
-        // Validate the node pubkey
-        const nodeAddress = destination.address.trim();
-        console.log('Keysend address:', nodeAddress, 'Length:', nodeAddress.length);
-        
-        // Node pubkeys should be 66 characters (33 bytes in hex)
-        if (nodeAddress.length !== 66 || !/^[0-9a-fA-F]{66}$/.test(nodeAddress)) {
-          console.error('Invalid node pubkey:', {
-            address: nodeAddress,
-            length: nodeAddress.length,
-            expected: 66,
-            isHex: /^[0-9a-fA-F]+$/.test(nodeAddress)
-          });
-          setStatus(`Invalid node address format`);
-          return;
-        }
-        
-        // Check if the WebLN provider supports keysend
-        if (!window.webln.keysend) {
-          setStatus('Keysend not supported by wallet');
-          return;
-        }
-        
-        setStatus('Sending keysend payment...');
-        
-        // V4V spec uses customKey/customValue for metadata
-        const customRecords: Record<string, string> = {};
-        
-        // Add podcast metadata if available (7629169 is the standard podcast TLV type)
-        if (destination.name) {
-          customRecords['7629169'] = JSON.stringify({
-            podcast: 'Podtardstr Music',
-            feedID: 'music',
-            episode: destination.name,
-            ts: 0,
-            name: destination.name,
-            sender_name: 'Podtardstr User'
-          });
-        }
-        
-        await window.webln.keysend({
-          destination: nodeAddress,
-          amount: amount,
-          customRecords
-        });
-        
-        setStatus('Keysend payment sent! ⚡');
-      }
+      // Convert lightning address to LNURL endpoint
+      const [name, domain] = lightningAddress.split('@');
+      const lnurlp = `https://${domain}/.well-known/lnurlp/${name}`;
+      const lnurlRes = await fetch(lnurlp);
+      const lnurlData = await lnurlRes.json();
+      
+      // Create invoice
+      const invoiceRes = await fetch(lnurlData.callback + `?amount=${amount * 1000}`);
+      const invoiceData = await invoiceRes.json();
+      
+      // Send payment
+      await window.webln.sendPayment(invoiceData.pr);
+      setStatus(`Sent ${amount} sats to ${recipientName}! ⚡`);
     } catch (err) {
       console.error('WebLN payment error:', err);
-      console.error('Error details:', {
-        message: err instanceof Error ? err.message : 'Unknown error',
-        stack: err instanceof Error ? err.stack : undefined,
-        destination: destination.address,
-        amount,
-        isLightningAddress
-      });
-      setStatus(`Payment failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      setStatus('Payment failed or cancelled.');
     }
   };
 
   return (
-    <div className="flex flex-col items-end gap-1">
+    <div className="mt-2">
       <Button 
-        onClick={handleSupport} 
         size="sm" 
-        variant="ghost" 
-        className="h-6 px-2 text-xs"
-        title={`Send ${amount} sats to ${destination.name || 'artist'}`}
+        variant="outline" 
+        onClick={handleSupport}
+        disabled={!lightningAddress || !window.webln}
+        className="text-xs"
       >
-        <Zap className="h-3 w-3 mr-1" />
-        {amount}
+        Send {amount} sats
       </Button>
       {status && (
-        <div className="text-xs text-muted-foreground max-w-32 text-right truncate">
-          {status}
-        </div>
+        <p className="text-xs text-muted-foreground mt-1">{status}</p>
       )}
     </div>
   );
 }
 
 // --- ValueBlockInfo Component ---
-function ValueBlockInfo({ value }: { value?: PodcastIndexEpisode['value'] | PodcastIndexPodcast['value'] }) {
-  console.log('💰 VALUEBLOCK COMPONENT CALLED');
-  console.log('💰 ValueBlockInfo rendering with:', value);
-  console.log('💰 Raw destinations:', JSON.stringify(value?.destinations, null, 2));
+function ValueBlockInfo({ rssUrl }: { rssUrl?: string }) {
+  const { data: valueBlock, isLoading, error } = useValueBlockFromRss(rssUrl);
   
-  // Check if the API response has any value-related fields at all
-  React.useEffect(() => {
-    console.log('🔍 LOOKING FOR VALUE DATA - API might be missing ValueBlock fields');
-  }, []);
-  
-  if (!value || !value.destinations?.length) {
-    console.log('💰 No ValueBlock data - API limitation');
-    // Show a message explaining why payments aren't available
+  if (isLoading) {
     return (
-      <div className="mt-2 p-2 bg-orange-50 dark:bg-orange-950 border border-orange-200 dark:border-orange-800 rounded text-xs">
-        <div className="flex items-center gap-1 mb-1">
-          <Zap className="h-3 w-3 text-orange-600" />
-          <span className="font-medium text-orange-700 dark:text-orange-300">Value4Value Available</span>
+      <div className="mt-2 p-2 bg-muted/50 rounded text-xs">
+        <div className="flex items-center gap-1">
+          <Zap className="h-3 w-3" />
+          <span>Loading payment info...</span>
         </div>
-        <p className="text-orange-600 dark:text-orange-400">
-          💡 This track supports Lightning payments, but addresses aren't shown in search results for privacy. 
-          Visit the artist's podcast page for direct payments.
-        </p>
       </div>
     );
   }
-  const { model, destinations } = value;
-  const suggestedSats = model?.suggested ? parseInt(model.suggested) : 10;
   
-  // Log each destination to see what's missing
-  destinations.forEach((dest, i) => {
-    console.log(`Destination ${i}:`, {
-      name: dest.name,
-      address: dest.address,
-      type: dest.type,
-      split: dest.split,
-      hasAddress: !!dest.address,
-      addressLength: dest.address?.length
-    });
-  });
-  
+  if (error || !valueBlock) {
+    return (
+      <div className="mt-2 p-2 bg-muted/50 rounded text-xs">
+        <div className="flex items-center gap-1">
+          <Zap className="h-3 w-3" />
+          <span>Payment info not available</span>
+        </div>
+      </div>
+    );
+  }
+
+  const { type, method, suggested, valueRecipients } = valueBlock;
+  const suggestedSats = suggested ? parseInt(suggested) : 10;
+
   return (
     <div className="mt-2 p-2 bg-muted/50 rounded text-xs">
       <div className="flex items-center gap-1 mb-1">
         <Zap className="h-3 w-3" />
         <span className="font-medium">Value4Value</span>
-        {model?.suggested && (
-          <span className="text-muted-foreground">• {suggestedSats} sats/min</span>
-        )}
-      </div>
-      <div className="space-y-1">
-        {destinations.slice(0, 3).map((dest, i) => (
-          <div key={i} className="flex items-center justify-between gap-2">
-            <span className="truncate flex-1">{dest.name || 'Recipient'} ({dest.split}%)</span>
-            {dest.address ? (
-              <SupportArtistButton 
-                destination={dest} 
-                amount={Math.max(10, Math.floor(suggestedSats * (dest.split / 100)))}
-              />
-            ) : (
-              <span className="text-xs text-orange-500" title="Payment address not published publicly">
-                🔒 Private
-              </span>
-            )}
-          </div>
-        ))}
-        {destinations.length > 3 && (
-          <div className="text-muted-foreground">+{destinations.length - 3} more</div>
+        {suggested && (
+          <span className="text-muted-foreground">
+            ({suggestedSats} sats/min suggested)
+          </span>
         )}
       </div>
       
-      {!destinations.some(dest => dest.address) && (
-        <div className="mt-2 text-xs text-muted-foreground border-t pt-2">
-          💡 This artist hasn't published payment addresses publicly. Try searching for other artists.
+      {valueRecipients.length > 0 ? (
+        <div className="space-y-1">
+          {valueRecipients.map((recipient, index) => (
+            <div key={index} className="flex items-center justify-between">
+              <span className="truncate">
+                {recipient.name || 'Unknown'}
+                {recipient.split && ` (${recipient.split}%)`}
+              </span>
+              {recipient.type === 'lud16' ? (
+                <SupportArtistButton 
+                  lightningAddress={recipient.address}
+                  amount={suggestedSats}
+                  recipientName={recipient.name}
+                />
+              ) : (
+                <span className="text-muted-foreground" title="Keysend not supported in browser wallets">
+                  {recipient.type || 'Unknown'}
+                </span>
+              )}
+            </div>
+          ))}
         </div>
+      ) : (
+        <span className="text-muted-foreground">No payment recipients found</span>
       )}
     </div>
   );
@@ -274,7 +182,7 @@ export function MusicDiscovery() {
     console.log('🎵 Track value block:', {
       title: episode.title,
       value: episode.value,
-      hasDestinations: episode.value?.destinations?.length > 0
+      hasDestinations: episode.value?.destinations && episode.value.destinations.length > 0
     });
     
     playPodcast({
@@ -414,7 +322,7 @@ export function MusicDiscovery() {
                                 <p className="text-xs text-muted-foreground">{formatDuration(episode.duration)}</p>
                               )}
                               {/* ValueBlock info for track - always show for music */}
-                              <ValueBlockInfo value={episode.value || { model: { type: 'streaming', method: 'keysend', suggested: '10' }, destinations: [] }} />
+                              <ValueBlockInfo rssUrl={undefined} />
                             </div>
                             <Button 
                               size="sm" 
@@ -483,7 +391,7 @@ export function MusicDiscovery() {
                         </button>
                         <p className="text-xs text-muted-foreground mt-1">{feed.description}</p>
                         {/* ValueBlock info for album - always show for music */}
-                        <ValueBlockInfo value={feed.value || { model: { type: 'streaming', method: 'keysend', suggested: '10' }, destinations: [] }} />
+                        <ValueBlockInfo rssUrl={feed.url} />
                       </div>
                     </div>
                   </CardContent>
@@ -535,7 +443,7 @@ export function MusicDiscovery() {
                       <span>{new Date(episode.datePublished * 1000).toLocaleDateString()}</span>
                     </div>
                     {/* ValueBlock info for track - always show for music */}
-                    <ValueBlockInfo value={episode.value || { model: { type: 'streaming', method: 'keysend', suggested: '10' }, destinations: [] }} />
+                    <ValueBlockInfo rssUrl={undefined} />
                   </div>
                   <Button 
                     size="sm" 
