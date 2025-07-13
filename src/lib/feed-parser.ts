@@ -162,98 +162,151 @@ export async function fetchAndParseFeed(feedUrl: string): Promise<ParsedFeed> {
   try {
     console.log('Fetching RSS feed:', feedUrl);
     
-    // Try multiple CORS proxies with fallback strategy
+    // Enhanced proxy list with better options
     const proxies = [
-      // Primary proxy - more reliable
+      // Primary proxy - more reliable and less rate-limited
+      (url: string) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+      // Backup proxy - good for most feeds
       (url: string) => `https://corsproxy.io/?${encodeURIComponent(url)}`,
-      // Backup proxy
+      // Alternative proxy - different service
+      (url: string) => `https://thingproxy.freeboard.io/fetch/${encodeURIComponent(url)}`,
+      // Last resort proxy
       (url: string) => `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
-      // Alternative proxy
-      (url: string) => `https://cors-anywhere.herokuapp.com/${url}`,
     ];
     
     let xmlText: string | undefined;
     let lastError: Error | null = null;
     
-    // Try direct fetch first
+    // Try direct fetch first with better headers
     try {
       const response = await fetch(feedUrl, {
+        method: 'GET',
         headers: {
-          'Accept': 'application/rss+xml, application/xml, text/xml, text/html',
-          'User-Agent': 'Podtardstr/1.0 (RSS Parser)',
+          'Accept': 'application/rss+xml, application/xml, text/xml, text/html, */*',
+          'User-Agent': 'Mozilla/5.0 (compatible; Podtardstr/1.0; RSS Parser)',
+          'Cache-Control': 'no-cache',
         },
-        redirect: 'follow', // Follow redirects
+        redirect: 'follow',
+        mode: 'cors',
       });
       
       if (response.ok) {
         xmlText = await response.text();
         console.log('Direct fetch successful');
       } else {
-        throw new Error(`Direct fetch failed: ${response.status}`);
+        throw new Error(`Direct fetch failed: ${response.status} ${response.statusText}`);
       }
     } catch (directError) {
       console.log('Direct fetch failed, trying CORS proxies:', directError);
       lastError = directError as Error;
       
-      // Try each proxy in sequence
-      for (const proxyFn of proxies) {
+      // Try each proxy in sequence with exponential backoff
+      for (let i = 0; i < proxies.length; i++) {
         try {
+          const proxyFn = proxies[i];
           const proxyUrl = proxyFn(feedUrl);
-          console.log('Trying proxy:', proxyUrl);
+          console.log(`Trying proxy ${i + 1}/${proxies.length}:`, proxyUrl);
+          
+          // Add delay between retries to avoid rate limiting
+          if (i > 0) {
+            const delay = Math.min(1000 * Math.pow(2, i - 1), 5000); // Exponential backoff, max 5s
+            console.log(`Waiting ${delay}ms before next proxy attempt...`);
+            await new Promise(resolve => setTimeout(resolve, delay));
+          }
           
           const response = await fetch(proxyUrl, {
+            method: 'GET',
             headers: {
-              'Accept': 'application/json, text/plain, */*',
+              'Accept': 'application/json, text/plain, text/xml, */*',
+              'User-Agent': 'Mozilla/5.0 (compatible; Podtardstr/1.0; RSS Parser)',
             },
+            redirect: 'follow',
           });
           
           if (!response.ok) {
-            throw new Error(`Proxy failed: ${response.status} ${response.statusText}`);
+            throw new Error(`Proxy ${i + 1} failed: ${response.status} ${response.statusText}`);
           }
           
-          const contentType = response.headers.get('content-type');
+          const contentType = response.headers.get('content-type') || '';
           
-          if (contentType?.includes('application/json')) {
-            // Handle JSON response from allorigins.win
+          if (contentType.includes('application/json')) {
+            // Handle JSON response from allorigins.win and codetabs
             const proxyData = await response.json();
-            xmlText = proxyData.contents;
+            
+            // Different proxies return different JSON structures
+            if (proxyData.contents) {
+              xmlText = proxyData.contents;
+            } else if (proxyData.data) {
+              xmlText = proxyData.data;
+            } else if (proxyData.body) {
+              xmlText = proxyData.body;
+            } else if (typeof proxyData === 'string') {
+              xmlText = proxyData;
+            } else {
+              throw new Error('Unexpected JSON response structure from proxy');
+            }
             
             if (!xmlText) {
-              throw new Error('No content received from proxy');
+              throw new Error('No content received from JSON proxy');
             }
           } else {
-            // Handle direct XML response from other proxies
+            // Handle direct XML/text response from other proxies
             xmlText = await response.text();
           }
           
-          console.log('Proxy fetch successful');
+          console.log(`Proxy ${i + 1} fetch successful`);
           break;
         } catch (proxyError) {
-          console.log('Proxy failed:', proxyError);
+          console.log(`Proxy ${i + 1} failed:`, proxyError);
           lastError = proxyError as Error;
+          
+          // If this is a rate limit error, add extra delay
+          if (proxyError instanceof Error && 
+              (proxyError.message.includes('429') || proxyError.message.includes('rate limit'))) {
+            console.log('Rate limit detected, adding extra delay...');
+            await new Promise(resolve => setTimeout(resolve, 3000));
+          }
+          
           continue;
         }
       }
     }
     
     if (!xmlText) {
-      throw new Error(`All fetch methods failed. Last error: ${lastError?.message}`);
+      // Return empty feed instead of throwing for better UX
+      console.warn(`All fetch methods failed for ${feedUrl}. Last error: ${lastError?.message}`);
+      return {
+        title: 'Feed Unavailable',
+        description: 'Unable to fetch feed due to CORS or network issues',
+        episodes: []
+      };
     }
     
     // Validate that we got XML content
-    if (!xmlText.trim().startsWith('<')) {
-      throw new Error('Response is not valid XML');
+    const trimmedXml = xmlText.trim();
+    if (!trimmedXml.startsWith('<')) {
+      console.warn('Response is not valid XML, returning empty feed');
+      return {
+        title: 'Invalid Feed',
+        description: 'Feed returned non-XML content',
+        episodes: []
+      };
     }
     
     console.log('Parsing RSS feed XML...');
     
-    const parsedFeed = parseFeedXML(xmlText);
-    console.log('Parsed feed:', parsedFeed);
+    const parsedFeed = parseFeedXML(trimmedXml);
+    console.log('Parsed feed successfully');
     
     return parsedFeed;
   } catch (error) {
     console.error('Error fetching and parsing feed:', error);
-    throw error;
+    // Return empty feed instead of throwing for better UX
+    return {
+      title: 'Feed Error',
+      description: 'Error occurred while fetching or parsing feed',
+      episodes: []
+    };
   }
 }
 
