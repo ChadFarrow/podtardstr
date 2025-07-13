@@ -3,8 +3,8 @@
 ## 🎯 Project Overview
 **Podtardstr** - A Nostr-based music discovery application with Value4Value (V4V) Lightning payments integrated.
 
-**Last Updated**: January 13, 2025  
-**Version**: 0.0.0  
+**Last Updated**: July 13, 2025  
+**Version**: 0.0.1  
 **Status**: 🟢 Production Ready
 
 ---
@@ -27,11 +27,14 @@
 | **Keysend Payments** | ✅ Complete | Support for both Lightning addresses and node pubkeys |
 | **Server-side RSS Proxy** | ✅ Complete | CORS-free V4V data fetching via Vercel functions |
 | **Track Queue Management** | ✅ Complete | Fixed ordering issues in Play All queue |
+| **Wavlake Integration** | ✅ Complete | Direct album links from feed URLs |
+| **Mobile Viewport** | ✅ Complete | Fixed zoom and horizontal scrolling issues |
+| **Dark Mode Default** | ✅ Complete | App now defaults to dark theme |
 
 ### 🔄 **In Progress**
 | Feature | Status | Progress | Notes |
 |---------|--------|----------|-------|
-| **Mobile Optimization** | 🔄 In Progress | 80% | APK build ready, testing needed |
+| None currently | - | - | All core features complete |
 
 ### 📋 **Planned**
 | Feature | Status | Priority | Notes |
@@ -124,6 +127,15 @@
 
 ## 🎯 Recent Achievements
 
+### **July 13, 2025**
+- ✅ **Wavlake Integration Enhanced**: Extract album IDs from feed URLs for direct album links
+- ✅ **Mobile Viewport Fixed**: Prevented horizontal scrolling and unwanted zoom on mobile
+- ✅ **Dark Mode Default**: App now defaults to dark theme for better user experience
+- ✅ **Album Art Play Button**: Made play button always visible on album covers
+- ✅ **Progress Bar Fixed**: Timeupdate events working in popup and bottom player
+- ✅ **TLV Metadata Enhanced**: Improved boost info with proper Podcast Index 2.0 compliance
+- ✅ **Payment Split Fairness**: Recipients now get minimum 1 sat if they have valid splits
+
 ### **January 13, 2025**
 - ✅ **Complete PWA Implementation**: Full iOS/Android support with service worker
 - ✅ **Keysend Payment Support**: Both Lightning addresses and node pubkeys
@@ -131,6 +143,7 @@
 - ✅ **Fixed Track Ordering**: Proper queue management in Play All feature
 - ✅ **Deployment Optimization**: Fixed caching and 404 issues
 - ✅ **Manifest Fixes**: Proper PWA installation support
+- ✅ **TLV App Name Always Set**: Podtardstr is now always included as the app name in the TLV metadata for all Lightning payments, ensuring Podcast Index 2.0 compatibility
 
 ### **December 19, 2024**
 - ✅ **Android APK Build Support**: Complete Capacitor setup
@@ -174,6 +187,9 @@
 - [x] Mobile-responsive design
 - [x] PWA installable
 - [x] APK buildable
+- [x] TLV app name always set for all Lightning payments
+- [x] Mobile viewport optimized (no zoom/scroll issues)
+- [x] Wavlake direct album linking
 
 ### **Feature Goals**
 - [x] Top 100 V4V music discovery

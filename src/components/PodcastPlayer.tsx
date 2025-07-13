@@ -167,7 +167,14 @@ export function PodcastPlayer() {
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
+  console.log('🎵 PodcastPlayer render:', { 
+    hasCurrentPodcast: !!currentPodcast, 
+    currentPodcast: currentPodcast?.title,
+    isPlaying 
+  });
+
   if (!currentPodcast) {
+    console.log('🎵 PodcastPlayer: No current podcast, not rendering');
     return null;
   }
 
