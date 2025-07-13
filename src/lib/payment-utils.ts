@@ -45,6 +45,7 @@ export function isValidLightningAddress(address: string): boolean {
 
 /**
  * Filters and validates Lightning recipients from ValueBlock destinations
+ * Based on the Podcast Namespace value-recipient spec
  */
 export function getLightningRecipients(destinations?: ValueDestination[]): PaymentRecipient[] {
   if (!destinations || !Array.isArray(destinations)) {
@@ -56,26 +57,35 @@ export function getLightningRecipients(destinations?: ValueDestination[]): Payme
   
   const processed = destinations
     .map((d, index) => {
+      const isLightningAddress = d.address && isValidLightningAddress(d.address);
       console.log(`Destination ${index}:`, {
         type: d.type,
         address: d.address,
         name: d.name,
         split: d.split,
-        isValidAddress: d.address ? isValidLightningAddress(d.address) : false
+        isLightningAddress,
+        addressLength: d.address?.length || 0
       });
       return d;
     })
     .filter(d => {
-      // Accept both lud16 and lud06 types
-      const validType = d.type === 'lud16' || d.type === 'lud06';
+      // Prioritize Lightning addresses (lud16/lud06) which we can actually pay
+      const supportedTypes = ['lud16', 'lud06'];
+      const validType = supportedTypes.includes(d.type);
+      
+      // Only validate Lightning address format for supported types
       const validAddress = d.address && isValidLightningAddress(d.address);
-      const hasValidSplit = d.split && d.split > 0;
+      
+      const hasValidSplit = d.split !== undefined && d.split > 0;
       
       console.log(`Filtering destination ${d.name || 'Unknown'}:`, {
-        validType,
-        validAddress,
-        hasValidSplit,
-        included: validType && validAddress && hasValidSplit
+        type: d.type,
+        validType: validType,
+        validAddress: validAddress,
+        hasValidSplit: hasValidSplit,
+        split: d.split,
+        included: validType && validAddress && hasValidSplit,
+        note: validType ? 'Supported type' : `Unsupported type (${d.type}), need lud16/lud06`
       });
       
       return validType && validAddress && hasValidSplit;
@@ -84,7 +94,7 @@ export function getLightningRecipients(destinations?: ValueDestination[]): Payme
       name: d.name || 'Unknown Artist',
       address: d.address,
       type: d.type,
-      split: Math.max(0, d.split || 0)
+      split: Math.max(0, Number(d.split) || 0)
     }));
     
   console.log('Final processed recipients:', processed);
@@ -111,29 +121,41 @@ export function calculatePaymentAmounts(
 }
 
 /**
- * Creates LNURL-pay invoice for a recipient
+ * Creates LNURL-pay invoice for a recipient based on their type
  */
 export async function createInvoice(
   recipient: PaymentRecipient, 
   amount: number
 ): Promise<string> {
-  const [name, domain] = recipient.address.split('@');
-  const lnurlp = `https://${domain}/.well-known/lnurlp/${name}`;
+  // Handle different recipient types
+  if (recipient.type === 'lud16' || recipient.type === 'lud06') {
+    // Lightning address format: user@domain
+    const [name, domain] = recipient.address.split('@');
+    const lnurlp = `https://${domain}/.well-known/lnurlp/${name}`;
+    
+    const lnurlRes = await fetch(lnurlp);
+    if (!lnurlRes.ok) {
+      throw new Error(`Failed to fetch LNURL for ${recipient.address}: ${lnurlRes.status}`);
+    }
+    
+    const lnurlData = await lnurlRes.json();
+    const invoiceRes = await fetch(`${lnurlData.callback}?amount=${amount * 1000}`);
+    
+    if (!invoiceRes.ok) {
+      throw new Error(`Failed to create invoice for ${recipient.address}: ${invoiceRes.status}`);
+    }
+    
+    const invoiceData = await invoiceRes.json();
+    return invoiceData.pr;
+  } 
   
-  const lnurlRes = await fetch(lnurlp);
-  if (!lnurlRes.ok) {
-    throw new Error(`Failed to fetch LNURL for ${recipient.address}: ${lnurlRes.status}`);
+  if (recipient.type === 'node' || recipient.type === 'keysend') {
+    // For node/keysend, we'd need to use a different approach
+    // For now, throw an error as we need special handling
+    throw new Error(`Payment type ${recipient.type} requires keysend support (not yet implemented)`);
   }
   
-  const lnurlData = await lnurlRes.json();
-  const invoiceRes = await fetch(`${lnurlData.callback}?amount=${amount * 1000}`);
-  
-  if (!invoiceRes.ok) {
-    throw new Error(`Failed to create invoice for ${recipient.address}: ${invoiceRes.status}`);
-  }
-  
-  const invoiceData = await invoiceRes.json();
-  return invoiceData.pr;
+  throw new Error(`Unsupported recipient type: ${recipient.type}`);
 }
 
 /**
