@@ -176,28 +176,22 @@ export async function createInvoice(
     const [name, domain] = recipient.address.split('@');
     const lnurlp = `https://${domain}/.well-known/lnurlp/${name}`;
     
-    console.log(`💰 Creating invoice for ${recipient.name}: ${amount} sats (${amount * 1000} msats)`);
-    
     const lnurlRes = await fetch(lnurlp);
     if (!lnurlRes.ok) {
       throw new Error(`Failed to fetch LNURL for ${recipient.address}: ${lnurlRes.status}`);
     }
     
     const lnurlData = await lnurlRes.json();
-    console.log(`📋 LNURL data for ${recipient.name}:`, lnurlData);
     
     // LNURL-pay spec requires amount in millisats
     const amountMsats = amount * 1000;
     const invoiceRes = await fetch(`${lnurlData.callback}?amount=${amountMsats}`);
-    
-    console.log(`⚡ Invoice request: ${lnurlData.callback}?amount=${amountMsats}`);
     
     if (!invoiceRes.ok) {
       throw new Error(`Failed to create invoice for ${recipient.address}: ${invoiceRes.status}`);
     }
     
     const invoiceData = await invoiceRes.json();
-    console.log(`✅ Invoice created for ${recipient.name}:`, invoiceData);
     return invoiceData.pr;
   } 
   
@@ -226,12 +220,9 @@ export async function processSinglePayment(
       // Try to use keysend if available
       if (provider.keysend) {
         try {
-          const amountMsats = amount * 1000; // Convert sats to millisats
-          console.log(`💰 Keysend payment for ${recipient.name}: ${amount} sats (${amountMsats} msats)`);
-          
           await provider.keysend({
             destination: recipient.address,
-            amount: amountMsats,
+            amount: amount * 1000, // Convert sats to millisats
             customRecords: {
               // TLV record 7629169 for podcast metadata (optional)
               '7629169': JSON.stringify({
@@ -251,10 +242,7 @@ export async function processSinglePayment(
       // Fallback: Try to use WebLN's sendPayment with a special keysend request
       try {
         // Some wallets support keysend through a special format
-        const amountMsats = amount * 1000;
-        const keysendRequest = `keysend:${recipient.address}?amount=${amountMsats}`;
-        console.log(`💰 Keysend fallback for ${recipient.name}: ${amount} sats (${amountMsats} msats) via ${keysendRequest}`);
-        
+        const keysendRequest = `keysend:${recipient.address}?amount=${amount * 1000}`;
         await provider.sendPayment(keysendRequest);
         console.log(`✅ Keysend payment successful to ${recipient.name} (via sendPayment fallback)`);
         return true;
