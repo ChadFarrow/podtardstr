@@ -193,8 +193,15 @@ export function MusicDiscovery() {
   const handlePlayPauseAlbum = useCallback(async (podcast: PodcastIndexPodcast) => {
     const podcastId = podcast.id.toString();
     
-    // Check if this album is currently playing
-    if (currentPodcast?.id === podcastId) {
+    // Check if any episode from this album is currently playing
+    // We need to check if the current podcast's metadata indicates it's from this album
+    const isThisAlbumPlaying = currentPodcast && (
+      currentPodcast.author === podcast.author || 
+      currentPodcast.id.startsWith(podcastId) ||
+      currentPodcast.title.includes(podcast.title)
+    );
+    
+    if (isThisAlbumPlaying && isPlaying) {
       // Toggle play/pause for current album
       setIsPlaying(!isPlaying);
     } else {
@@ -207,7 +214,7 @@ export function MusicDiscovery() {
           if (podcast.url) {
             // Create a mock episode from the feed data to play directly
             const mockEpisode = {
-              id: podcastId,
+              id: `${podcastId}-album`,
               title: podcast.title,
               author: podcast.author,
               url: podcast.url,
@@ -222,16 +229,16 @@ export function MusicDiscovery() {
         }
       }, 2000); // Wait 2 seconds for episodes to load
     }
-  }, [currentPodcast?.id, isPlaying, playPodcast, setIsPlaying, selectedFeedId]);
+  }, [currentPodcast, isPlaying, playPodcast, setIsPlaying, selectedFeedId]);
 
   // Auto-play first episode when episodes are loaded
   React.useEffect(() => {
-    if (episodesData && Array.isArray(episodesData.episodes) && episodesData.episodes.length > 0) {
+    if (episodesData && Array.isArray(episodesData.episodes) && episodesData.episodes.length > 0 && selectedFeedId) {
       const firstEpisode = episodesData.episodes[0];
       if (firstEpisode && firstEpisode.enclosureUrl) {
-        // Play the first episode without calling handlePlayPauseTrack to avoid infinite loops
+        // Play the first episode with album-aware ID
         playPodcast({
-          id: firstEpisode.id.toString(),
+          id: `${selectedFeedId}-${firstEpisode.id}`,
           title: firstEpisode.title,
           author: firstEpisode.feedTitle,
           url: firstEpisode.enclosureUrl,
@@ -241,7 +248,7 @@ export function MusicDiscovery() {
       }
       setSelectedFeedId(null); // Reset after playing
     }
-  }, [episodesData, playPodcast]);
+  }, [episodesData, playPodcast, selectedFeedId]);
 
   const formatDuration = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -255,9 +262,18 @@ export function MusicDiscovery() {
   };
 
   // Helper function to check if a track/album is currently playing
-  const isCurrentlyPlaying = useCallback((id: string) => {
-    return currentPodcast?.id === id && isPlaying;
-  }, [currentPodcast?.id, isPlaying]);
+  const isCurrentlyPlaying = useCallback((id: string, feedTitle?: string) => {
+    if (!currentPodcast || !isPlaying) return false;
+    
+    // For individual tracks/episodes
+    if (currentPodcast.id === id) return true;
+    
+    // For albums, check if the current podcast is from this feed
+    if (feedTitle && currentPodcast.author === feedTitle) return true;
+    if (currentPodcast.id.startsWith(id) || currentPodcast.id === `${id}-album`) return true;
+    
+    return false;
+  }, [currentPodcast, isPlaying]);
 
   return (
     <div className="space-y-8">
@@ -372,7 +388,7 @@ export function MusicDiscovery() {
                           onClick={() => handlePlayPauseAlbum(feed)}
                           className="absolute inset-0 bg-black/50 rounded flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                         >
-                          {isCurrentlyPlaying(feed.id.toString()) ? <Pause className="h-6 w-6 text-white" /> : <Play className="h-6 w-6 text-white" />}
+                          {isCurrentlyPlaying(feed.id.toString(), feed.title) ? <Pause className="h-6 w-6 text-white" /> : <Play className="h-6 w-6 text-white" />}
                         </button>
                       </div>
                       <div className="flex-1 min-w-0">
