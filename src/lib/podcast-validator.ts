@@ -152,21 +152,58 @@ export class PodcastValidator {
       this.addInfo('PODCAST_NS_FOUND', 'Feed declares podcast namespace - enhanced features available');
     }
 
-    // Check for podcast:guid
-    const podcastGuid = this.doc.querySelector('channel > podcast\\:guid');
+    // Check for podcast:guid using multiple approaches
+    let podcastGuid = this.doc.querySelector('podcast\\:guid');
+    if (!podcastGuid) {
+      // Try alternative approaches for namespaced elements
+      const allElements = this.doc.getElementsByTagName('*');
+      for (let i = 0; i < allElements.length; i++) {
+        const element = allElements[i];
+        if (element.tagName === 'podcast:guid' || element.localName === 'guid' && element.namespaceURI === 'https://podcastindex.org/namespace/1.0') {
+          podcastGuid = element;
+          break;
+        }
+      }
+    }
+    
     if (!podcastGuid) {
       this.addWarning('MISSING_PODCAST_GUID', 'Consider adding <podcast:guid> for feed identification');
+    } else {
+      this.addInfo('PODCAST_GUID_FOUND', `Found podcast:guid: ${podcastGuid.textContent?.trim()}`);
     }
 
     // Check for podcast:locked
-    const locked = this.doc.querySelector('channel > podcast\\:locked');
+    let locked = this.doc.querySelector('podcast\\:locked');
+    if (!locked) {
+      const allElements = this.doc.getElementsByTagName('*');
+      for (let i = 0; i < allElements.length; i++) {
+        const element = allElements[i];
+        if (element.tagName === 'podcast:locked' || element.localName === 'locked' && element.namespaceURI === 'https://podcastindex.org/namespace/1.0') {
+          locked = element;
+          break;
+        }
+      }
+    }
+    
     if (!locked) {
       this.addInfo('NO_LOCKED_TAG', 'Consider adding <podcast:locked> to prevent unauthorized feed moves');
     }
   }
 
   private validateValueElements() {
-    const valueElements = this.doc.querySelectorAll('podcast\\:value');
+    // Find podcast:value elements using multiple approaches
+    let valueElements = this.doc.querySelectorAll('podcast\\:value');
+    if (valueElements.length === 0) {
+      const allElements = this.doc.getElementsByTagName('*');
+      const foundValues: Element[] = [];
+      for (let i = 0; i < allElements.length; i++) {
+        const element = allElements[i];
+        if (element.tagName === 'podcast:value' || (element.localName === 'value' && element.namespaceURI === 'https://podcastindex.org/namespace/1.0')) {
+          foundValues.push(element);
+        }
+      }
+      valueElements = foundValues as unknown as NodeListOf<Element>;
+    }
     
     if (valueElements.length === 0) {
       this.addInfo('NO_VALUE_TAGS', 'Feed does not contain Value4Value (podcast:value) elements');
@@ -187,7 +224,20 @@ export class PodcastValidator {
       }
 
       // Check for value recipients
-      const recipients = valueElement.querySelectorAll('podcast\\:valueRecipient');
+      let recipients = valueElement.querySelectorAll('podcast\\:valueRecipient');
+      if (recipients.length === 0) {
+        // Try alternative approach for namespaced elements
+        const children = valueElement.children;
+        const foundRecipients: Element[] = [];
+        for (let i = 0; i < children.length; i++) {
+          const child = children[i];
+          if (child.tagName === 'podcast:valueRecipient' || (child.localName === 'valueRecipient' && child.namespaceURI === 'https://podcastindex.org/namespace/1.0')) {
+            foundRecipients.push(child);
+          }
+        }
+        recipients = foundRecipients as unknown as NodeListOf<Element>;
+      }
+      
       if (recipients.length === 0) {
         this.addWarning('VALUE_NO_RECIPIENTS', `podcast:value element ${index + 1} has no recipients`);
       }
@@ -314,7 +364,14 @@ export class PodcastValidator {
     const title = this.doc.querySelector('channel > title')?.textContent || undefined;
     const description = this.doc.querySelector('channel > description')?.textContent || undefined;
     const language = this.doc.querySelector('channel > language')?.textContent || undefined;
-    const author = this.doc.querySelector('channel > managingEditor, channel > podcast\\:author')?.textContent || undefined;
+    let author = this.doc.querySelector('channel > managingEditor')?.textContent || undefined;
+    if (!author) {
+      const podcastAuthor = this.doc.querySelector('podcast\\:author') || 
+        Array.from(this.doc.getElementsByTagName('*')).find(el => 
+          el.tagName === 'podcast:author' || (el.localName === 'author' && el.namespaceURI === 'https://podcastindex.org/namespace/1.0')
+        );
+      author = podcastAuthor?.textContent || undefined;
+    }
     
     const categories: string[] = [];
     this.doc.querySelectorAll('channel > category').forEach(cat => {
@@ -338,13 +395,28 @@ export class PodcastValidator {
     const rss = this.doc.querySelector('rss');
     const podcastNamespace = !!rss?.getAttribute('xmlns:podcast');
     
+    // Helper function to count podcast namespace elements
+    const countPodcastElements = (localName: string): number => {
+      let count = this.doc.querySelectorAll(`podcast\\:${localName}`).length;
+      if (count === 0) {
+        const allElements = this.doc.getElementsByTagName('*');
+        for (let i = 0; i < allElements.length; i++) {
+          const element = allElements[i];
+          if (element.tagName === `podcast:${localName}` || (element.localName === localName && element.namespaceURI === 'https://podcastindex.org/namespace/1.0')) {
+            count++;
+          }
+        }
+      }
+      return count;
+    };
+    
     return {
       podcastNamespace,
-      valueSupport: this.doc.querySelectorAll('podcast\\:value').length > 0,
-      chaptersSupport: this.doc.querySelectorAll('podcast\\:chapters').length > 0,
-      transcriptSupport: this.doc.querySelectorAll('podcast\\:transcript').length > 0,
-      socialInteract: this.doc.querySelectorAll('podcast\\:socialInteract').length > 0,
-      alternateEnclosure: this.doc.querySelectorAll('podcast\\:alternateEnclosure').length > 0,
+      valueSupport: countPodcastElements('value') > 0,
+      chaptersSupport: countPodcastElements('chapters') > 0,
+      transcriptSupport: countPodcastElements('transcript') > 0,
+      socialInteract: countPodcastElements('socialInteract') > 0,
+      alternateEnclosure: countPodcastElements('alternateEnclosure') > 0,
     };
   }
 }
