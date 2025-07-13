@@ -219,34 +219,29 @@ export function MusicDiscovery() {
       return;
     }
     
-    // If not playing this album, start playing it
-    if (currentPodcast && isPlaying) {
-      // Something else is playing, so we need to start this album
-    }
-      // Play new album
-      setSelectedFeedId(podcast.id);
-      
-      // If no episodes are found after a short delay, try to play the feed URL directly
-      setTimeout(() => {
-        if (selectedFeedId === podcast.id) {
-          if (podcast.url) {
-            // Create a mock episode from the feed data to play directly
-            const mockEpisode = {
-              id: `${podcastId}-album`,
-              title: podcast.title,
-              author: podcast.author,
-              url: podcast.url,
-              imageUrl: podcast.image || podcast.artwork,
-              duration: 0,
-            };
-            
-            playPodcast(mockEpisode);
-          }
+    // Play new album
+    setSelectedFeedId(podcast.id);
+    
+    // If no episodes are found after a short delay, try to play the feed URL directly
+    setTimeout(() => {
+      if (selectedFeedId === podcast.id) {
+        if (podcast.url) {
+          // Create a mock episode from the feed data to play directly
+          const mockEpisode = {
+            id: `${podcastId}-album`,
+            title: podcast.title,
+            author: podcast.author,
+            url: podcast.url,
+            imageUrl: podcast.image || podcast.artwork,
+            duration: 0,
+          };
           
-          setSelectedFeedId(null);
+          playPodcast(mockEpisode);
         }
-      }, 2000); // Wait 2 seconds for episodes to load
-    }
+        
+        setSelectedFeedId(null);
+      }
+    }, 2000); // Wait 2 seconds for episodes to load
   }, [currentPodcast, isPlaying, playPodcast, setIsPlaying, selectedFeedId]);
 
   // Auto-play first episode when episodes are loaded
