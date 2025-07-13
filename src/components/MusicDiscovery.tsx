@@ -309,8 +309,8 @@ export function MusicDiscovery() {
                     <div>
                       <h4 className="font-medium mb-2">Tracks</h4>
                       <div className="grid gap-3">
-                        {searchResults.episodes.map((episode) => (
-                          <div key={episode.id} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-muted">
+                        {searchResults.episodes.map((episode, index) => (
+                          <div key={`search-${episode.id}-${index}`} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-muted">
                             <SecureImage 
                               src={episode.image || episode.feedImage} 
                               alt={episode.title}
@@ -374,8 +374,8 @@ export function MusicDiscovery() {
             </div>
           ) : trendingMusic && trendingMusic.feeds.length > 0 ? (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {trendingMusic.feeds.map((feed) => (
-                <Card key={feed.id} className="hover:shadow-md transition-shadow">
+              {trendingMusic.feeds.map((feed, index) => (
+                <Card key={`trending-${feed.id}-${index}`} className="hover:shadow-md transition-shadow">
                   <CardContent className="p-4">
                     <div className="flex items-center gap-3">
                       <div className="relative group h-16 w-16 flex-shrink-0">
@@ -437,8 +437,8 @@ export function MusicDiscovery() {
             </div>
           ) : recentEpisodes && recentEpisodes.episodes.length > 0 ? (
             <div className="space-y-3">
-              {recentEpisodes.episodes.map((episode) => (
-                <div key={episode.id} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-muted">
+              {recentEpisodes.episodes.map((episode, index) => (
+                <div key={`recent-${episode.id}-${index}`} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-muted">
                   <SecureImage 
                     src={episode.image || episode.feedImage} 
                     alt={episode.title}
