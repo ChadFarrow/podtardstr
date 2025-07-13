@@ -477,8 +477,9 @@ export async function validatePodcastFeed(feedUrl: string): Promise<ValidationRe
     
     try {
       response = await fetch(feedUrl, {
+        // Only use CORS-safelisted headers to avoid preflight requests
         headers: {
-          'Accept': 'application/rss+xml, application/xml, text/xml',
+          'Accept': 'application/rss+xml, application/xml, text/xml, text/html, */*',
         }
       });
       
@@ -490,7 +491,12 @@ export async function validatePodcastFeed(feedUrl: string): Promise<ValidationRe
     } catch {
       // Fallback to CORS proxy
       const corsProxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(feedUrl)}`;
-      response = await fetch(corsProxyUrl);
+      response = await fetch(corsProxyUrl, {
+        // Only use CORS-safelisted headers
+        headers: {
+          'Accept': 'application/json, text/plain, */*',
+        }
+      });
       
       if (!response.ok) {
         throw new Error(`Failed to fetch feed: ${response.status} ${response.statusText}`);

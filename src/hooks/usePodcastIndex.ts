@@ -122,7 +122,7 @@ function generateAuthHeaders() {
     'X-Auth-Date': apiHeaderTime.toString(),
     'X-Auth-Key': API_KEY,
     'Authorization': hash4Header,
-    'User-Agent': 'Podtardstr/1.0',
+    // Removed User-Agent to avoid CORS preflight issues
   };
 }
 
@@ -136,7 +136,7 @@ export async function podcastIndexFetch<T>(endpoint: string, params: Record<stri
     method: 'GET',
     headers: {
       ...generateAuthHeaders(),
-      'Content-Type': 'application/json',
+      // Removed Content-Type to avoid CORS preflight issues for GET requests
     },
   });
 
