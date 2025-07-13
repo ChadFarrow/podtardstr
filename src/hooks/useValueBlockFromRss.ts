@@ -120,7 +120,9 @@ export function useValue4ValueData(
     dataSource,
     recipientCount: finalRecipients.length,
     rssError: rssError?.message,
-    rssDataError: rssData?.error
+    rssDataError: rssData?.error,
+    rssRecipients: rssData?.recipients,
+    podcastIndexRecipients: podcastIndexData
   });
 
   return {
