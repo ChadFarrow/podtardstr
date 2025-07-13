@@ -69,10 +69,21 @@ export function PodcastValidator() {
           <CardTitle className="flex items-center gap-2">
             <Shield className="h-5 w-5" />
             Podcast Namespace Validator
+            <Badge variant="secondary" className="ml-2">Experimental</Badge>
           </CardTitle>
           <CardDescription>
             Comprehensive validation for RSS feeds and Podcast Namespace compliance (inspired by RSS Blue)
           </CardDescription>
+          <Alert className="mt-4">
+            <Info className="h-4 w-4" />
+            <AlertDescription>
+              <strong>Experimental Feature:</strong> This validator is still being refined. For authoritative validation, 
+              please double-check results with the official <button 
+                onClick={() => window.open('https://tools.rssblue.com', '_blank')}
+                className="text-primary hover:underline font-medium"
+              >RSS Blue validator</button>.
+            </AlertDescription>
+          </Alert>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleValidate} className="space-y-4">
@@ -150,6 +161,7 @@ export function PodcastValidator() {
                 <AlertCircle className="h-5 w-5 text-red-500" />
               )}
               Validation Results
+              <Badge variant="outline" className="ml-2">Experimental</Badge>
             </CardTitle>
             <CardDescription>
               {result.isValid 
@@ -157,6 +169,19 @@ export function PodcastValidator() {
                 : `Found ${result.errors.length} error(s) and ${result.warnings.length} warning(s)`
               }
             </CardDescription>
+            {(result.errors.length > 0 || result.warnings.length > 0) && (
+              <Alert className="mt-4" variant="default">
+                <Info className="h-4 w-4" />
+                <AlertDescription>
+                  <strong>Please verify:</strong> Double-check any errors or warnings with the official{' '}
+                  <button 
+                    onClick={() => window.open('https://tools.rssblue.com', '_blank')}
+                    className="text-primary hover:underline font-medium"
+                  >RSS Blue validator</button>{' '}
+                  for authoritative results.
+                </AlertDescription>
+              </Alert>
+            )}
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Feed Information */}
