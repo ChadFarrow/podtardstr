@@ -151,6 +151,7 @@ export function getLightningRecipients(destinations?: ValueDestination[]): Payme
 
 /**
  * Calculates individual payment amounts based on split percentages
+ * Ensures all recipients get at least 1 sat if they have a valid split
  */
 export function calculatePaymentAmounts(
   recipients: PaymentRecipient[], 
@@ -160,12 +161,33 @@ export function calculatePaymentAmounts(
   
   if (totalSplits === 0) return [];
   
-  return recipients
-    .map(recipient => {
-      const amount = Math.floor((recipient.split / totalSplits) * totalAmount);
-      return { recipient, amount };
-    })
-    .filter(({ amount }) => amount > 0); // Only include recipients with positive amounts
+  // Calculate initial amounts
+  const initialAmounts = recipients.map(recipient => {
+    const amount = Math.floor((recipient.split / totalSplits) * totalAmount);
+    return { recipient, amount };
+  });
+  
+  // Filter out recipients with 0 amounts
+  const validAmounts = initialAmounts.filter(({ amount }) => amount > 0);
+  
+  // If we have recipients with 0 amounts but they have valid splits, give them at least 1 sat
+  const zeroAmountRecipients = initialAmounts.filter(({ amount }) => amount === 0);
+  if (zeroAmountRecipients.length > 0 && validAmounts.length > 0) {
+    // Calculate how much we can spare (minimum 1 sat per zero recipient)
+    const neededForZeros = zeroAmountRecipients.length;
+    const currentTotal = validAmounts.reduce((sum, { amount }) => sum + amount, 0);
+    const availableForZeros = Math.min(neededForZeros, totalAmount - currentTotal);
+    
+    if (availableForZeros > 0) {
+      // Add 1 sat to each zero recipient
+      zeroAmountRecipients.slice(0, availableForZeros).forEach(({ recipient }) => {
+        validAmounts.push({ recipient, amount: 1 });
+      });
+    }
+  }
+  
+  // Sort by split percentage (highest first) to prioritize larger splits
+  return validAmounts.sort((a, b) => b.recipient.split - a.recipient.split);
 }
 
 /**
@@ -248,7 +270,7 @@ export async function processSinglePayment(
                 ...(metadata?.feedId && { feedId: metadata.feedId }),
                 ...(metadata?.episodeId && { episodeId: metadata.episodeId }),
                 ...(metadata?.totalAmount && { amount: metadata.totalAmount }),
-                ...(metadata?.app && { app: metadata.app }),
+                app: (metadata?.app || 'Podtardstr'), // Always set app name
                 platform: 'web',
                 
                 // Additional context (optional)
@@ -309,6 +331,22 @@ export async function processMultiplePayments(
   }
 ): Promise<PaymentResult> {
   const paymentAmounts = calculatePaymentAmounts(recipients, totalAmount);
+  
+  // Debug logging for split calculation
+  console.log('🔍 Payment Split Debug:', {
+    totalAmount,
+    recipientCount: recipients.length,
+    paymentAmountsCount: paymentAmounts.length,
+    recipients: recipients.map(r => ({ name: r.name, split: r.split, type: r.type })),
+    calculatedAmounts: paymentAmounts.map(({ recipient, amount }) => ({ 
+      name: recipient.name, 
+      split: recipient.split, 
+      amount,
+      type: recipient.type 
+    })),
+    totalCalculated: paymentAmounts.reduce((sum, { amount }) => sum + amount, 0)
+  });
+  
   let successCount = 0;
   const errors: string[] = [];
 

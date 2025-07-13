@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback, useState } from 'react';
+import { useMemo, useCallback, useState } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
@@ -278,7 +278,7 @@ export function NowPlayingModal({ open, onOpenChange }: NowPlayingModalProps) {
     
     // Extract album ID from Wavlake feed URL
     // Format: https://wavlake.com/feed/music/[album-id] or https://www.wavlake.com/feed/[album-id]
-    const wavlakeUrlPattern = /(?:www\.)?wavlake\.com\/feed\/(?:music\/)?([a-f0-9\-]{36})/i;
+    const wavlakeUrlPattern = /(?:www\.)?wavlake\.com\/feed\/(?:music\/)?([a-f0-9-]{36})/i;
     const match = feedData.url?.match(wavlakeUrlPattern);
     
     if (match && match[1]) {
