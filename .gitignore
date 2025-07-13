@@ -28,3 +28,6 @@ dist-ssr
 .env
 .env.*
 !.env.example
+
+# External tools submodules are tracked via .gitmodules
+# RSS Blue tools: external-tools/rss-blue-tools/

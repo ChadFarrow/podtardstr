@@ -1,0 +1,3 @@
+[submodule "external-tools/rss-blue-tools"]
+	path = external-tools/rss-blue-tools
+	url = https://github.com/rssblue/tools.git
