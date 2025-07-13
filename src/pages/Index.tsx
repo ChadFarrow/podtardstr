@@ -16,7 +16,7 @@ import { useState } from 'react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 
 const Index = () => {
-  const [activeTab, setActiveTab] = useState('music');
+  const [activeTab, setActiveTab] = useState('top100');
 
   useSeoMeta({
     title: 'Podtardstr',
@@ -55,12 +55,12 @@ const Index = () => {
                     Music
                   </Button>
                   <Button
-                    variant={activeTab === 'trending' ? 'secondary' : 'ghost'}
+                    variant={activeTab === 'top100' ? 'secondary' : 'ghost'}
                     className="w-full justify-start text-sm"
-                    onClick={() => setActiveTab('trending')}
+                    onClick={() => setActiveTab('top100')}
                   >
                     <Star className="h-4 w-4 mr-2" />
-                    Trending
+                    Top 100 V4V tracks
                   </Button>
                   <Button
                     variant={activeTab === 'discover' ? 'secondary' : 'ghost'}
@@ -118,7 +118,7 @@ const Index = () => {
               <div>
                 <h2 className="text-xl font-semibold">
                   {activeTab === 'music' && 'Music'}
-                  {activeTab === 'trending' && 'Trending'}
+                  {activeTab === 'top100' && 'Top 100 V4V tracks'}
                   {activeTab === 'discover' && 'Discover'}
                   {activeTab === 'search' && 'Search'}
                   {activeTab === 'nostr' && 'Nostr Feed'}
@@ -126,7 +126,7 @@ const Index = () => {
                 </h2>
                 <p className="text-sm text-muted-foreground">
                   {activeTab === 'music' && 'Search and discover music with Value4Value'}
-                  {activeTab === 'trending' && 'Top 100 music tracks from the Value4Value chart'}
+                  {activeTab === 'top100' && 'The hottest Value4Value music tracks ranked by community boosts'}
                   {activeTab === 'discover' && 'Trending music and recent releases'}
                   {activeTab === 'search' && 'Find music and tracks from Podcast Index'}
                   {activeTab === 'nostr' && 'Music recommendations and discussions on Nostr'}
@@ -147,7 +147,7 @@ const Index = () => {
                 <MusicDiscovery />
               </TabsContent>
 
-              <TabsContent value="trending" className="space-y-6">
+              <TabsContent value="top100" className="space-y-6">
                 <TrendingMusic />
               </TabsContent>
 
