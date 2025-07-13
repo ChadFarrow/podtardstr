@@ -4,9 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { SecureImage } from '@/components/SecureImage';
-import { Play, Pause, Search, Zap, Heart, ExternalLink } from 'lucide-react';
+import { Play, Pause, Search, Zap } from 'lucide-react';
 import { useMusicSearch } from '@/hooks/useMusicIndex';
-import { useTop100Music, podcastIndexFetch } from '@/hooks/usePodcastIndex';
+import { podcastIndexFetch } from '@/hooks/usePodcastIndex';
 import { usePodcastPlayer } from '@/hooks/usePodcastPlayer';
 import type { PodcastIndexPodcast, PodcastIndexEpisode } from '@/hooks/usePodcastIndex';
 
@@ -180,7 +180,6 @@ export function MusicDiscovery() {
   const [searchQuery, setSearchQuery] = useState('');
   const { playPodcast, currentPodcast, isPlaying, setIsPlaying } = usePodcastPlayer();
 
-  const { data: trendingMusic, isLoading: trendingLoading } = useTop100Music(); // Use full Top 100 for Music page
   const { data: searchResults, isLoading: searchLoading } = useMusicSearch(searchQuery, { enabled: searchQuery.length > 2 });
 
 
@@ -251,50 +250,6 @@ export function MusicDiscovery() {
     });
   }, [currentPodcast?.id, isPlaying, playPodcast, setIsPlaying]);
 
-  const handlePlayPauseAlbum = useCallback(async (podcast: PodcastIndexPodcast) => {
-    const podcastId = podcast.id.toString();
-    
-    // Check if any episode from this album is currently playing
-    const isThisAlbumPlaying = currentPodcast && isPlaying && (
-      currentPodcast.author === podcast.author || 
-      currentPodcast.id.startsWith(podcastId) ||
-      currentPodcast.title.includes(podcast.title) ||
-      currentPodcast.id === `${podcastId}-album`
-    );
-    
-    if (isThisAlbumPlaying) {
-      // Pause the current track
-      setIsPlaying(false);
-      return;
-    }
-    
-    // Try to fetch episodes first, then play the first one
-    try {
-      const response = await podcastIndexFetch<PodcastIndexEpisode>('/episodes/byfeedid', {
-        id: podcast.id.toString(),
-        max: '5', // Just get a few episodes
-      });
-      
-      const episodes = response.items || [];
-      const firstEpisode = episodes.find(ep => ep.enclosureUrl);
-      
-      if (firstEpisode) {
-        // Play the first episode with a valid audio URL
-        playPodcast({
-          id: `${podcastId}-${firstEpisode.id}`,
-          title: firstEpisode.title,
-          author: firstEpisode.feedTitle || podcast.author,
-          url: firstEpisode.enclosureUrl,
-          imageUrl: firstEpisode.image || firstEpisode.feedImage || podcast.image || podcast.artwork,
-          duration: firstEpisode.duration,
-        });
-      } else {
-        console.warn('No playable episodes found in album:', podcast.title);
-      }
-    } catch (error) {
-      console.error('Failed to fetch album episodes:', error);
-    }
-  }, [currentPodcast, isPlaying, playPodcast, setIsPlaying]);
 
 
   const formatDuration = (seconds: number) => {
@@ -308,25 +263,10 @@ export function MusicDiscovery() {
     setSearchQuery(artistName);
   };
 
-  // Helper function to check if a track/album is currently playing
-  const isCurrentlyPlaying = useCallback((id: string, feedTitle?: string) => {
+  // Helper function to check if a track is currently playing
+  const isCurrentlyPlaying = useCallback((id: string) => {
     if (!currentPodcast || !isPlaying) return false;
-    
-    // For individual tracks/episodes
-    if (currentPodcast.id === id) return true;
-    
-    // For albums, check if the current podcast is from this feed
-    if (feedTitle) {
-      // Check if current track is from this album/feed
-      return (
-        currentPodcast.author === feedTitle ||
-        currentPodcast.id.startsWith(id) ||
-        currentPodcast.id === `${id}-album` ||
-        currentPodcast.title.includes(feedTitle)
-      );
-    }
-    
-    return false;
+    return currentPodcast.id === id;
   }, [currentPodcast, isPlaying]);
 
   return (
@@ -411,79 +351,6 @@ export function MusicDiscovery() {
       </Card>
 
 
-      {/* Trending Music */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Heart className="h-5 w-5" />
-            Trending Music
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {trendingLoading ? (
-            <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {[...Array(12)].map((_, i) => (
-                <Skeleton key={i} className="h-32 w-full" />
-              ))}
-            </div>
-          ) : trendingMusic && trendingMusic.feeds.length > 0 ? (
-            <div className="space-y-4">
-              <div className="text-sm text-muted-foreground">
-                Showing Top {trendingMusic.feeds.length} tracks from the Value4Value Music Chart
-              </div>
-              <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {trendingMusic.feeds.map((feed, index) => (
-                  <Card key={`trending-${feed.id}-${index}`} className="hover:shadow-md transition-shadow">
-                    <CardContent className="p-3">
-                      <div className="flex items-center gap-3">
-                        <div className="relative group h-12 w-12 flex-shrink-0">
-                          <SecureImage 
-                            src={feed.image || feed.artwork} 
-                            alt={feed.title}
-                            className="h-12 w-12 rounded object-cover"
-                          />
-                          <button
-                            onClick={() => handlePlayPauseAlbum(feed)}
-                            className="absolute inset-0 bg-black/50 rounded flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                          >
-                            {isCurrentlyPlaying(feed.id.toString(), feed.title) ? <Pause className="h-4 w-4 text-white" /> : <Play className="h-4 w-4 text-white" />}
-                          </button>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-start justify-between gap-2">
-                            <div className="flex-1 min-w-0">
-                              <h5 className="font-medium text-sm truncate">{feed.title}</h5>
-                              <button 
-                                onClick={() => handleArtistClick(feed.author)}
-                                className="text-xs text-muted-foreground truncate hover:text-primary transition-colors text-left"
-                              >
-                                {feed.author}
-                              </button>
-                            </div>
-                            <span className="text-xs font-mono text-muted-foreground bg-muted px-1 rounded">
-                              #{index + 1}
-                            </span>
-                          </div>
-                          {/* V4V split payment for album */}
-                          <V4VPaymentButton 
-                            valueDestinations={feed.value?.destinations} 
-                            totalAmount={33} 
-                            contentTitle={feed.title} 
-                          />
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <div className="text-center py-8">
-              <p className="text-muted-foreground">No trending music found</p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
 
     </div>
   );

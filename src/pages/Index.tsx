@@ -4,13 +4,14 @@ import { PodcastSearch } from '@/components/PodcastSearch';
 import { PodcastDiscovery } from '@/components/PodcastDiscovery';
 import { NostrPodcastFeed } from '@/components/NostrPodcastFeed';
 import { MusicDiscovery } from '@/components/MusicDiscovery';
+import { TrendingMusic } from '@/components/TrendingMusic';
 import { FeedValueParser } from '@/components/FeedValueParser';
 import { LoginArea } from '@/components/auth/LoginArea';
 import { RelaySelector } from '@/components/RelaySelector';
 import { Sidebar, SidebarContent, SidebarHeader, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Music, Search, TrendingUp, MessageSquare, Radio, Code } from 'lucide-react';
+import { Music, Search, TrendingUp, MessageSquare, Radio, Code, Star } from 'lucide-react';
 import { useState } from 'react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 
@@ -52,6 +53,14 @@ const Index = () => {
                   >
                     <Radio className="h-4 w-4 mr-2" />
                     Music
+                  </Button>
+                  <Button
+                    variant={activeTab === 'trending' ? 'secondary' : 'ghost'}
+                    className="w-full justify-start text-sm"
+                    onClick={() => setActiveTab('trending')}
+                  >
+                    <Star className="h-4 w-4 mr-2" />
+                    Trending
                   </Button>
                   <Button
                     variant={activeTab === 'discover' ? 'secondary' : 'ghost'}
@@ -108,16 +117,18 @@ const Index = () => {
               <SidebarTrigger />
               <div>
                 <h2 className="text-xl font-semibold">
+                  {activeTab === 'music' && 'Music'}
+                  {activeTab === 'trending' && 'Trending'}
                   {activeTab === 'discover' && 'Discover'}
                   {activeTab === 'search' && 'Search'}
-                  {activeTab === 'music' && 'Music'}
                   {activeTab === 'nostr' && 'Nostr Feed'}
                   {activeTab === 'feed-parser' && 'Feed Parser'}
                 </h2>
                 <p className="text-sm text-muted-foreground">
+                  {activeTab === 'music' && 'Search and discover music with Value4Value'}
+                  {activeTab === 'trending' && 'Top 100 music tracks from the Value4Value chart'}
                   {activeTab === 'discover' && 'Trending music and recent releases'}
                   {activeTab === 'search' && 'Find music and tracks from Podcast Index'}
-                  {activeTab === 'music' && 'Discover music with Value4Value and Podcasting 2.0'}
                   {activeTab === 'nostr' && 'Music recommendations and discussions on Nostr'}
                   {activeTab === 'feed-parser' && 'Parse RSS feeds for Podcast Namespace value recipients'}
                 </p>
@@ -132,16 +143,20 @@ const Index = () => {
           <main className="flex-1 p-6 overflow-auto">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
 
+              <TabsContent value="music" className="space-y-6">
+                <MusicDiscovery />
+              </TabsContent>
+
+              <TabsContent value="trending" className="space-y-6">
+                <TrendingMusic />
+              </TabsContent>
+
               <TabsContent value="discover" className="space-y-6">
                 <PodcastDiscovery />
               </TabsContent>
 
               <TabsContent value="search" className="space-y-6">
                 <PodcastSearch />
-              </TabsContent>
-
-              <TabsContent value="music" className="space-y-6">
-                <MusicDiscovery />
               </TabsContent>
 
               <TabsContent value="nostr" className="space-y-6">
