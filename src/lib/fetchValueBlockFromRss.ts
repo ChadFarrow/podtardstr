@@ -48,7 +48,24 @@ export async function fetchValueBlockFromRss(rssUrl: string): Promise<ValueBlock
   try {
     console.log(`Attempting to fetch RSS: ${rssUrl}`);
     
-    // Use CORS proxy with throttling
+    // First try server-side API route (bypasses CORS)
+    try {
+      const apiUrl = `/api/rss-proxy?url=${encodeURIComponent(rssUrl)}`;
+      console.log(`Trying server-side API for: ${rssUrl}`);
+      
+      const response = await fetch(apiUrl);
+      if (response.ok) {
+        const valueBlock = await response.json();
+        console.log(`Successfully fetched ValueBlock via API:`, valueBlock);
+        return valueBlock;
+      } else {
+        console.warn(`Server-side API failed with status: ${response.status}`);
+      }
+    } catch (apiError) {
+      console.warn(`Server-side API error:`, apiError);
+    }
+    
+    // Fallback to CORS proxy with throttling (less reliable)
     const proxyUrl = `${CORS_PROXY}?url=${encodeURIComponent(rssUrl)}`;
     const response = await throttledFetch(proxyUrl);
     
