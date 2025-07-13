@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
+import { SecureImage } from '@/components/SecureImage';
 import { Play, Search, Zap, Bitcoin, Heart, ExternalLink, ChevronDown, ChevronRight, Album } from 'lucide-react';
 import { useRecentMusicEpisodes, useMusicSearch } from '@/hooks/useMusicIndex';
 import { useTrendingPodcasts } from '@/hooks/usePodcastIndex';
@@ -276,7 +277,7 @@ export function MusicDiscovery() {
                       <div className="grid gap-3">
                         {searchResults.episodes.map((episode) => (
                           <div key={episode.id} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-muted">
-                            <img 
+                            <SecureImage 
                               src={episode.image || episode.feedImage} 
                               alt={episode.title}
                               className="h-12 w-12 rounded object-cover"
@@ -344,7 +345,7 @@ export function MusicDiscovery() {
                   <CardContent className="p-4">
                     <div className="flex items-center gap-3">
                       <div className="relative group h-16 w-16 flex-shrink-0">
-                        <img 
+                        <SecureImage 
                           src={feed.image || feed.artwork} 
                           alt={feed.title}
                           className="h-16 w-16 rounded object-cover"
@@ -404,7 +405,7 @@ export function MusicDiscovery() {
             <div className="space-y-3">
               {recentEpisodes.episodes.map((episode) => (
                 <div key={episode.id} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-muted">
-                  <img 
+                  <SecureImage 
                     src={episode.image || episode.feedImage} 
                     alt={episode.title}
                     className="h-12 w-12 rounded object-cover"
