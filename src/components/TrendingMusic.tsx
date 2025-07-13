@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { SecureImage } from '@/components/SecureImage';
-import { Play, Pause, Zap, Star } from 'lucide-react';
+import { Play, Pause, Zap, Star, ListMusic } from 'lucide-react';
 import { useTop100Music, podcastIndexFetch } from '@/hooks/usePodcastIndex';
 import { usePodcastPlayer } from '@/hooks/usePodcastPlayer';
 import type { PodcastIndexPodcast, PodcastIndexEpisode } from '@/hooks/usePodcastIndex';

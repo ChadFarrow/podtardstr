@@ -399,6 +399,7 @@ export function useTrendingPodcasts() {
           newestItemPubdate: 0,
           episodeCount: 1,
           // Mark as Value4Value enabled (these are all from V4V chart)
+          // Use demo Lightning addresses for Top 100 music chart
           value: {
             model: {
               type: 'lightning',
@@ -407,8 +408,8 @@ export function useTrendingPodcasts() {
             },
             destinations: [{
               name: entry.author,
-              address: '',
-              type: 'node',
+              address: `demo${entry.rank}@getalby.com`,
+              type: 'lud16',
               split: 100
             }]
           }
@@ -544,8 +545,20 @@ export function useTop100Music() {
               imageUrlHash: 0,
               newestItemPubdate: 0,
               episodeCount: 1,
-              // Use real V4V data if available, otherwise undefined
-              value: valueData
+              // Use real V4V data if available, otherwise demo data for Top 100
+              value: valueData || {
+                model: {
+                  type: 'lightning',
+                  method: 'keysend',
+                  suggested: '0.00000001000'
+                },
+                destinations: [{
+                  name: entry.author,
+                  address: `demo${entry.rank}@getalby.com`,
+                  type: 'lud16',
+                  split: 100
+                }]
+              }
             } as PodcastIndexPodcast;
           })
         );
@@ -580,7 +593,20 @@ export function useTop100Music() {
           imageUrlHash: 0,
           newestItemPubdate: 0,
           episodeCount: 1,
-          value: undefined
+          // Demo V4V data for Top 100 chart entries
+          value: {
+            model: {
+              type: 'lightning',
+              method: 'keysend',
+              suggested: '0.00000001000'
+            },
+            destinations: [{
+              name: entry.author,
+              address: `demo${entry.rank}@getalby.com`,
+              type: 'lud16',
+              split: 100
+            }]
+          }
         } as PodcastIndexPodcast));
 
         const allFeeds = [...enhancedFeeds, ...remainingEntries];

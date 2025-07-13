@@ -136,10 +136,15 @@ function V4VPaymentButton({
     });
     const hasRealRecipients = lightningRecipients.length > 0;
 
+    // Detect if these are demo recipients (Top 100 chart entries)
+    const isDemoData = lightningRecipients.some(r => 
+      r.address.includes('@getalby.com') && r.address.startsWith('demo')
+    );
+    
     return {
       recipients: lightningRecipients,
       hasRecipients: hasRealRecipients,
-      isDemo: false
+      isDemo: isDemoData
     };
   }, [valueDestinations, contentTitle, feedUrl, episodeGuid, hasV4VData, v4vRecipients, dataSource]);
 
