@@ -14,25 +14,27 @@ import { useValueBlockFromRss } from '@/hooks/useValueBlockFromRss';
 import { requestProvider, launchModal } from '@getalby/bitcoin-connect';
 
 
-// --- SupportArtistButton ---
-function SupportArtistButton({ 
-  lightningAddress, 
-  amount = 33, 
-  recipientName = 'Artist' 
+// --- V4V Split Payment Button ---
+function V4VPaymentButton({ 
+  valueDestinations, 
+  totalAmount = 33, 
+  contentTitle = 'Content' 
 }: { 
-  lightningAddress?: string;
-  amount?: number;
-  recipientName?: string;
+  valueDestinations?: Array<{name: string; address: string; type: string; split: number}>;
+  totalAmount?: number;
+  contentTitle?: string;
 }) {
   const [status, setStatus] = useState('');
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  const handleSupport = async () => {
-    if (!lightningAddress) {
-      setStatus('No Lightning address available.');
+  const handleV4VPayment = async () => {
+    if (!valueDestinations || valueDestinations.length === 0) {
+      setStatus('No payment recipients available.');
       return;
     }
     
     try {
+      setIsProcessing(true);
       setStatus('Connecting to Lightning wallet...');
       
       // Get or request Lightning wallet connection
@@ -47,44 +49,100 @@ function SupportArtistButton({
 
       if (!provider) {
         setStatus('No Lightning wallet connected.');
+        setIsProcessing(false);
         return;
       }
 
-      setStatus(`Sending ${amount} sats...`);
-      console.log('Attempting payment:', { lightningAddress, amount });
+      // Get Lightning address recipients only
+      const lightningRecipients = valueDestinations.filter(d => d.type === 'lud16' && d.address);
       
-      // Convert lightning address to LNURL endpoint
-      const [name, domain] = lightningAddress.split('@');
-      const lnurlp = `https://${domain}/.well-known/lnurlp/${name}`;
-      const lnurlRes = await fetch(lnurlp);
-      const lnurlData = await lnurlRes.json();
+      if (lightningRecipients.length === 0) {
+        setStatus('No Lightning addresses found.');
+        setIsProcessing(false);
+        return;
+      }
+
+      setStatus(`Splitting ${totalAmount} sats among ${lightningRecipients.length} recipients...`);
+      console.log('V4V Payment - Recipients:', lightningRecipients);
       
-      // Create invoice
-      const invoiceRes = await fetch(lnurlData.callback + `?amount=${amount * 1000}`);
-      const invoiceData = await invoiceRes.json();
+      // Calculate total splits
+      const totalSplits = lightningRecipients.reduce((sum, r) => sum + r.split, 0);
       
-      // Send payment using Bitcoin Connect provider
-      await provider.sendPayment(invoiceData.pr);
-      setStatus(`Sent ${amount} sats to ${recipientName}! ⚡`);
+      // Process each payment
+      let successCount = 0;
+      for (const recipient of lightningRecipients) {
+        try {
+          // Calculate this recipient's amount based on their split percentage
+          const recipientAmount = Math.floor((recipient.split / totalSplits) * totalAmount);
+          
+          if (recipientAmount > 0) {
+            console.log(`Sending ${recipientAmount} sats to ${recipient.name} (${recipient.address}) - ${recipient.split}% split`);
+            
+            // Convert lightning address to LNURL endpoint
+            const [name, domain] = recipient.address.split('@');
+            const lnurlp = `https://${domain}/.well-known/lnurlp/${name}`;
+            const lnurlRes = await fetch(lnurlp);
+            const lnurlData = await lnurlRes.json();
+            
+            // Create invoice
+            const invoiceRes = await fetch(lnurlData.callback + `?amount=${recipientAmount * 1000}`);
+            const invoiceData = await invoiceRes.json();
+            
+            // Send payment using Bitcoin Connect provider
+            await provider.sendPayment(invoiceData.pr);
+            successCount++;
+            
+            setStatus(`Sent to ${successCount}/${lightningRecipients.length} recipients...`);
+          }
+        } catch (err) {
+          console.error(`Payment failed to ${recipient.name}:`, err);
+          // Continue with other recipients
+        }
+      }
+
+      if (successCount > 0) {
+        setStatus(`✅ Split ${totalAmount} sats among ${successCount} recipients! ⚡`);
+      } else {
+        setStatus('❌ All payments failed');
+      }
     } catch (err) {
-      console.error('Bitcoin Connect payment error:', err);
+      console.error('V4V payment error:', err);
       setStatus('Payment failed or cancelled.');
+    } finally {
+      setIsProcessing(false);
     }
   };
+
+  // Count valid Lightning recipients
+  const lightningRecipients = valueDestinations?.filter(d => d.type === 'lud16' && d.address) || [];
+  const hasRecipients = lightningRecipients.length > 0;
 
   return (
     <div className="mt-2">
       <Button 
         size="sm" 
         variant="outline" 
-        onClick={handleSupport}
-        disabled={!lightningAddress}
+        onClick={handleV4VPayment}
+        disabled={!hasRecipients || isProcessing}
         className="text-xs"
       >
-        Send {amount} sats
+        {isProcessing ? (
+          'Processing...'
+        ) : (
+          <>
+            <Zap className="h-3 w-3 mr-1" />
+            Split {totalAmount} sats
+            {hasRecipients && ` (${lightningRecipients.length} recipients)`}
+          </>
+        )}
       </Button>
       {status && (
         <p className="text-xs text-muted-foreground mt-1">{status}</p>
+      )}
+      {hasRecipients && (
+        <div className="text-xs text-muted-foreground mt-1">
+          Recipients: {lightningRecipients.map(r => r.name).join(', ')}
+        </div>
       )}
     </div>
   );
@@ -234,11 +292,11 @@ export function MusicDiscovery() {
                               {episode.duration && (
                                 <p className="text-xs text-muted-foreground">{formatDuration(episode.duration)}</p>
                               )}
-                              {/* Lightning payment for track */}
-                              <SupportArtistButton 
-                                lightningAddress={episode.value?.destinations?.find(d => d.type === 'lud16')?.address || 'demo@getalby.com'} 
-                                amount={21} 
-                                recipientName={episode.feedTitle} 
+                              {/* V4V split payment for track */}
+                              <V4VPaymentButton 
+                                valueDestinations={episode.value?.destinations} 
+                                totalAmount={21} 
+                                contentTitle={episode.title} 
                               />
                             </div>
                             <Button 
@@ -307,11 +365,11 @@ export function MusicDiscovery() {
                           {feed.author}
                         </button>
                         <p className="text-xs text-muted-foreground mt-1">{feed.description}</p>
-                        {/* Lightning payment for album */}
-                        <SupportArtistButton 
-                          lightningAddress={feed.value?.destinations?.find(d => d.type === 'lud16')?.address || 'demo@getalby.com'} 
-                          amount={33} 
-                          recipientName={feed.author} 
+                        {/* V4V split payment for album */}
+                        <V4VPaymentButton 
+                          valueDestinations={feed.value?.destinations} 
+                          totalAmount={33} 
+                          contentTitle={feed.title} 
                         />
                       </div>
                     </div>
@@ -363,11 +421,11 @@ export function MusicDiscovery() {
                       {episode.duration && <span>{formatDuration(episode.duration)}</span>}
                       <span>{new Date(episode.datePublished * 1000).toLocaleDateString()}</span>
                     </div>
-                    {/* Lightning payment for track */}
-                    <SupportArtistButton 
-                      lightningAddress={episode.value?.destinations?.find(d => d.type === 'lud16')?.address || 'demo@getalby.com'} 
-                      amount={21} 
-                      recipientName={episode.feedTitle} 
+                    {/* V4V split payment for track */}
+                    <V4VPaymentButton 
+                      valueDestinations={episode.value?.destinations} 
+                      totalAmount={21} 
+                      contentTitle={episode.title} 
                     />
                   </div>
                   <Button 
