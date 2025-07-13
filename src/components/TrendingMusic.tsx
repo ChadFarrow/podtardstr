@@ -222,8 +222,6 @@ export function TrendingMusic() {
   const [isLoadingPlayAll, setIsLoadingPlayAll] = useState(false);
 
   const handlePlayPauseAlbum = useCallback(async (podcast: PodcastIndexPodcast) => {
-    console.log('🎵 Album play button clicked:', podcast.title, 'ID:', podcast.id);
-    
     const podcastId = podcast.id.toString();
     
     // Check if any episode from this album is currently playing
@@ -234,21 +232,13 @@ export function TrendingMusic() {
       currentPodcast.id === `${podcastId}-album`
     );
     
-    console.log('🎵 Is this album playing?', isThisAlbumPlaying, {
-      currentPodcast: currentPodcast?.title,
-      isPlaying,
-      albumTitle: podcast.title
-    });
-    
     if (isThisAlbumPlaying) {
       // Pause the current track
-      console.log('🎵 Pausing current track');
       setIsPlaying(false);
       return;
     }
     
     // Try to fetch episodes first, then play the first one
-    console.log('🎵 Fetching episodes for:', podcast.title);
     try {
       const response = await podcastIndexFetch<PodcastIndexEpisode>('/episodes/byfeedid', {
         id: podcast.id.toString(),
@@ -257,8 +247,6 @@ export function TrendingMusic() {
       
       const episodes = (response.items || []).filter(ep => ep.enclosureUrl);
       const firstEpisode = episodes.find(ep => ep.enclosureUrl);
-      
-      console.log('🎵 Found episodes:', episodes.length, 'First playable:', firstEpisode?.title);
       
       if (firstEpisode) {
         const podcastToPlay = {
@@ -270,7 +258,6 @@ export function TrendingMusic() {
           duration: firstEpisode.duration,
         };
         
-        console.log('🎵 Playing podcast:', podcastToPlay);
         // Play the first episode with a valid audio URL
         playPodcast(podcastToPlay);
       } else {
@@ -435,7 +422,6 @@ export function TrendingMusic() {
                             onClick={(e) => {
                               e.preventDefault();
                               e.stopPropagation();
-                              console.log('🎵 Play button clicked for:', feed.title);
                               handlePlayPauseAlbum(feed);
                             }}
                             className="absolute inset-0 bg-black/30 hover:bg-black/60 active:bg-black/70 rounded flex items-center justify-center opacity-70 hover:opacity-100 active:opacity-100 transition-all touch-manipulation"

@@ -36,12 +36,10 @@ export function PodcastPlayer() {
     const updateTime = () => {
       const time = audio.currentTime;
       setCurrentTime(time);
-      console.log('⏰ Time update:', time, 'Duration:', audio.duration);
     };
     const updateDuration = () => {
       const dur = audio.duration;
       setDuration(dur);
-      console.log('⏱️ Duration loaded:', dur);
     };
 
     audio.addEventListener('timeupdate', updateTime);
@@ -167,15 +165,14 @@ export function PodcastPlayer() {
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
-  console.log('🎵 PodcastPlayer render:', { 
-    hasCurrentPodcast: !!currentPodcast, 
-    currentPodcast: currentPodcast?.title,
-    isPlaying 
-  });
-
   if (!currentPodcast) {
-    console.log('🎵 PodcastPlayer: No current podcast, not rendering');
-    return null;
+    return (
+      <Card className="border-t rounded-none sticky bottom-0 bg-background">
+        <div className="p-3 sm:p-4 text-center text-muted-foreground text-sm">
+          No track selected. Click play on any track to start listening.
+        </div>
+      </Card>
+    );
   }
 
   return (
