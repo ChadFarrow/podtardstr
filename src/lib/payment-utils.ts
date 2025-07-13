@@ -47,16 +47,48 @@ export function isValidLightningAddress(address: string): boolean {
  * Filters and validates Lightning recipients from ValueBlock destinations
  */
 export function getLightningRecipients(destinations?: ValueDestination[]): PaymentRecipient[] {
-  if (!destinations || !Array.isArray(destinations)) return [];
+  if (!destinations || !Array.isArray(destinations)) {
+    console.log('No destinations provided or invalid format');
+    return [];
+  }
   
-  return destinations
-    .filter(d => d.type === 'lud16' && d.address && isValidLightningAddress(d.address))
+  console.log('Processing destinations:', destinations);
+  
+  const processed = destinations
+    .map((d, index) => {
+      console.log(`Destination ${index}:`, {
+        type: d.type,
+        address: d.address,
+        name: d.name,
+        split: d.split,
+        isValidAddress: d.address ? isValidLightningAddress(d.address) : false
+      });
+      return d;
+    })
+    .filter(d => {
+      // Accept both lud16 and lud06 types
+      const validType = d.type === 'lud16' || d.type === 'lud06';
+      const validAddress = d.address && isValidLightningAddress(d.address);
+      const hasValidSplit = d.split && d.split > 0;
+      
+      console.log(`Filtering destination ${d.name || 'Unknown'}:`, {
+        validType,
+        validAddress,
+        hasValidSplit,
+        included: validType && validAddress && hasValidSplit
+      });
+      
+      return validType && validAddress && hasValidSplit;
+    })
     .map(d => ({
-      name: d.name || 'Unknown',
+      name: d.name || 'Unknown Artist',
       address: d.address,
       type: d.type,
       split: Math.max(0, d.split || 0)
     }));
+    
+  console.log('Final processed recipients:', processed);
+  return processed;
 }
 
 /**

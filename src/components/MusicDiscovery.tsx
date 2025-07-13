@@ -71,6 +71,14 @@ function V4VPaymentButton({
 
   // Memoize recipients to avoid unnecessary recalculations
   const { recipients, hasRecipients, isDemo } = useMemo(() => {
+    // Debug logging for value destinations
+    console.log('V4V Payment Debug:', {
+      contentTitle,
+      hasValueDestinations: !!valueDestinations,
+      valueDestinations: valueDestinations,
+      destinationCount: valueDestinations?.length || 0
+    });
+
     // Special case for "The Wait is Over" - hardcoded ValueBlock for testing
     if (contentTitle?.includes('Wait Is Over')) {
       const hardcodedRecipients = [
@@ -87,6 +95,11 @@ function V4VPaymentButton({
     }
 
     const lightningRecipients = getLightningRecipients(valueDestinations);
+    console.log('Parsed Lightning Recipients:', {
+      originalCount: valueDestinations?.length || 0,
+      parsedCount: lightningRecipients.length,
+      recipients: lightningRecipients
+    });
     const hasRealRecipients = lightningRecipients.length > 0;
     
     const finalRecipients = hasRealRecipients ? lightningRecipients : [getDemoRecipient()];
