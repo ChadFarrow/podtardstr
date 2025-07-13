@@ -160,7 +160,7 @@ function V4VPaymentButton({
 }
 
 export function TrendingMusic() {
-  const { playPodcast, currentPodcast, isPlaying, setIsPlaying } = usePodcastPlayer();
+  const { playPodcast, currentPodcast, isPlaying, setIsPlaying, queue } = usePodcastPlayer();
   const { data: trendingMusic, isLoading: trendingLoading } = useTop100Music();
 
   const handlePlayPauseAlbum = useCallback(async (podcast: PodcastIndexPodcast) => {
@@ -184,10 +184,10 @@ export function TrendingMusic() {
     try {
       const response = await podcastIndexFetch<PodcastIndexEpisode>('/episodes/byfeedid', {
         id: podcast.id.toString(),
-        max: '5', // Just get a few episodes
+        max: '10', // Fetch more episodes for queue
       });
       
-      const episodes = response.items || [];
+      const episodes = (response.items || []).filter(ep => ep.enclosureUrl);
       const firstEpisode = episodes.find(ep => ep.enclosureUrl);
       
       if (firstEpisode) {

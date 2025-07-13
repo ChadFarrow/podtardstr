@@ -141,7 +141,7 @@ export function FeedValueParser() {
                           {feed.link}
                         </a>
                       ) : 'Not specified'}</p>
-                      <p><strong>Language:</strong> {feed.language || 'Not specified'}</p>
+                      <p><strong>Episodes:</strong> {feed.episodes.length}</p>
                       <p><strong>Image:</strong> {feed.image ? (
                         <a href={feed.image} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
                           View Image

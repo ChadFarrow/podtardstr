@@ -18,7 +18,9 @@ export function PodcastPlayer() {
     setCurrentTime,
     setDuration,
     setVolume,
-    setIsMuted
+    setIsMuted,
+    playNext,
+    playPrevious
   } = usePodcastPlayer();
   const audioRef = useRef<HTMLAudioElement>(null);
   const [showNowPlaying, setShowNowPlaying] = useState(false);
@@ -143,18 +145,6 @@ export function PodcastPlayer() {
     setIsMuted(!isMuted);
   };
 
-  const skipBackward = () => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    audio.currentTime = Math.max(0, audio.currentTime - 15);
-  };
-
-  const skipForward = () => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    audio.currentTime = Math.min(duration, audio.currentTime + 15);
-  };
-
   const formatTime = (time: number) => {
     if (isNaN(time)) return '0:00';
     const minutes = Math.floor(time / 60);
@@ -198,7 +188,7 @@ export function PodcastPlayer() {
 
           {/* Controls */}
           <div className="flex items-center gap-1 sm:gap-2">
-            <Button variant="ghost" size="icon" onClick={skipBackward} className="h-10 w-10 sm:h-9 sm:w-9 touch-manipulation">
+            <Button variant="ghost" size="icon" onClick={playPrevious} className="h-10 w-10 sm:h-9 sm:w-9 touch-manipulation">
               <SkipBack className="h-5 w-5 sm:h-4 sm:w-4" />
             </Button>
             
@@ -210,7 +200,7 @@ export function PodcastPlayer() {
               )}
             </Button>
             
-            <Button variant="ghost" size="icon" onClick={skipForward} className="h-10 w-10 sm:h-9 sm:w-9 touch-manipulation">
+            <Button variant="ghost" size="icon" onClick={playNext} className="h-10 w-10 sm:h-9 sm:w-9 touch-manipulation">
               <SkipForward className="h-5 w-5 sm:h-4 sm:w-4" />
             </Button>
           </div>

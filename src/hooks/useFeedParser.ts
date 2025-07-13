@@ -43,20 +43,52 @@ export function usePodcastIndexFeedData(feedUrl: string, options: { enabled?: bo
         throw new Error('Feed URL is required');
       }
 
-      // Import the podcastIndexFetch function
+      // Import the podcastIndexFetch function and types
       const { podcastIndexFetch } = await import('@/hooks/usePodcastIndex');
+      type PodcastIndexPodcast = import('@/hooks/usePodcastIndex').PodcastIndexPodcast;
       
       try {
-        // Try to find the feed by URL first
-        const searchResponse = await podcastIndexFetch('/podcasts/byfeedurl', {
-          url: feedUrl,
+        // Try to find the feed by searching for the URL
+        const searchResponse = await podcastIndexFetch<PodcastIndexPodcast>('/search/byterm', {
+          q: feedUrl,
+          max: '10',
         });
 
-        console.log('Podcast Index API response:', searchResponse);
-        return searchResponse;
+        console.log('Podcast Index API search response:', searchResponse);
+        
+        // Look for a feed that matches our URL
+        const matchingFeed = searchResponse.feeds?.find((feed: PodcastIndexPodcast) => 
+          feed.url === feedUrl || feed.originalUrl === feedUrl || feed.link === feedUrl
+        );
+
+        if (matchingFeed) {
+          // If we found a matching feed, get the full details by feed ID
+          const feedResponse = await podcastIndexFetch<PodcastIndexPodcast>('/podcasts/byfeedid', {
+            id: matchingFeed.id.toString(),
+          });
+          
+          console.log('Podcast Index API feed details:', feedResponse);
+          return {
+            ...feedResponse,
+            feed: feedResponse.feeds?.[0] || null,
+          };
+        }
+
+        // Return search results if no exact match found
+        return {
+          ...searchResponse,
+          feed: null,
+        };
       } catch (error) {
         console.error('Failed to fetch from Podcast Index API:', error);
-        return null;
+        return {
+          status: 'error',
+          feeds: [],
+          count: 0,
+          query: feedUrl,
+          description: 'Failed to fetch from Podcast Index API',
+          feed: null,
+        };
       }
     },
     enabled: options.enabled !== false && !!feedUrl,
