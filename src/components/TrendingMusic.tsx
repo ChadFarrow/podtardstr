@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -124,16 +124,21 @@ function V4VPaymentButton({
     // Fallback to original Podcast Index data
     const lightningRecipients = getLightningRecipients(valueDestinations);
     const hasRealRecipients = lightningRecipients.length > 0;
-
+    
     console.log(`⚡ Lightning recipients for "${contentTitle}":`, {
       recipients: lightningRecipients,
       hasRecipients: hasRealRecipients
     });
 
+    // Detect if these are demo recipients (Top 100 chart entries)
+    const isDemoData = lightningRecipients.some(r => 
+      r.address.includes('@getalby.com') && r.address.startsWith('demo')
+    );
+    
     return {
       recipients: lightningRecipients,
       hasRecipients: hasRealRecipients,
-      isDemo: false
+      isDemo: isDemoData
     };
   }, [valueDestinations, contentTitle, feedUrl, episodeGuid, hasV4VData, v4vRecipients, dataSource]);
 
@@ -210,8 +215,9 @@ function V4VPaymentButton({
 }
 
 export function TrendingMusic() {
-  const { playPodcast, currentPodcast, isPlaying, setIsPlaying } = usePodcastPlayer();
+  const { playPodcast, currentPodcast, isPlaying, setIsPlaying, addToQueue, clearQueue } = usePodcastPlayer();
   const { data: trendingMusic, isLoading: trendingLoading } = useTop100Music();
+  const [isLoadingPlayAll, setIsLoadingPlayAll] = useState(false);
 
   const handlePlayPauseAlbum = useCallback(async (podcast: PodcastIndexPodcast) => {
     const podcastId = podcast.id.toString();
@@ -258,6 +264,72 @@ export function TrendingMusic() {
     }
   }, [currentPodcast, isPlaying, playPodcast, setIsPlaying]);
 
+  // Play All Top 100 tracks in order
+  const handlePlayAll = useCallback(async () => {
+    if (!trendingMusic?.feeds.length) return;
+    
+    setIsLoadingPlayAll(true);
+    try {
+      // Clear existing queue
+      clearQueue();
+      
+      // Fetch episodes for all feeds and add them to queue
+      const allEpisodes: Array<{
+        id: string;
+        title: string;
+        author: string;
+        url: string;
+        imageUrl?: string;
+        duration?: number;
+        rank: number;
+      }> = [];
+      
+      // Process feeds in order (Top 100 order)
+      for (let i = 0; i < trendingMusic.feeds.length; i++) {
+        const feed = trendingMusic.feeds[i];
+        try {
+          const response = await podcastIndexFetch<PodcastIndexEpisode>('/episodes/byfeedid', {
+            id: feed.id.toString(),
+            max: '5', // Get first few episodes
+          });
+          
+          const episodes = (response.items || []).filter(ep => ep.enclosureUrl);
+          const firstEpisode = episodes.find(ep => ep.enclosureUrl);
+          
+          if (firstEpisode) {
+            allEpisodes.push({
+              id: `${feed.id}-${firstEpisode.id}`,
+              title: firstEpisode.title,
+              author: firstEpisode.feedTitle || feed.author,
+              url: firstEpisode.enclosureUrl,
+              imageUrl: firstEpisode.image || firstEpisode.feedImage || feed.image || feed.artwork,
+              duration: firstEpisode.duration,
+              rank: i + 1,
+            });
+          }
+        } catch (error) {
+          console.warn(`Failed to fetch episodes for feed ${feed.id}:`, error);
+        }
+      }
+      
+      // Add all episodes to queue
+      allEpisodes.forEach(episode => {
+        addToQueue(episode);
+      });
+      
+      // Play the first episode
+      if (allEpisodes.length > 0) {
+        playPodcast(allEpisodes[0]);
+      }
+      
+      console.log(`Queued ${allEpisodes.length} tracks from Top 100 V4V chart`);
+    } catch (error) {
+      console.error('Failed to queue Top 100 tracks:', error);
+    } finally {
+      setIsLoadingPlayAll(false);
+    }
+  }, [trendingMusic?.feeds, clearQueue, addToQueue, playPodcast]);
+
   // Helper function to check if a track/album is currently playing
   const isCurrentlyPlaying = useCallback((id: string, feedTitle?: string) => {
     if (!currentPodcast || !isPlaying) return false;
@@ -283,10 +355,22 @@ export function TrendingMusic() {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Star className="h-5 w-5" />
-            Top 100 V4V Music Chart
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              <Star className="h-5 w-5" />
+              Top 100 V4V Music Chart
+            </CardTitle>
+            <Button
+              onClick={handlePlayAll}
+              disabled={isLoadingPlayAll || !trendingMusic?.feeds.length}
+              size="sm"
+              variant="outline"
+              className="flex items-center gap-2"
+            >
+              <ListMusic className="h-4 w-4" />
+              {isLoadingPlayAll ? 'Loading...' : 'Play All'}
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           {trendingLoading ? (
