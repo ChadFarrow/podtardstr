@@ -1,4 +1,9 @@
 // Payment utility functions for Lightning Network payments
+// 
+// TLV Record 7629169 follows Podcast Index 2.0 standard:
+// - Required: podcast, action, ts
+// - Standard: feedId, episodeId, amount, app, platform  
+// - Optional: contentTitle, message
 
 export interface ValueDestination {
   name: string;
@@ -217,6 +222,7 @@ export async function processSinglePayment(
     contentTitle?: string;
     totalAmount?: number;
     app?: string;
+    message?: string;
   }
 ): Promise<boolean> {
   try {
@@ -231,17 +237,23 @@ export async function processSinglePayment(
             destination: recipient.address,
             amount: amount, // Alby keysend expects sats, not msats
             customRecords: {
-              // TLV record 7629169 for podcast metadata (optional)
+              // TLV record 7629169 for Podcast Index 2.0 standard
               '7629169': JSON.stringify({
+                // Required fields
                 podcast: recipient.name,
                 action: 'boost',
                 ts: Math.floor(Date.now() / 1000),
+                
+                // Podcast Index 2.0 standard fields
                 ...(metadata?.feedId && { feedId: metadata.feedId }),
                 ...(metadata?.episodeId && { episodeId: metadata.episodeId }),
-                ...(metadata?.contentTitle && { contentTitle: metadata.contentTitle }),
-                ...(metadata?.totalAmount && { totalAmount: metadata.totalAmount }),
+                ...(metadata?.totalAmount && { amount: metadata.totalAmount }),
                 ...(metadata?.app && { app: metadata.app }),
-                platform: 'web'
+                platform: 'web',
+                
+                // Additional context (optional)
+                ...(metadata?.contentTitle && { contentTitle: metadata.contentTitle }),
+                ...(metadata?.message && { message: metadata.message })
               })
             }
           });
@@ -293,6 +305,7 @@ export async function processMultiplePayments(
     episodeId?: string;
     contentTitle?: string;
     app?: string;
+    message?: string;
   }
 ): Promise<PaymentResult> {
   const paymentAmounts = calculatePaymentAmounts(recipients, totalAmount);

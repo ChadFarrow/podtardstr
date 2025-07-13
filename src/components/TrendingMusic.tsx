@@ -41,6 +41,7 @@ function usePaymentProcessor() {
       episodeId?: string;
       contentTitle?: string;
       app?: string;
+      message?: string;
     }
   ) => {
     setIsProcessing(true);
