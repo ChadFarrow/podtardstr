@@ -69,9 +69,12 @@ export function useValueBlockFromRss(
       }
     },
     enabled: options.enabled !== false && !!feedUrl,
-    staleTime: 30 * 60 * 1000, // 30 minutes
+    staleTime: 2 * 60 * 60 * 1000, // 2 hours - RSS V4V data doesn't change frequently
+    gcTime: 12 * 60 * 60 * 1000, // 12 hours - Keep in cache for half a day
     retry: 1, // Reduce retries to avoid overwhelming proxies
     retryDelay: 2000, // Add delay between retries
+    refetchOnWindowFocus: false, // Don't refetch when window gains focus
+    refetchOnReconnect: false, // Don't refetch on reconnect
   });
 }
 

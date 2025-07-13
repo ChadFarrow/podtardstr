@@ -454,7 +454,10 @@ export function useTrendingPodcasts() {
         };
       }
     },
-    staleTime: 30 * 60 * 1000, // 30 minutes
+    staleTime: 6 * 60 * 60 * 1000, // 6 hours - Top 100 chart doesn't change frequently
+    gcTime: 24 * 60 * 60 * 1000, // 24 hours - Keep in cache for a full day
+    refetchOnWindowFocus: false, // Don't refetch when window gains focus
+    refetchOnReconnect: false, // Don't refetch on reconnect
   });
 }
 
@@ -586,7 +589,10 @@ export function useTop100Music() {
         throw error;
       }
     },
-    staleTime: 30 * 60 * 1000, // 30 minutes
+    staleTime: 6 * 60 * 60 * 1000, // 6 hours - Top 100 chart doesn't change frequently
+    gcTime: 24 * 60 * 60 * 1000, // 24 hours - Keep in cache for a full day
+    refetchOnWindowFocus: false, // Don't refetch when window gains focus
+    refetchOnReconnect: false, // Don't refetch on reconnect
   });
 }
 
