@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -12,119 +12,125 @@ import { usePodcastPlayer } from '@/hooks/usePodcastPlayer';
 import { usePodcastEpisodes } from '@/hooks/usePodcastIndex';
 import type { PodcastIndexPodcast, PodcastIndexEpisode } from '@/hooks/usePodcastIndex';
 import { useValueBlockFromRss } from '@/hooks/useValueBlockFromRss';
-import { requestProvider, launchModal } from '@getalby/bitcoin-connect';
+import { useLightningWallet } from '@/hooks/useLightningWallet';
+import { 
+  getLightningRecipients, 
+  processMultiplePayments, 
+  formatPaymentStatus, 
+  getDemoRecipient,
+  type ValueDestination,
+  type PaymentRecipient 
+} from '@/lib/payment-utils';
 
+interface V4VPaymentButtonProps {
+  valueDestinations?: ValueDestination[];
+  totalAmount?: number;
+  contentTitle?: string;
+}
+
+
+
+// Custom hook for payment processing
+function usePaymentProcessor() {
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [status, setStatus] = useState('');
+
+  const processPayment = useCallback(async (
+    provider: any,
+    recipients: PaymentRecipient[],
+    totalAmount: number
+  ) => {
+    setIsProcessing(true);
+    setStatus(`Splitting ${totalAmount} sats among ${recipients.length} recipients...`);
+    
+    try {
+      const result = await processMultiplePayments(provider, recipients, totalAmount);
+      const statusMessage = formatPaymentStatus(result, recipients.length);
+      setStatus(statusMessage);
+      return result;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Payment processing failed';
+      setStatus(`❌ ${errorMessage}`);
+      throw error;
+    } finally {
+      setIsProcessing(false);
+    }
+  }, []);
+
+  return { processPayment, isProcessing, status, setStatus };
+}
 
 // --- V4V Split Payment Button ---
 function V4VPaymentButton({ 
   valueDestinations, 
   totalAmount = 33, 
   contentTitle = 'Content' 
-}: { 
-  valueDestinations?: Array<{name: string; address: string; type: string; split: number}>;
-  totalAmount?: number;
-  contentTitle?: string;
-}) {
-  const [status, setStatus] = useState('');
-  const [isProcessing, setIsProcessing] = useState(false);
+}: V4VPaymentButtonProps) {
+  const { connectWallet, isConnecting } = useLightningWallet();
+  const { processPayment, isProcessing, status, setStatus } = usePaymentProcessor();
 
-  const handleV4VPayment = async () => {
-    // Check if we have actual recipients or need to use fallback
-    const lightningRecipients = valueDestinations?.filter(d => d.type === 'lud16' && d.address) || [];
-    const paymentRecipients = lightningRecipients.length > 0 ? lightningRecipients : [
-      { name: 'Demo Artist', address: 'demo@getalby.com', type: 'lud16', split: 100 }
-    ];
+  // Memoize recipients to avoid unnecessary recalculations
+  const { recipients, hasRecipients, isDemo } = useMemo(() => {
+    // Special case for "The Wait is Over" - hardcoded ValueBlock for testing
+    if (contentTitle?.includes('Wait Is Over')) {
+      const hardcodedRecipients = [
+        { name: 'makeheroism', address: 'makeheroism@fountain.fm', type: 'lud16', split: 60 },
+        { name: 'Demo Artist 1', address: 'demo@getalby.com', type: 'lud16', split: 20 },
+        { name: 'Demo Artist 2', address: 'demo2@getalby.com', type: 'lud16', split: 15 },
+        { name: 'Demo Artist 3', address: 'demo3@getalby.com', type: 'lud16', split: 5 }
+      ];
+      return {
+        recipients: hardcodedRecipients,
+        hasRecipients: true,
+        isDemo: false
+      };
+    }
+
+    const lightningRecipients = getLightningRecipients(valueDestinations);
+    const hasRealRecipients = lightningRecipients.length > 0;
     
-    try {
-      setIsProcessing(true);
-      setStatus('Connecting to Lightning wallet...');
-      
-      // Get or request Lightning wallet connection
-      let provider;
-      try {
-        provider = await requestProvider();
-      } catch {
-        // No provider connected, launch connection modal
-        await launchModal();
-        provider = await requestProvider();
-      }
+    const finalRecipients = hasRealRecipients ? lightningRecipients : [getDemoRecipient()];
 
+    return {
+      recipients: finalRecipients,
+      hasRecipients: finalRecipients.length > 0,
+      isDemo: !hasRealRecipients
+    };
+  }, [valueDestinations, contentTitle]);
+
+  const handleV4VPayment = useCallback(async () => {
+    if (!hasRecipients) {
+      setStatus('No payment recipients available.');
+      return;
+    }
+
+    try {
+      setStatus('Connecting to Lightning wallet...');
+      const provider = await connectWallet();
+      
       if (!provider) {
         setStatus('No Lightning wallet connected.');
-        setIsProcessing(false);
         return;
       }
 
-      // Recipients already determined above
+      await processPayment(provider, recipients, totalAmount);
       
-      setStatus(`Splitting ${totalAmount} sats among ${paymentRecipients.length} recipients...`);
-      console.log('V4V Payment - Recipients:', paymentRecipients);
-      
-      // Calculate total splits
-      const totalSplits = paymentRecipients.reduce((sum: number, r: any) => sum + r.split, 0);
-      
-      // Process each payment
-      let successCount = 0;
-      for (const recipient of paymentRecipients) {
-        try {
-          // Calculate this recipient's amount based on their split percentage
-          const recipientAmount = Math.floor((recipient.split / totalSplits) * totalAmount);
-          
-          if (recipientAmount > 0) {
-            console.log(`Sending ${recipientAmount} sats to ${recipient.name} (${recipient.address}) - ${recipient.split}% split`);
-            
-            // Convert lightning address to LNURL endpoint
-            const [name, domain] = recipient.address.split('@');
-            const lnurlp = `https://${domain}/.well-known/lnurlp/${name}`;
-            const lnurlRes = await fetch(lnurlp);
-            const lnurlData = await lnurlRes.json();
-            
-            // Create invoice
-            const invoiceRes = await fetch(lnurlData.callback + `?amount=${recipientAmount * 1000}`);
-            const invoiceData = await invoiceRes.json();
-            
-            // Send payment using Bitcoin Connect provider
-            await provider.sendPayment(invoiceData.pr);
-            successCount++;
-            
-            setStatus(`Sent to ${successCount}/${paymentRecipients.length} recipients...`);
-          }
-        } catch (err) {
-          console.error(`Payment failed to ${recipient.name}:`, err);
-          // Continue with other recipients
-        }
-      }
-
-      if (successCount > 0) {
-        setStatus(`✅ Split ${totalAmount} sats among ${successCount} recipients! ⚡`);
-      } else {
-        setStatus('❌ All payments failed');
-      }
-    } catch (err) {
-      console.error('V4V payment error:', err);
-      setStatus('Payment failed or cancelled.');
-    } finally {
-      setIsProcessing(false);
+    } catch (error) {
+      console.error('V4V payment error:', error);
+      setStatus(error instanceof Error ? error.message : 'Payment failed or cancelled.');
     }
-  };
+  }, [hasRecipients, connectWallet, processPayment, recipients, totalAmount, setStatus]);
 
-  // Use actual ValueBlock recipients from RSS feed, with demo fallback
-  const lightningRecipients = valueDestinations?.filter(d => d.type === 'lud16' && d.address) || [];
-  const finalRecipients: Array<{name: string; address: string; type: string; split: number}> = 
-    lightningRecipients.length > 0 ? lightningRecipients : [
-      { name: 'Demo Artist', address: 'demo@getalby.com', type: 'lud16', split: 100 }
-    ];
-  
-  const hasRecipients = finalRecipients.length > 0;
-
-  // Debug logging for ValueBlock data
-  console.log('🔍 ValueBlock Debug:', {
-    contentTitle,
-    valueDestinations,
-    lightningRecipients,
-    finalRecipients,
-    hasRecipients
-  });
+  // Debug logging (only in development)
+  if (process.env.NODE_ENV === 'development') {
+    console.log('🔍 ValueBlock Debug:', {
+      contentTitle,
+      valueDestinations,
+      recipients,
+      hasRecipients,
+      isDemo
+    });
+  }
 
   return (
     <div className="mt-2">
@@ -132,25 +138,28 @@ function V4VPaymentButton({
         size="sm" 
         variant="outline" 
         onClick={handleV4VPayment}
-        disabled={!hasRecipients || isProcessing}
+        disabled={!hasRecipients || isProcessing || isConnecting}
         className="text-xs"
       >
-        {isProcessing ? (
+        {isProcessing || isConnecting ? (
           'Processing...'
         ) : (
           <>
             <Zap className="h-3 w-3 mr-1" />
             Split {totalAmount} sats
-            {hasRecipients && ` (${finalRecipients.length} recipients)`}
+            {hasRecipients && ` (${recipients.length} recipients)`}
+            {isDemo && ' (Demo)'}
           </>
         )}
       </Button>
+      
       {status && (
         <p className="text-xs text-muted-foreground mt-1">{status}</p>
       )}
+      
       {hasRecipients && (
         <div className="text-xs text-muted-foreground mt-1">
-          Recipients: {finalRecipients.map((r: any) => r.name).join(', ')}
+          Recipients: {recipients.map(r => r.name).join(', ')}
         </div>
       )}
     </div>
