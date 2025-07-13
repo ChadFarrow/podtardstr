@@ -101,12 +101,13 @@ function V4VPaymentButton({
     });
     const hasRealRecipients = lightningRecipients.length > 0;
     
-    const finalRecipients = hasRealRecipients ? lightningRecipients : [getDemoRecipient()];
+    // Don't use demo recipient for Top 100 tracks without payment info
+    const finalRecipients = hasRealRecipients ? lightningRecipients : [];
 
     return {
       recipients: finalRecipients,
-      hasRecipients: finalRecipients.length > 0,
-      isDemo: !hasRealRecipients
+      hasRecipients: hasRealRecipients,
+      isDemo: false // Don't show demo for Top 100 tracks
     };
   }, [valueDestinations, contentTitle]);
 
@@ -137,24 +138,29 @@ function V4VPaymentButton({
 
   return (
     <div className="mt-2">
-      <Button 
-        size="sm" 
-        variant="outline" 
-        onClick={handleV4VPayment}
-        disabled={!hasRecipients || isProcessing || isConnecting}
-        className="text-xs"
-      >
-        {isProcessing || isConnecting ? (
-          'Processing...'
-        ) : (
-          <>
-            <Zap className="h-3 w-3 mr-1" />
-            Split {totalAmount} sats
-            {hasRecipients && ` (${recipients.length} recipients)`}
-            {isDemo && ' (Demo)'}
-          </>
-        )}
-      </Button>
+      {hasRecipients ? (
+        <Button 
+          size="sm" 
+          variant="outline" 
+          onClick={handleV4VPayment}
+          disabled={isProcessing || isConnecting}
+          className="text-xs"
+        >
+          {isProcessing || isConnecting ? (
+            'Processing...'
+          ) : (
+            <>
+              <Zap className="h-3 w-3 mr-1" />
+              Split {totalAmount} sats ({recipients.length} recipients)
+              {isDemo && ' (Demo)'}
+            </>
+          )}
+        </Button>
+      ) : (
+        <div className="text-xs text-muted-foreground">
+          💡 V4V payments not configured
+        </div>
+      )}
       
       {status && (
         <p className="text-xs text-muted-foreground mt-1">{status}</p>

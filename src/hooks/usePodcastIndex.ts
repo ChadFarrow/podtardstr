@@ -471,20 +471,9 @@ export function useTop100Music() {
           imageUrlHash: 0,
           newestItemPubdate: 0,
           episodeCount: 1,
-          // Mark as Value4Value enabled (these are all from V4V chart)
-          value: {
-            model: {
-              type: 'lightning',
-              method: 'keysend',
-              suggested: '0.00000001000'
-            },
-            destinations: [{
-              name: entry.author,
-              address: '',
-              type: 'node',
-              split: 100
-            }]
-          }
+          // These are from V4V chart but we don't have payment data from this API
+          // The actual payment recipients would need to be fetched from individual feeds
+          value: undefined
         }));
 
         return {
