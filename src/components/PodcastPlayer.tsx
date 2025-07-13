@@ -59,18 +59,25 @@ export function PodcastPlayer() {
   // Handle new track loading
   useEffect(() => {
     const audio = audioRef.current;
-    if (!audio || !currentPodcast || isLoading) return;
-
-    // Prevent rapid loading by setting loading state
-    setIsLoading(true);
+    if (!audio || !currentPodcast) return;
 
     // Reset time when a new track is loaded
     setCurrentTime(0);
     setDuration(0);
+    setIsLoading(true);
 
     // Add error handling for media loading
     const handleLoadStart = () => setIsLoading(true);
-    const handleCanPlay = () => setIsLoading(false);
+    const handleCanPlay = () => {
+      setIsLoading(false);
+      // Auto-play if the player state indicates it should be playing
+      if (isPlaying) {
+        audio.play().catch((error) => {
+          console.error('Auto-play error:', error);
+          setIsPlaying(false);
+        });
+      }
+    };
     const handleError = (e: Event) => {
       console.error('Audio loading error:', e);
       setIsLoading(false);
@@ -89,7 +96,7 @@ export function PodcastPlayer() {
       audio.removeEventListener('canplay', handleCanPlay);
       audio.removeEventListener('error', handleError);
     };
-  }, [currentPodcast?.url, setCurrentTime, setDuration, isLoading, setIsPlaying]);
+  }, [currentPodcast?.url, setCurrentTime, setDuration, isPlaying, setIsPlaying]);
 
   useEffect(() => {
     const audio = audioRef.current;
