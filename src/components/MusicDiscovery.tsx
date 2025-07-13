@@ -8,7 +8,6 @@ import { Play, Pause, Search, Zap, Heart, ExternalLink } from 'lucide-react';
 import { useRecentMusicEpisodes, useMusicSearch } from '@/hooks/useMusicIndex';
 import { useTrendingPodcasts, podcastIndexFetch } from '@/hooks/usePodcastIndex';
 import { usePodcastPlayer } from '@/hooks/usePodcastPlayer';
-import { usePodcastEpisodes } from '@/hooks/usePodcastIndex';
 import type { PodcastIndexPodcast, PodcastIndexEpisode } from '@/hooks/usePodcastIndex';
 
 import { useLightningWallet } from '@/hooks/useLightningWallet';
@@ -173,13 +172,11 @@ function V4VPaymentButton({
 
 export function MusicDiscovery() {
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedFeedId, setSelectedFeedId] = useState<number | null>(null);
   const { playPodcast, currentPodcast, isPlaying, setIsPlaying } = usePodcastPlayer();
 
   const { data: trendingMusic, isLoading: trendingLoading } = useTrendingPodcasts(); // Use same hook as main trending
   const { data: recentEpisodes, isLoading: recentLoading } = useRecentMusicEpisodes();
   const { data: searchResults, isLoading: searchLoading } = useMusicSearch(searchQuery, { enabled: searchQuery.length > 2 });
-  const { data: episodesData } = usePodcastEpisodes(selectedFeedId || 0, { enabled: selectedFeedId !== null });
 
 
 
@@ -266,49 +263,34 @@ export function MusicDiscovery() {
       return;
     }
     
-    // Play new album
-    setSelectedFeedId(podcast.id);
-    
-    // If no episodes are found after a short delay, try to play the feed URL directly
-    setTimeout(() => {
-      if (selectedFeedId === podcast.id) {
-        if (podcast.url) {
-          // Create a mock episode from the feed data to play directly
-          const mockEpisode = {
-            id: `${podcastId}-album`,
-            title: podcast.title,
-            author: podcast.author,
-            url: podcast.url,
-            imageUrl: podcast.image || podcast.artwork,
-            duration: 0,
-          };
-          
-          playPodcast(mockEpisode);
-        }
-        
-        setSelectedFeedId(null);
-      }
-    }, 2000); // Wait 2 seconds for episodes to load
-  }, [currentPodcast, isPlaying, playPodcast, setIsPlaying, selectedFeedId]);
-
-  // Auto-play first episode when episodes are loaded
-  React.useEffect(() => {
-    if (episodesData && Array.isArray(episodesData.episodes) && episodesData.episodes.length > 0 && selectedFeedId) {
-      const firstEpisode = episodesData.episodes[0];
-      if (firstEpisode && firstEpisode.enclosureUrl) {
-        // Play the first episode with album-aware ID
+    // Try to fetch episodes first, then play the first one
+    try {
+      const response = await podcastIndexFetch<PodcastIndexEpisode>('/episodes/byfeedid', {
+        id: podcast.id.toString(),
+        max: '5', // Just get a few episodes
+      });
+      
+      const episodes = response.items || [];
+      const firstEpisode = episodes.find(ep => ep.enclosureUrl);
+      
+      if (firstEpisode) {
+        // Play the first episode with a valid audio URL
         playPodcast({
-          id: `${selectedFeedId}-${firstEpisode.id}`,
+          id: `${podcastId}-${firstEpisode.id}`,
           title: firstEpisode.title,
-          author: firstEpisode.feedTitle,
+          author: firstEpisode.feedTitle || podcast.author,
           url: firstEpisode.enclosureUrl,
-          imageUrl: firstEpisode.image || firstEpisode.feedImage,
+          imageUrl: firstEpisode.image || firstEpisode.feedImage || podcast.image || podcast.artwork,
           duration: firstEpisode.duration,
         });
+      } else {
+        console.warn('No playable episodes found in album:', podcast.title);
       }
-      setSelectedFeedId(null); // Reset after playing
+    } catch (error) {
+      console.error('Failed to fetch album episodes:', error);
     }
-  }, [episodesData, playPodcast, selectedFeedId]);
+  }, [currentPodcast, isPlaying, playPodcast, setIsPlaying]);
+
 
   const formatDuration = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
