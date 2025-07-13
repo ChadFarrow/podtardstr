@@ -62,7 +62,7 @@ const Index = () => {
                     <Star className="h-4 w-4 mr-2" />
                     Top 100 V4V tracks
                   </Button>
-                  <Button
+                  {/* <Button
                     variant={activeTab === 'discover' ? 'secondary' : 'ghost'}
                     className="w-full justify-start text-sm"
                     onClick={() => setActiveTab('discover')}
@@ -77,7 +77,7 @@ const Index = () => {
                   >
                     <Search className="h-4 w-4 mr-2" />
                     Search
-                  </Button>
+                  </Button> */}
                   <Button
                     variant={activeTab === 'nostr' ? 'secondary' : 'ghost'}
                     className="w-full justify-start text-sm"
@@ -119,16 +119,16 @@ const Index = () => {
                 <h2 className="text-base sm:text-xl font-semibold truncate">
                   {activeTab === 'music' && 'Music'}
                   {activeTab === 'top100' && 'Top 100 V4V tracks'}
-                  {activeTab === 'discover' && 'Discover'}
-                  {activeTab === 'search' && 'Search'}
+                  {/* {activeTab === 'discover' && 'Discover'}
+                  {activeTab === 'search' && 'Search'} */}
                   {activeTab === 'nostr' && 'Nostr Feed'}
                   {activeTab === 'feed-parser' && 'Feed Parser'}
                 </h2>
                 <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">
                   {activeTab === 'music' && 'Search and discover music with Value4Value'}
                   {activeTab === 'top100' && 'The hottest Value4Value music tracks ranked by community boosts'}
-                  {activeTab === 'discover' && 'Trending music and recent releases'}
-                  {activeTab === 'search' && 'Find music and tracks from Podcast Index'}
+                  {/* {activeTab === 'discover' && 'Trending music and recent releases'}
+                  {activeTab === 'search' && 'Find music and tracks from Podcast Index'} */}
                   {activeTab === 'nostr' && 'Music recommendations and discussions on Nostr'}
                   {activeTab === 'feed-parser' && 'Parse RSS feeds for Podcast Namespace value recipients'}
                 </p>
@@ -151,13 +151,13 @@ const Index = () => {
                 <TrendingMusic />
               </TabsContent>
 
-              <TabsContent value="discover" className="space-y-6">
+              {/* <TabsContent value="discover" className="space-y-6">
                 <PodcastDiscovery />
               </TabsContent>
 
               <TabsContent value="search" className="space-y-6">
                 <PodcastSearch />
-              </TabsContent>
+              </TabsContent> */}
 
               <TabsContent value="nostr" className="space-y-6">
                 <NostrPodcastFeed />
