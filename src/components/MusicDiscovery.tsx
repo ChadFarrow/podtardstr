@@ -11,52 +11,81 @@ import { usePodcastPlayer } from '@/hooks/usePodcastPlayer';
 import { usePodcastEpisodes } from '@/hooks/usePodcastIndex';
 import type { PodcastIndexPodcast, PodcastIndexEpisode } from '@/hooks/usePodcastIndex';
 import { useValueBlockFromRss } from '@/hooks/useValueBlockFromRss';
+import { requestProvider, launchModal } from '@getalby/bitcoin-connect';
 
 
-// --- V4V Payment Component using webln-v4v ---
-function V4VPayment({ rssUrl, podcastTitle, episodeTitle }: { 
-  rssUrl?: string; 
-  podcastTitle?: string;
-  episodeTitle?: string;
+// --- SupportArtistButton ---
+function SupportArtistButton({ 
+  lightningAddress, 
+  amount = 33, 
+  recipientName = 'Artist' 
+}: { 
+  lightningAddress?: string;
+  amount?: number;
+  recipientName?: string;
 }) {
-  const { data: valueBlock, isLoading, error } = useValueBlockFromRss(rssUrl);
-  
-  if (isLoading) {
-    return (
-      <div className="mt-2 p-2 bg-muted/50 rounded text-xs">
-        <div className="flex items-center gap-1">
-          <Zap className="h-3 w-3" />
-          <span>Loading payment info...</span>
-        </div>
-      </div>
-    );
-  }
-  
-  if (error || !valueBlock || valueBlock.valueRecipients.length === 0) {
-    return (
-      <div className="mt-2 p-2 bg-muted/50 rounded text-xs">
-        <div className="flex items-center gap-1">
-          <Zap className="h-3 w-3" />
-          <span>Payment info not available</span>
-        </div>
-      </div>
-    );
-  }
+  const [status, setStatus] = useState('');
 
-  // Convert ValueBlock to the format expected by webln-v4v
-  const valueBlockString = JSON.stringify(valueBlock);
-  const suggestedAmount = valueBlock.suggested || '10';
+  const handleSupport = async () => {
+    if (!lightningAddress) {
+      setStatus('No Lightning address available.');
+      return;
+    }
+    
+    try {
+      setStatus('Connecting to Lightning wallet...');
+      
+      // Get or request Lightning wallet connection
+      let provider;
+      try {
+        provider = await requestProvider();
+      } catch {
+        // No provider connected, launch connection modal
+        await launchModal();
+        provider = await requestProvider();
+      }
+
+      if (!provider) {
+        setStatus('No Lightning wallet connected.');
+        return;
+      }
+
+      setStatus(`Sending ${amount} sats...`);
+      console.log('Attempting payment:', { lightningAddress, amount });
+      
+      // Convert lightning address to LNURL endpoint
+      const [name, domain] = lightningAddress.split('@');
+      const lnurlp = `https://${domain}/.well-known/lnurlp/${name}`;
+      const lnurlRes = await fetch(lnurlp);
+      const lnurlData = await lnurlRes.json();
+      
+      // Create invoice
+      const invoiceRes = await fetch(lnurlData.callback + `?amount=${amount * 1000}`);
+      const invoiceData = await invoiceRes.json();
+      
+      // Send payment using Bitcoin Connect provider
+      await provider.sendPayment(invoiceData.pr);
+      setStatus(`Sent ${amount} sats to ${recipientName}! ⚡`);
+    } catch (err) {
+      console.error('Bitcoin Connect payment error:', err);
+      setStatus('Payment failed or cancelled.');
+    }
+  };
 
   return (
     <div className="mt-2">
-      <webln-v4v
-        value-block={valueBlockString}
-        suggested-amount={suggestedAmount}
-        podcast-title={podcastTitle}
-        episode-title={episodeTitle}
-        header="Support with"
-        footer="⚡ sats"
-      />
+      <Button 
+        size="sm" 
+        variant="outline" 
+        onClick={handleSupport}
+        disabled={!lightningAddress}
+        className="text-xs"
+      >
+        Send {amount} sats
+      </Button>
+      {status && (
+        <p className="text-xs text-muted-foreground mt-1">{status}</p>
+      )}
     </div>
   );
 }
@@ -65,14 +94,12 @@ function V4VPayment({ rssUrl, podcastTitle, episodeTitle }: {
 export function MusicDiscovery() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFeedId, setSelectedFeedId] = useState<number | null>(null);
-  const [expandedAlbum, setExpandedAlbum] = useState<number | null>(null);
   const { playPodcast } = usePodcastPlayer();
 
   const { data: trendingMusic, isLoading: trendingLoading } = useTrendingPodcasts(); // Use same hook as main trending
   const { data: recentEpisodes, isLoading: recentLoading } = useRecentMusicEpisodes();
   const { data: searchResults, isLoading: searchLoading } = useMusicSearch(searchQuery, { enabled: searchQuery.length > 2 });
   const { data: episodesData } = usePodcastEpisodes(selectedFeedId || 0, { enabled: selectedFeedId !== null });
-  const { data: albumTracksData } = usePodcastEpisodes(expandedAlbum || 0, { enabled: expandedAlbum !== null });
 
   const handlePlayTrack = (episode: PodcastIndexEpisode) => {
     // Log the value block data for debugging
@@ -150,21 +177,9 @@ export function MusicDiscovery() {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const hasValue4Value = (item: PodcastIndexPodcast | PodcastIndexEpisode) => {
-    return item.value?.destinations && item.value.destinations.length > 0;
-  };
-
-  const handleAlbumClick = (podcast: PodcastIndexPodcast) => {
-    if (expandedAlbum === podcast.id) {
-      setExpandedAlbum(null); // Collapse if already expanded
-    } else {
-      setExpandedAlbum(podcast.id); // Expand this album
-    }
-  };
 
   const handleArtistClick = (artistName: string) => {
     setSearchQuery(artistName);
-    setExpandedAlbum(null); // Collapse any expanded albums
   };
 
   return (
@@ -219,11 +234,11 @@ export function MusicDiscovery() {
                               {episode.duration && (
                                 <p className="text-xs text-muted-foreground">{formatDuration(episode.duration)}</p>
                               )}
-                              {/* V4V payment for track */}
-                              <V4VPayment 
-                                rssUrl={undefined} 
-                                podcastTitle={episode.feedTitle}
-                                episodeTitle={episode.title}
+                              {/* Lightning payment for track */}
+                              <SupportArtistButton 
+                                lightningAddress={episode.value?.destinations?.find(d => d.type === 'lud16')?.address} 
+                                amount={21} 
+                                recipientName={episode.feedTitle} 
                               />
                             </div>
                             <Button 
@@ -292,11 +307,11 @@ export function MusicDiscovery() {
                           {feed.author}
                         </button>
                         <p className="text-xs text-muted-foreground mt-1">{feed.description}</p>
-                        {/* V4V payment for album */}
-                        <V4VPayment 
-                          rssUrl={feed.url} 
-                          podcastTitle={feed.title}
-                          episodeTitle={undefined}
+                        {/* Lightning payment for album */}
+                        <SupportArtistButton 
+                          lightningAddress={feed.value?.destinations?.find(d => d.type === 'lud16')?.address} 
+                          amount={33} 
+                          recipientName={feed.author} 
                         />
                       </div>
                     </div>
@@ -348,11 +363,11 @@ export function MusicDiscovery() {
                       {episode.duration && <span>{formatDuration(episode.duration)}</span>}
                       <span>{new Date(episode.datePublished * 1000).toLocaleDateString()}</span>
                     </div>
-                    {/* V4V payment for track */}
-                    <V4VPayment 
-                      rssUrl={undefined} 
-                      podcastTitle={episode.feedTitle}
-                      episodeTitle={episode.title}
+                    {/* Lightning payment for track */}
+                    <SupportArtistButton 
+                      lightningAddress={episode.value?.destinations?.find(d => d.type === 'lud16')?.address} 
+                      amount={21} 
+                      recipientName={episode.feedTitle} 
                     />
                   </div>
                   <Button 
