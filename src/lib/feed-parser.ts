@@ -165,7 +165,7 @@ export async function fetchAndParseFeed(feedUrl: string): Promise<ParsedFeed> {
     urlWithCacheBust.searchParams.set('_cb', Date.now().toString());
     const finalFeedUrl = urlWithCacheBust.toString();
     
-    console.log('Fetching RSS feed:', finalFeedUrl);
+    console.log('🔍 Attempting to fetch RSS feed:', finalFeedUrl);
     
     // Use external CORS proxies for better reliability
     const proxies = [
@@ -240,7 +240,7 @@ export async function fetchAndParseFeed(feedUrl: string): Promise<ParsedFeed> {
         try {
           const proxyFn = proxies[i];
           const proxyUrl = proxyFn(finalFeedUrl);
-          console.log(`Trying proxy ${i + 1}/${proxies.length}:`, proxyUrl);
+          console.log(`🌐 Trying proxy ${i + 1}/${proxies.length}:`, proxyUrl);
           
           // Add delay between retries to avoid rate limiting
           if (i > 0) {
@@ -289,7 +289,7 @@ export async function fetchAndParseFeed(feedUrl: string): Promise<ParsedFeed> {
             xmlText = await response.text();
           }
           
-          console.log(`Proxy ${i + 1} fetch successful`);
+          console.log(`✅ Proxy ${i + 1} fetch successful - got ${xmlText?.length || 0} chars`);
           break;
         } catch (proxyError) {
           console.log(`Proxy ${i + 1} failed:`, proxyError);
@@ -328,10 +328,15 @@ export async function fetchAndParseFeed(feedUrl: string): Promise<ParsedFeed> {
       };
     }
     
-    console.log('Parsing RSS feed XML...');
+    console.log('📋 Parsing RSS feed XML...', trimmedXml.substring(0, 200) + '...');
     
     const parsedFeed = parseFeedXML(trimmedXml);
-    console.log('Parsed feed successfully');
+    console.log('✅ Parsed feed successfully:', {
+      title: parsedFeed.title,
+      hasValue: !!parsedFeed.value,
+      recipientCount: parsedFeed.value?.recipients.length || 0,
+      episodeCount: parsedFeed.episodes.length
+    });
     
     return parsedFeed;
   } catch (error) {
