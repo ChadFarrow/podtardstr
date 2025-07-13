@@ -31,3 +31,6 @@ dist-ssr
 
 # External tools submodules are tracked via .gitmodules
 # RSS Blue tools: external-tools/rss-blue-tools/
+
+# Ignore external tool files from linting
+external-tools/

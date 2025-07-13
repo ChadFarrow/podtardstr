@@ -1,17 +1,18 @@
 import { useSeoMeta } from '@unhead/react';
 import { PodcastPlayer } from '@/components/PodcastPlayer';
-import { PodcastSearch } from '@/components/PodcastSearch';
-import { PodcastDiscovery } from '@/components/PodcastDiscovery';
+// import { PodcastSearch } from '@/components/PodcastSearch';
+// import { PodcastDiscovery } from '@/components/PodcastDiscovery';
 import { NostrPodcastFeed } from '@/components/NostrPodcastFeed';
 import { MusicDiscovery } from '@/components/MusicDiscovery';
 import { TrendingMusic } from '@/components/TrendingMusic';
 import { FeedValueParser } from '@/components/FeedValueParser';
+import { PodcastValidator } from '@/components/PodcastValidator';
 import { LoginArea } from '@/components/auth/LoginArea';
 import { RelaySelector } from '@/components/RelaySelector';
 import { Sidebar, SidebarContent, SidebarHeader, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Music, Search, TrendingUp, MessageSquare, Radio, Code, Star, ExternalLink } from 'lucide-react';
+import { Music, MessageSquare, Radio, Code, Star, Shield } from 'lucide-react';
 import { useState } from 'react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 
@@ -94,27 +95,17 @@ const Index = () => {
                     <Code className="h-4 w-4 mr-2" />
                     Feed Parser
                   </Button>
-                </div>
-              </div>
-
-              <div>
-                <h3 className="text-sm font-medium text-muted-foreground mb-3">External Tools</h3>
-                <div className="space-y-2">
                   <Button
-                    variant="ghost"
+                    variant={activeTab === 'validator' ? 'secondary' : 'ghost'}
                     className="w-full justify-start text-sm"
-                    onClick={() => {
-                      // Try local first, fallback to external
-                      fetch('http://localhost:8081')
-                        .then(() => window.open('http://localhost:8081', '_blank'))
-                        .catch(() => window.open('https://tools.rssblue.com', '_blank'));
-                    }}
+                    onClick={() => setActiveTab('validator')}
                   >
-                    <ExternalLink className="h-4 w-4 mr-2" />
-                    RSS Blue Validator
+                    <Shield className="h-4 w-4 mr-2" />
+                    RSS Validator
                   </Button>
                 </div>
               </div>
+
 
               <div>
                 <h3 className="text-sm font-medium text-muted-foreground mb-3">Relay</h3>
@@ -142,6 +133,7 @@ const Index = () => {
                   {activeTab === 'search' && 'Search'} */}
                   {activeTab === 'nostr' && 'Nostr Feed'}
                   {activeTab === 'feed-parser' && 'Feed Parser'}
+                  {activeTab === 'validator' && 'RSS Validator'}
                 </h2>
                 <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">
                   {activeTab === 'music' && 'Search and discover music with Value4Value'}
@@ -150,6 +142,7 @@ const Index = () => {
                   {activeTab === 'search' && 'Find music and tracks from Podcast Index'} */}
                   {activeTab === 'nostr' && 'Music recommendations and discussions on Nostr'}
                   {activeTab === 'feed-parser' && 'Parse RSS feeds for Podcast Namespace value recipients'}
+                  {activeTab === 'validator' && 'Comprehensive podcast feed validation and compliance checking'}
                 </p>
               </div>
             </div>
@@ -184,6 +177,10 @@ const Index = () => {
 
               <TabsContent value="feed-parser" className="space-y-6">
                 <FeedValueParser />
+              </TabsContent>
+
+              <TabsContent value="validator" className="space-y-6">
+                <PodcastValidator />
               </TabsContent>
 
             </Tabs>
