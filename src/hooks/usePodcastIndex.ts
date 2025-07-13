@@ -329,7 +329,7 @@ export function useTrendingPodcasts() {
         const top100Response = await response.json();
         const top100Data: Top100MusicEntry[] = top100Response.items || [];
         
-        // Convert to our PodcastIndexPodcast format
+        // Convert to our PodcastIndexPodcast format - limit to 20 for discovery page
         const musicFeeds: PodcastIndexPodcast[] = top100Data.slice(0, 20).map((entry) => ({
           id: entry.feedId || entry.rank,
           title: entry.title,
@@ -419,6 +419,81 @@ export function useTrendingPodcasts() {
           feeds: musicFeeds,
           count: musicFeeds.length,
         };
+      }
+    },
+    staleTime: 30 * 60 * 1000, // 30 minutes
+  });
+}
+
+// Full Top 100 Music Chart for the Music page
+export function useTop100Music() {
+  return useQuery({
+    queryKey: ['podcast-index', 'top100-music'],
+    queryFn: async () => {
+      try {
+        // Use official Podcast Index Top100 Music chart
+        const response = await fetch('https://stats.podcastindex.org/v4vmusic.json');
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch top100 music chart');
+        }
+        
+        const top100Response = await response.json();
+        const top100Data: Top100MusicEntry[] = top100Response.items || [];
+        
+        // Convert to our PodcastIndexPodcast format - use ALL entries for music page
+        const musicFeeds: PodcastIndexPodcast[] = top100Data.map((entry) => ({
+          id: entry.feedId || entry.rank,
+          title: entry.title,
+          url: entry.feedUrl || '', 
+          originalUrl: '',
+          link: '',
+          description: `Rank #${entry.rank} on V4V Music Chart with ${entry.boosts} boosts`,
+          author: entry.author,
+          ownerName: '',
+          image: entry.image,
+          artwork: entry.image,
+          lastUpdateTime: 0,
+          lastCrawlTime: 0,
+          lastParseTime: 0,
+          lastGoodHttpStatusTime: 0,
+          lastHttpStatus: 200,
+          contentType: '',
+          itunesType: 'music',
+          generator: '',
+          language: 'en',
+          type: 0,
+          dead: 0,
+          crawlErrors: 0,
+          parseErrors: 0,
+          categories: { 'music': 'Music' },
+          locked: 0,
+          imageUrlHash: 0,
+          newestItemPubdate: 0,
+          episodeCount: 1,
+          // Mark as Value4Value enabled (these are all from V4V chart)
+          value: {
+            model: {
+              type: 'lightning',
+              method: 'keysend',
+              suggested: '0.00000001000'
+            },
+            destinations: [{
+              name: entry.author,
+              address: '',
+              type: 'node',
+              split: 100
+            }]
+          }
+        }));
+
+        return {
+          feeds: musicFeeds,
+          count: musicFeeds.length,
+        };
+      } catch (error) {
+        console.error('Failed to fetch top100 music chart:', error);
+        throw error;
       }
     },
     staleTime: 30 * 60 * 1000, // 30 minutes
