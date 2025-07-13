@@ -22,6 +22,7 @@ export function PodcastPlayer() {
   } = usePodcastPlayer();
   const audioRef = useRef<HTMLAudioElement>(null);
   const [showNowPlaying, setShowNowPlaying] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -43,32 +44,52 @@ export function PodcastPlayer() {
 
   useEffect(() => {
     const audio = audioRef.current;
-    if (!audio) return;
+    if (!audio || isLoading) return;
 
     if (isPlaying) {
-      audio.play().catch(console.error);
+      audio.play().catch((error) => {
+        console.error('Audio play error:', error);
+        setIsPlaying(false);
+      });
     } else {
       audio.pause();
     }
-  }, [isPlaying]);
+  }, [isPlaying, isLoading, setIsPlaying]);
 
   // Handle new track loading
   useEffect(() => {
     const audio = audioRef.current;
-    if (!audio || !currentPodcast) return;
+    if (!audio || !currentPodcast || isLoading) return;
+
+    // Prevent rapid loading by setting loading state
+    setIsLoading(true);
 
     // Reset time when a new track is loaded
     setCurrentTime(0);
     setDuration(0);
 
+    // Add error handling for media loading
+    const handleLoadStart = () => setIsLoading(true);
+    const handleCanPlay = () => setIsLoading(false);
+    const handleError = (e: Event) => {
+      console.error('Audio loading error:', e);
+      setIsLoading(false);
+      setIsPlaying(false);
+    };
+
+    audio.addEventListener('loadstart', handleLoadStart);
+    audio.addEventListener('canplay', handleCanPlay);
+    audio.addEventListener('error', handleError);
+
     // Load the new audio source
     audio.load();
 
-    // Auto-play if the player state indicates it should be playing
-    if (isPlaying) {
-      audio.play().catch(console.error);
-    }
-  }, [currentPodcast?.url, isPlaying, setCurrentTime, setDuration, currentPodcast]);
+    return () => {
+      audio.removeEventListener('loadstart', handleLoadStart);
+      audio.removeEventListener('canplay', handleCanPlay);
+      audio.removeEventListener('error', handleError);
+    };
+  }, [currentPodcast?.url, setCurrentTime, setDuration, isLoading, setIsPlaying]);
 
   useEffect(() => {
     const audio = audioRef.current;
