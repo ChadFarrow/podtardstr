@@ -398,21 +398,8 @@ export function useTrendingPodcasts() {
           imageUrlHash: 0,
           newestItemPubdate: 0,
           episodeCount: 1,
-          // Mark as Value4Value enabled (these are all from V4V chart)
-          // Use demo Lightning addresses for Top 100 music chart
-          value: {
-            model: {
-              type: 'lightning',
-              method: 'keysend',
-              suggested: '0.00000001000'
-            },
-            destinations: [{
-              name: entry.author,
-              address: `demo${entry.rank}@getalby.com`,
-              type: 'lud16',
-              split: 100
-            }]
-          }
+          // Only include V4V data if available from the chart
+          value: undefined
         }));
 
         return {
@@ -545,20 +532,8 @@ export function useTop100Music() {
               imageUrlHash: 0,
               newestItemPubdate: 0,
               episodeCount: 1,
-              // Use real V4V data if available, otherwise demo data for Top 100
-              value: valueData || {
-                model: {
-                  type: 'lightning',
-                  method: 'keysend',
-                  suggested: '0.00000001000'
-                },
-                destinations: [{
-                  name: entry.author,
-                  address: `demo${entry.rank}@getalby.com`,
-                  type: 'lud16',
-                  split: 100
-                }]
-              }
+              // Use real V4V data only if available
+              value: valueData
             } as PodcastIndexPodcast;
           })
         );
@@ -593,20 +568,8 @@ export function useTop100Music() {
           imageUrlHash: 0,
           newestItemPubdate: 0,
           episodeCount: 1,
-          // Demo V4V data for Top 100 chart entries
-          value: {
-            model: {
-              type: 'lightning',
-              method: 'keysend',
-              suggested: '0.00000001000'
-            },
-            destinations: [{
-              name: entry.author,
-              address: `demo${entry.rank}@getalby.com`,
-              type: 'lud16',
-              split: 100
-            }]
-          }
+          // No V4V data for remaining entries (only show real V4V data)
+          value: undefined
         } as PodcastIndexPodcast));
 
         const allFeeds = [...enhancedFeeds, ...remainingEntries];

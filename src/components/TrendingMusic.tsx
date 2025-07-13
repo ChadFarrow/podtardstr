@@ -77,7 +77,7 @@ function V4VPaymentButton({
   } = useValue4ValueData(feedUrl, episodeGuid, valueDestinations);
 
   // Memoize recipients to avoid unnecessary recalculations
-  const { recipients, hasRecipients, isDemo } = useMemo(() => {
+  const { recipients, hasRecipients } = useMemo(() => {
     // Debug: Log the incoming valueDestinations
     console.log(`🔍 V4V Payment Button for "${contentTitle}":`, {
       valueDestinations,
@@ -89,18 +89,14 @@ function V4VPaymentButton({
       v4vRecipients: v4vRecipients
     });
 
-    // Special case for "The Wait is Over" - hardcoded ValueBlock for testing
+    // Special case for "The Wait is Over" - use only real V4V recipient
     if (contentTitle?.includes('Wait Is Over')) {
-      const hardcodedRecipients = [
-        { name: 'makeheroism', address: 'makeheroism@fountain.fm', type: 'lud16', split: 60 },
-        { name: 'Demo Artist 1', address: 'demo@getalby.com', type: 'lud16', split: 20 },
-        { name: 'Demo Artist 2', address: 'demo2@getalby.com', type: 'lud16', split: 15 },
-        { name: 'Demo Artist 3', address: 'demo3@getalby.com', type: 'lud16', split: 5 }
+      const realRecipient = [
+        { name: 'makeheroism', address: 'makeheroism@fountain.fm', type: 'lud16', split: 100 }
       ];
       return {
-        recipients: hardcodedRecipients,
-        hasRecipients: true,
-        isDemo: false
+        recipients: realRecipient,
+        hasRecipients: true
       };
     }
 
@@ -116,8 +112,7 @@ function V4VPaymentButton({
       });
       return {
         recipients: lightningRecipients,
-        hasRecipients: lightningRecipients.length > 0,
-        isDemo: false
+        hasRecipients: lightningRecipients.length > 0
       };
     }
 
@@ -130,15 +125,9 @@ function V4VPaymentButton({
       hasRecipients: hasRealRecipients
     });
 
-    // Detect if these are demo recipients (Top 100 chart entries)
-    const isDemoData = lightningRecipients.some(r => 
-      r.address.includes('@getalby.com') && r.address.startsWith('demo')
-    );
-    
     return {
       recipients: lightningRecipients,
-      hasRecipients: hasRealRecipients,
-      isDemo: isDemoData
+      hasRecipients: hasRealRecipients
     };
   }, [valueDestinations, contentTitle, feedUrl, episodeGuid, hasV4VData, v4vRecipients, dataSource]);
 
@@ -185,7 +174,6 @@ function V4VPaymentButton({
             <>
               <Zap className="h-3 w-3 mr-1" />
               Split {totalAmount} sats ({recipients.length} recipients)
-              {isDemo && ' (Demo)'}
               {dataSource === 'rss' && ' (RSS)'}
             </>
           )}
