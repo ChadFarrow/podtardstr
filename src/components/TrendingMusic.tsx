@@ -139,7 +139,7 @@ function V4VPaymentButton({
         </Button>
       ) : (
         <div className="text-xs text-muted-foreground">
-          💡 V4V payments not configured
+          ⚡ V4V enabled - loading recipients...
         </div>
       )}
       
