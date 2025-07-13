@@ -52,7 +52,24 @@ export async function fetchValueBlockFromRss(rssUrl: string): Promise<ValueBlock
   try {
     console.log(`Attempting to fetch RSS: ${rssUrl}`);
     
-    // Try each CORS proxy until one works
+    // First try server-side API route (bypasses CORS)
+    try {
+      const apiUrl = `/api/rss-proxy?url=${encodeURIComponent(rssUrl)}`;
+      console.log(`Trying server-side API for: ${rssUrl}`);
+      
+      const response = await fetch(apiUrl);
+      if (response.ok) {
+        const valueBlock = await response.json();
+        console.log(`Successfully fetched ValueBlock via API:`, valueBlock);
+        return valueBlock;
+      } else {
+        console.warn(`Server-side API failed with status: ${response.status}`);
+      }
+    } catch (apiError) {
+      console.warn(`Server-side API error:`, apiError);
+    }
+    
+    // Fallback: Try each CORS proxy until one works
     for (const proxyBase of CORS_PROXIES) {
       try {
         let proxyUrl: string;
@@ -82,7 +99,7 @@ export async function fetchValueBlockFromRss(rssUrl: string): Promise<ValueBlock
       }
     }
     
-    console.warn(`All CORS proxies failed for ${rssUrl}`);
+    console.warn(`All methods failed for ${rssUrl}`);
     return null;
     
   } catch (error) {
