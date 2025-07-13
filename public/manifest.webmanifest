@@ -28,7 +28,7 @@
       "src": "/apple-touch-icon.svg",
       "sizes": "180x180",
       "type": "image/svg+xml",
-      "purpose": "any apple-touch-icon"
+      "purpose": "any"
     },
     {
       "src": "/icon-192.svg",
