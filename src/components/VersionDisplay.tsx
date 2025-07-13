@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
+import { ExternalLink } from 'lucide-react';
 
 export function VersionDisplay() {
   const [commitHash, setCommitHash] = useState<string>('');
@@ -15,11 +16,21 @@ export function VersionDisplay() {
     return null; // Don't show version in development
   }
 
+  const githubUrl = `https://github.com/ChadFarrow/podtardstr/commit/${commitHash}`;
+
   return (
     <div className="fixed bottom-2 left-2 z-50">
-      <Badge variant="secondary" className="text-xs font-mono">
-        {commitHash.substring(0, 7)}
-      </Badge>
+      <a
+        href={githubUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex items-center gap-1 hover:opacity-80 transition-opacity"
+      >
+        <Badge variant="secondary" className="text-xs font-mono cursor-pointer">
+          {commitHash.substring(0, 7)}
+          <ExternalLink className="h-3 w-3 ml-1" />
+        </Badge>
+      </a>
     </div>
   );
 } 
