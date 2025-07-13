@@ -441,62 +441,105 @@ export function useTop100Music() {
         const top100Response = await response.json();
         const top100Data: Top100MusicEntry[] = top100Response.items || [];
         
-        // Since all Top 100 entries support V4V, create demo V4V data for all entries
-        const enhancedFeeds = top100Data.map((entry) => {
-          // Create demo V4V data for all Top 100 entries
-          const valueData: PodcastIndexPodcast['value'] = {
-            model: {
-              type: 'lightning',
-              method: 'keysend',
-              suggested: '33'
-            },
-            destinations: [
-              {
-                name: entry.author,
-                address: `${entry.author.toLowerCase().replace(/\s+/g, '')}@getalby.com`,
-                type: 'lud16',
-                split: 100
+        // For feeds with feedIds, fetch their actual V4V data from Podcast Index API
+        // Limit to first 50 to avoid too many API calls
+        const topEntries = top100Data.slice(0, 50);
+        const enhancedFeeds = await Promise.all(
+          topEntries.map(async (entry) => {
+            let valueData: PodcastIndexPodcast['value'] = undefined;
+            
+            // If we have a feedId, try to get the full feed data with V4V info
+            if (entry.feedId) {
+              try {
+                const feedResponse = await podcastIndexFetch<PodcastIndexPodcast>('/podcasts/byfeedid', {
+                  id: entry.feedId.toString(),
+                });
+                
+                const feedData = feedResponse.feeds?.[0];
+                if (feedData?.value?.destinations?.length) {
+                  valueData = feedData.value;
+                  console.log(`✅ Found V4V data for ${entry.title}: ${feedData.value.destinations.length} recipients`);
+                } else {
+                  console.log(`ℹ️ No V4V destinations for ${entry.title}`);
+                }
+              } catch (error) {
+                console.log(`❌ Could not fetch V4V data for feed ${entry.feedId} (${entry.title}):`, error);
               }
-            ]
-          };
-          
-          return {
-            id: entry.feedId || entry.rank,
-            title: entry.title,
-            url: entry.feedUrl || '', 
-            originalUrl: '',
-            link: '',
-            description: `Rank #${entry.rank} on V4V Music Chart with ${entry.boosts} boosts`,
-            author: entry.author,
-            ownerName: '',
-            image: entry.image,
-            artwork: entry.image,
-            lastUpdateTime: 0,
-            lastCrawlTime: 0,
-            lastParseTime: 0,
-            lastGoodHttpStatusTime: 0,
-            lastHttpStatus: 200,
-            contentType: '',
-            itunesType: 'music',
-            generator: '',
-            language: 'en',
-            type: 0,
-            dead: 0,
-            crawlErrors: 0,
-            parseErrors: 0,
-            categories: { 'music': 'Music' },
-            locked: 0,
-            imageUrlHash: 0,
-            newestItemPubdate: 0,
-            episodeCount: 1,
-            // Use demo V4V data for all Top 100 entries
-            value: valueData
-          } as PodcastIndexPodcast;
-        });
+            }
+            
+            return {
+              id: entry.feedId || entry.rank,
+              title: entry.title,
+              url: entry.feedUrl || '', 
+              originalUrl: '',
+              link: '',
+              description: `Rank #${entry.rank} on V4V Music Chart with ${entry.boosts} boosts`,
+              author: entry.author,
+              ownerName: '',
+              image: entry.image,
+              artwork: entry.image,
+              lastUpdateTime: 0,
+              lastCrawlTime: 0,
+              lastParseTime: 0,
+              lastGoodHttpStatusTime: 0,
+              lastHttpStatus: 200,
+              contentType: '',
+              itunesType: 'music',
+              generator: '',
+              language: 'en',
+              type: 0,
+              dead: 0,
+              crawlErrors: 0,
+              parseErrors: 0,
+              categories: { 'music': 'Music' },
+              locked: 0,
+              imageUrlHash: 0,
+              newestItemPubdate: 0,
+              episodeCount: 1,
+              // Use real V4V data if available, otherwise undefined
+              value: valueData
+            } as PodcastIndexPodcast;
+          })
+        );
+
+        // Add remaining entries without enhanced data
+        const remainingEntries = top100Data.slice(50).map(entry => ({
+          id: entry.feedId || entry.rank,
+          title: entry.title,
+          url: entry.feedUrl || '', 
+          originalUrl: '',
+          link: '',
+          description: `Rank #${entry.rank} on V4V Music Chart with ${entry.boosts} boosts`,
+          author: entry.author,
+          ownerName: '',
+          image: entry.image,
+          artwork: entry.image,
+          lastUpdateTime: 0,
+          lastCrawlTime: 0,
+          lastParseTime: 0,
+          lastGoodHttpStatusTime: 0,
+          lastHttpStatus: 200,
+          contentType: '',
+          itunesType: 'music',
+          generator: '',
+          language: 'en',
+          type: 0,
+          dead: 0,
+          crawlErrors: 0,
+          parseErrors: 0,
+          categories: { 'music': 'Music' },
+          locked: 0,
+          imageUrlHash: 0,
+          newestItemPubdate: 0,
+          episodeCount: 1,
+          value: undefined
+        } as PodcastIndexPodcast));
+
+        const allFeeds = [...enhancedFeeds, ...remainingEntries];
 
         return {
-          feeds: enhancedFeeds,
-          count: enhancedFeeds.length,
+          feeds: allFeeds,
+          count: allFeeds.length,
         };
       } catch (error) {
         console.error('Failed to fetch top100 music chart:', error);

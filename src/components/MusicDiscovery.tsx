@@ -99,20 +99,11 @@ function V4VPaymentButton({
       recipients: lightningRecipients
     });
     const hasRealRecipients = lightningRecipients.length > 0;
-    
-    // Check if this is a Top 100 entry with demo V4V data
-    const isTop100Demo = valueDestinations?.some(dest => 
-      dest.address?.includes('@getalby.com') && dest.name === dest.address.split('@')[0]
-    );
-    
-    // Use demo recipients for Top 100 entries
-    const finalRecipients = hasRealRecipients ? lightningRecipients : [];
-    const isDemoPayment = isTop100Demo || false;
 
     return {
-      recipients: finalRecipients,
-      hasRecipients: hasRealRecipients || isTop100Demo,
-      isDemo: isDemoPayment
+      recipients: lightningRecipients,
+      hasRecipients: hasRealRecipients,
+      isDemo: false
     };
   }, [valueDestinations, contentTitle]);
 
