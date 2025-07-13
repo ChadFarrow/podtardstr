@@ -250,7 +250,9 @@ export async function processSinglePayment(
       // Fallback: Try to use WebLN's sendPayment with a special keysend request
       try {
         // Some wallets support keysend through a special format
-        const keysendRequest = `keysend:${recipient.address}?amount=${amount * 1000}`;
+        // Note: keysend: URL scheme expects sats, not msats
+        const keysendRequest = `keysend:${recipient.address}?amount=${amount}`;
+        console.log(`💰 Keysend fallback for ${recipient.name}: ${amount} sats via ${keysendRequest}`);
         await provider.sendPayment(keysendRequest);
         console.log(`✅ Keysend payment successful to ${recipient.name} (via sendPayment fallback)`);
         return true;
