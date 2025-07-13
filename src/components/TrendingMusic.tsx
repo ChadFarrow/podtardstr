@@ -9,6 +9,7 @@ import { usePodcastPlayer } from '@/hooks/usePodcastPlayer';
 import type { PodcastIndexPodcast, PodcastIndexEpisode } from '@/hooks/usePodcastIndex';
 
 import { useLightningWallet } from '@/hooks/useLightningWallet';
+import { useValue4ValueData } from '@/hooks/useValueBlockFromRss';
 import { 
   getLightningRecipients, 
   processMultiplePayments, 
@@ -20,6 +21,8 @@ import {
 
 interface V4VPaymentButtonProps {
   valueDestinations?: ValueDestination[];
+  feedUrl?: string;
+  episodeGuid?: string;
   totalAmount?: number;
   contentTitle?: string;
 }
@@ -57,18 +60,33 @@ function usePaymentProcessor() {
 // V4V Split Payment Button
 function V4VPaymentButton({ 
   valueDestinations, 
+  feedUrl,
+  episodeGuid,
   totalAmount = 33, 
   contentTitle = 'Content' 
 }: V4VPaymentButtonProps) {
   const { connectWallet, isConnecting } = useLightningWallet();
   const { processPayment, isProcessing, status, setStatus } = usePaymentProcessor();
 
+  // Use the new Value4Value hook to get complete data
+  const { 
+    recipients: v4vRecipients, 
+    hasValue: hasV4VData, 
+    dataSource, 
+    isLoading: v4vLoading 
+  } = useValue4ValueData(feedUrl, episodeGuid, valueDestinations);
+
   // Memoize recipients to avoid unnecessary recalculations
   const { recipients, hasRecipients, isDemo } = useMemo(() => {
     // Debug: Log the incoming valueDestinations
     console.log(`🔍 V4V Payment Button for "${contentTitle}":`, {
       valueDestinations,
-      destinationsCount: valueDestinations?.length || 0
+      destinationsCount: valueDestinations?.length || 0,
+      feedUrl,
+      episodeGuid,
+      hasV4VData,
+      dataSource,
+      v4vRecipients: v4vRecipients
     });
 
     // Special case for "The Wait is Over" - hardcoded ValueBlock for testing
@@ -86,6 +104,24 @@ function V4VPaymentButton({
       };
     }
 
+    // Use the enhanced Value4Value data if available
+    if (hasV4VData && v4vRecipients.length > 0) {
+      const lightningRecipients = getLightningRecipients(v4vRecipients);
+      console.log('Using enhanced V4V data:', {
+        dataSource,
+        originalCount: valueDestinations?.length || 0,
+        enhancedCount: v4vRecipients.length,
+        parsedCount: lightningRecipients.length,
+        recipients: lightningRecipients
+      });
+      return {
+        recipients: lightningRecipients,
+        hasRecipients: lightningRecipients.length > 0,
+        isDemo: false
+      };
+    }
+
+    // Fallback to original Podcast Index data
     const lightningRecipients = getLightningRecipients(valueDestinations);
     const hasRealRecipients = lightningRecipients.length > 0;
 
@@ -99,7 +135,7 @@ function V4VPaymentButton({
       hasRecipients: hasRealRecipients,
       isDemo: false
     };
-  }, [valueDestinations, contentTitle]);
+  }, [valueDestinations, contentTitle, feedUrl, episodeGuid, hasV4VData, v4vRecipients, dataSource]);
 
   const handleV4VPayment = useCallback(async () => {
     if (!hasRecipients) {
@@ -126,7 +162,11 @@ function V4VPaymentButton({
 
   return (
     <div className="mt-2">
-      {hasRecipients ? (
+      {v4vLoading ? (
+        <div className="text-xs text-muted-foreground">
+          ⚡ Loading V4V data...
+        </div>
+      ) : hasRecipients ? (
         <Button 
           size="sm" 
           variant="outline" 
@@ -141,6 +181,7 @@ function V4VPaymentButton({
               <Zap className="h-3 w-3 mr-1" />
               Split {totalAmount} sats ({recipients.length} recipients)
               {isDemo && ' (Demo)'}
+              {dataSource === 'rss' && ' (RSS)'}
             </>
           )}
         </Button>
@@ -161,6 +202,7 @@ function V4VPaymentButton({
       {hasRecipients && (
         <div className="text-xs text-muted-foreground mt-1">
           Recipients: {recipients.map(r => r.name).join(', ')}
+          {dataSource && ` (${dataSource})`}
         </div>
       )}
     </div>
@@ -298,6 +340,7 @@ export function TrendingMusic() {
                           <div className="mt-2">
                             <V4VPaymentButton 
                               valueDestinations={feed.value?.destinations} 
+                              feedUrl={feed.url}
                               totalAmount={33} 
                               contentTitle={feed.title} 
                             />

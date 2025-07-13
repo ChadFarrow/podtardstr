@@ -11,6 +11,7 @@ import { usePodcastPlayer } from '@/hooks/usePodcastPlayer';
 import type { PodcastIndexEpisode } from '@/hooks/usePodcastIndex';
 
 import { useLightningWallet } from '@/hooks/useLightningWallet';
+import { useValue4ValueData } from '@/hooks/useValueBlockFromRss';
 import { 
   getLightningRecipients, 
   processMultiplePayments, 
@@ -22,6 +23,8 @@ import {
 
 interface V4VPaymentButtonProps {
   valueDestinations?: ValueDestination[];
+  feedUrl?: string;
+  episodeGuid?: string;
   totalAmount?: number;
   contentTitle?: string;
 }
@@ -61,11 +64,21 @@ function usePaymentProcessor() {
 // --- V4V Split Payment Button ---
 function V4VPaymentButton({ 
   valueDestinations, 
+  feedUrl,
+  episodeGuid,
   totalAmount = 33, 
   contentTitle = 'Content' 
 }: V4VPaymentButtonProps) {
   const { connectWallet, isConnecting } = useLightningWallet();
   const { processPayment, isProcessing, status, setStatus } = usePaymentProcessor();
+
+  // Use the new Value4Value hook to get complete data
+  const { 
+    recipients: v4vRecipients, 
+    hasValue: hasV4VData, 
+    dataSource, 
+    isLoading: v4vLoading 
+  } = useValue4ValueData(feedUrl, episodeGuid, valueDestinations);
 
   // Memoize recipients to avoid unnecessary recalculations
   const { recipients, hasRecipients, isDemo } = useMemo(() => {
@@ -74,7 +87,12 @@ function V4VPaymentButton({
       contentTitle,
       hasValueDestinations: !!valueDestinations,
       valueDestinations: valueDestinations,
-      destinationCount: valueDestinations?.length || 0
+      destinationCount: valueDestinations?.length || 0,
+      feedUrl,
+      episodeGuid,
+      hasV4VData,
+      dataSource,
+      v4vRecipients: v4vRecipients
     });
 
     // Special case for "The Wait is Over" - hardcoded ValueBlock for testing
@@ -92,8 +110,26 @@ function V4VPaymentButton({
       };
     }
 
+    // Use the enhanced Value4Value data if available
+    if (hasV4VData && v4vRecipients.length > 0) {
+      const lightningRecipients = getLightningRecipients(v4vRecipients);
+      console.log('Using enhanced V4V data:', {
+        dataSource,
+        originalCount: valueDestinations?.length || 0,
+        enhancedCount: v4vRecipients.length,
+        parsedCount: lightningRecipients.length,
+        recipients: lightningRecipients
+      });
+      return {
+        recipients: lightningRecipients,
+        hasRecipients: lightningRecipients.length > 0,
+        isDemo: false
+      };
+    }
+
+    // Fallback to original Podcast Index data
     const lightningRecipients = getLightningRecipients(valueDestinations);
-    console.log('Parsed Lightning Recipients:', {
+    console.log('Using Podcast Index data:', {
       originalCount: valueDestinations?.length || 0,
       parsedCount: lightningRecipients.length,
       recipients: lightningRecipients
@@ -105,7 +141,7 @@ function V4VPaymentButton({
       hasRecipients: hasRealRecipients,
       isDemo: false
     };
-  }, [valueDestinations, contentTitle]);
+  }, [valueDestinations, contentTitle, feedUrl, episodeGuid, hasV4VData, v4vRecipients, dataSource]);
 
   const handleV4VPayment = useCallback(async () => {
     if (!hasRecipients) {
@@ -134,7 +170,11 @@ function V4VPaymentButton({
 
   return (
     <div className="mt-2">
-      {hasRecipients ? (
+      {v4vLoading ? (
+        <div className="text-xs text-muted-foreground">
+          ⚡ Loading V4V data...
+        </div>
+      ) : hasRecipients ? (
         <Button 
           size="sm" 
           variant="outline" 
@@ -149,12 +189,17 @@ function V4VPaymentButton({
               <Zap className="h-3 w-3 mr-1" />
               Split {totalAmount} sats ({recipients.length} recipients)
               {isDemo && ' (Demo)'}
+              {dataSource === 'rss' && ' (RSS)'}
             </>
           )}
         </Button>
+      ) : valueDestinations && valueDestinations.length > 0 ? (
+        <div className="text-xs text-muted-foreground">
+          ⚡ V4V enabled - loading recipients...
+        </div>
       ) : (
         <div className="text-xs text-muted-foreground">
-          💡 V4V payments not configured
+          💰 V4V payment not configured
         </div>
       )}
       
@@ -165,6 +210,7 @@ function V4VPaymentButton({
       {hasRecipients && (
         <div className="text-xs text-muted-foreground mt-1">
           Recipients: {recipients.map(r => r.name).join(', ')}
+          {dataSource && ` (${dataSource})`}
         </div>
       )}
     </div>
@@ -320,6 +366,8 @@ export function MusicDiscovery() {
                               {/* V4V split payment for track */}
                               <V4VPaymentButton 
                                 valueDestinations={episode.value?.destinations} 
+                                feedUrl={episode.feedUrl}
+                                episodeGuid={episode.guid}
                                 totalAmount={33} 
                                 contentTitle={episode.title} 
                               />

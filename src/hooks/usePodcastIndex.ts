@@ -74,6 +74,9 @@ export interface PodcastIndexEpisode {
   feedId: number;
   feedTitle: string;
   feedLanguage: string;
+  feedUrl?: string;
+  feedAuthor?: string;
+  feedDescription?: string;
   chaptersUrl?: string;
   transcriptUrl?: string;
   value?: {
@@ -242,9 +245,35 @@ export function useSearchEpisodes(query: string, options: { enabled?: boolean } 
       })
       .slice(0, 20);
 
+      // Fetch feed information for each episode to get RSS URLs
+      const episodesWithFeedData = await Promise.all(
+        musicEpisodes.map(async (episode) => {
+          try {
+            // Get feed details by feed ID
+            const feedResponse = await podcastIndexFetch<PodcastIndexPodcast>('/podcasts/byfeedid', {
+              id: episode.feedId.toString(),
+            });
+            
+            const feed = feedResponse.feeds?.[0];
+            if (feed) {
+              return {
+                ...episode,
+                feedUrl: feed.url || feed.originalUrl || feed.link,
+                feedAuthor: feed.author,
+                feedDescription: feed.description,
+              };
+            }
+          } catch (error) {
+            console.warn('Failed to fetch feed data for episode:', episode.id, error);
+          }
+          
+          return episode;
+        })
+      );
+
       return {
-        episodes: musicEpisodes,
-        count: musicEpisodes.length,
+        episodes: episodesWithFeedData,
+        count: episodesWithFeedData.length,
       };
     },
     enabled: options.enabled !== false && query.trim().length > 0,
