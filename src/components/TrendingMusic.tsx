@@ -136,9 +136,13 @@ function V4VPaymentButton({
             </>
           )}
         </Button>
-      ) : (
+      ) : valueDestinations && valueDestinations.length > 0 ? (
         <div className="text-xs text-muted-foreground">
           ⚡ V4V enabled - loading recipients...
+        </div>
+      ) : (
+        <div className="text-xs text-muted-foreground">
+          💰 V4V payment not configured
         </div>
       )}
       
