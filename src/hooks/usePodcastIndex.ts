@@ -176,8 +176,8 @@ export function useSearchPodcasts(query: string, options: { enabled?: boolean } 
       })
       .sort((a, b) => {
         // Sort by Value4Value (prioritize V4V content)
-        const aHasValue = a.value?.destinations?.length > 0;
-        const bHasValue = b.value?.destinations?.length > 0;
+        const aHasValue = (a.value?.destinations?.length ?? 0) > 0;
+        const bHasValue = (b.value?.destinations?.length ?? 0) > 0;
         if (aHasValue && !bHasValue) return -1;
         if (!aHasValue && bHasValue) return 1;
         return 0;
@@ -230,8 +230,8 @@ export function useSearchEpisodes(query: string, options: { enabled?: boolean } 
       })
       .sort((a, b) => {
         // Sort by Value4Value (prioritize V4V content)
-        const aHasValue = a.value?.destinations?.length > 0;
-        const bHasValue = b.value?.destinations?.length > 0;
+        const aHasValue = (a.value?.destinations?.length ?? 0) > 0;
+        const bHasValue = (b.value?.destinations?.length ?? 0) > 0;
         if (aHasValue && !bHasValue) return -1;
         if (!aHasValue && bHasValue) return 1;
         return 0;
@@ -330,7 +330,7 @@ export function useTrendingPodcasts() {
         const top100Data: Top100MusicEntry[] = top100Response.items || [];
         
         // Convert to our PodcastIndexPodcast format
-        const musicFeeds: PodcastIndexPodcast[] = top100Data.slice(0, 20).map((entry, index) => ({
+        const musicFeeds: PodcastIndexPodcast[] = top100Data.slice(0, 20).map((entry) => ({
           id: entry.feedId || entry.rank,
           title: entry.title,
           url: entry.feedUrl || '', 
@@ -407,8 +407,8 @@ export function useTrendingPodcasts() {
           return hasMusicKeyword && !hasExcludeKeyword;
         })
         .sort((a, b) => {
-          const aHasValue = a.value?.destinations?.length > 0;
-          const bHasValue = b.value?.destinations?.length > 0;
+          const aHasValue = (a.value?.destinations?.length ?? 0) > 0;
+          const bHasValue = (b.value?.destinations?.length ?? 0) > 0;
           if (aHasValue && !bHasValue) return -1;
           if (!aHasValue && bHasValue) return 1;
           return 0;
@@ -457,8 +457,8 @@ export function useRecentEpisodes() {
       })
       .sort((a, b) => {
         // Sort by Value4Value (prioritize V4V content)
-        const aHasValue = a.value?.destinations?.length > 0;
-        const bHasValue = b.value?.destinations?.length > 0;
+        const aHasValue = (a.value?.destinations?.length ?? 0) > 0;
+        const bHasValue = (b.value?.destinations?.length ?? 0) > 0;
         if (aHasValue && !bHasValue) return -1;
         if (!aHasValue && bHasValue) return 1;
         return 0;

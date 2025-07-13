@@ -28,16 +28,16 @@ export function useMusicSearch(query: string, options: { enabled?: boolean } = {
 
       // Sort by Value4Value (prioritize V4V content)
       const musicFeeds = (podcastResponse.feeds || []).sort((a, b) => {
-        const aHasValue = a.value?.destinations?.length > 0;
-        const bHasValue = b.value?.destinations?.length > 0;
+        const aHasValue = (a.value?.destinations?.length ?? 0) > 0;
+        const bHasValue = (b.value?.destinations?.length ?? 0) > 0;
         if (aHasValue && !bHasValue) return -1;
         if (!aHasValue && bHasValue) return 1;
         return 0;
       });
 
       const musicEpisodes = (episodeResponse.episodes || episodeResponse.items || episodeResponse.feeds || []).sort((a, b) => {
-        const aHasValue = a.value?.destinations?.length > 0;
-        const bHasValue = b.value?.destinations?.length > 0;
+        const aHasValue = (a.value?.destinations?.length ?? 0) > 0;
+        const bHasValue = (b.value?.destinations?.length ?? 0) > 0;
         if (aHasValue && !bHasValue) return -1;
         if (!aHasValue && bHasValue) return 1;
         return 0;
@@ -68,8 +68,8 @@ export function useRecentMusicEpisodes() {
 
       // Sort by Value4Value (prioritize V4V content)
       const musicEpisodes = (response.episodes || response.items || []).sort((a, b) => {
-        const aHasValue = a.value?.destinations?.length > 0;
-        const bHasValue = b.value?.destinations?.length > 0;
+        const aHasValue = (a.value?.destinations?.length ?? 0) > 0;
+        const bHasValue = (b.value?.destinations?.length ?? 0) > 0;
         if (aHasValue && !bHasValue) return -1;
         if (!aHasValue && bHasValue) return 1;
         return 0;
@@ -97,8 +97,8 @@ export function useMusicByCategory(category: string) {
 
       // Sort by Value4Value (prioritize V4V content)
       const musicFeeds = (response.feeds || []).sort((a, b) => {
-        const aHasValue = a.value?.destinations?.length > 0;
-        const bHasValue = b.value?.destinations?.length > 0;
+        const aHasValue = (a.value?.destinations?.length ?? 0) > 0;
+        const bHasValue = (b.value?.destinations?.length ?? 0) > 0;
         if (aHasValue && !bHasValue) return -1;
         if (!aHasValue && bHasValue) return 1;
         return 0;

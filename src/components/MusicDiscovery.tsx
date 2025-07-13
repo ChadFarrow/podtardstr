@@ -1,11 +1,10 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { SecureImage } from '@/components/SecureImage';
-import { Play, Search, Zap, Bitcoin, Heart, ExternalLink, ChevronDown, ChevronRight, Album } from 'lucide-react';
+import { Play, Search, Zap, Heart, ExternalLink } from 'lucide-react';
 import { useRecentMusicEpisodes, useMusicSearch } from '@/hooks/useMusicIndex';
 import { useTrendingPodcasts } from '@/hooks/usePodcastIndex';
 import { usePodcastPlayer } from '@/hooks/usePodcastPlayer';
@@ -19,7 +18,8 @@ import {
   formatPaymentStatus, 
   getDemoRecipient,
   type ValueDestination,
-  type PaymentRecipient 
+  type PaymentRecipient,
+  LightningProvider
 } from '@/lib/payment-utils';
 
 interface V4VPaymentButtonProps {
@@ -36,7 +36,7 @@ function usePaymentProcessor() {
   const [status, setStatus] = useState('');
 
   const processPayment = useCallback(async (
-    provider: any,
+    provider: unknown,
     recipients: PaymentRecipient[],
     totalAmount: number
   ) => {
@@ -44,8 +44,8 @@ function usePaymentProcessor() {
     setStatus(`Splitting ${totalAmount} sats among ${recipients.length} recipients...`);
     
     try {
-      const result = await processMultiplePayments(provider, recipients, totalAmount);
-      const statusMessage = formatPaymentStatus(result, recipients.length);
+      const result = await processMultiplePayments(provider as LightningProvider, recipients, totalAmount);
+      const statusMessage = formatPaymentStatus(result);
       setStatus(statusMessage);
       return result;
     } catch (error) {
@@ -113,7 +113,7 @@ function V4VPaymentButton({
         return;
       }
 
-      await processPayment(provider, recipients, totalAmount);
+      await processPayment(provider as LightningProvider, recipients, totalAmount);
       
     } catch (error) {
       console.error('V4V payment error:', error);
@@ -168,7 +168,7 @@ export function MusicDiscovery() {
   const { data: searchResults, isLoading: searchLoading } = useMusicSearch(searchQuery, { enabled: searchQuery.length > 2 });
   const { data: episodesData } = usePodcastEpisodes(selectedFeedId || 0, { enabled: selectedFeedId !== null });
 
-  const handlePlayTrack = (episode: PodcastIndexEpisode) => {
+  const handlePlayTrack = useCallback((episode: PodcastIndexEpisode) => {
     playPodcast({
       id: episode.id.toString(),
       title: episode.title,
@@ -177,7 +177,7 @@ export function MusicDiscovery() {
       imageUrl: episode.image || episode.feedImage,
       duration: episode.duration,
     });
-  };
+  }, [playPodcast]);
 
   const handlePlayAlbum = async (podcast: PodcastIndexPodcast) => {
     // First try to fetch episodes for this feed
@@ -214,7 +214,7 @@ export function MusicDiscovery() {
       }
       setSelectedFeedId(null); // Reset after playing
     }
-  }, [episodesData]);
+  }, [episodesData, handlePlayTrack]);
 
   const formatDuration = (seconds: number) => {
     const mins = Math.floor(seconds / 60);

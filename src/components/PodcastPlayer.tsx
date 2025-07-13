@@ -68,7 +68,7 @@ export function PodcastPlayer() {
     if (isPlaying) {
       audio.play().catch(console.error);
     }
-  }, [currentPodcast?.url, isPlaying, setCurrentTime, setDuration]);
+  }, [currentPodcast?.url, isPlaying, setCurrentTime, setDuration, currentPodcast]);
 
   useEffect(() => {
     const audio = audioRef.current;

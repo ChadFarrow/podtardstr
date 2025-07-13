@@ -7,7 +7,7 @@ import { MusicDiscovery } from '@/components/MusicDiscovery';
 import { LoginArea } from '@/components/auth/LoginArea';
 import { RelaySelector } from '@/components/RelaySelector';
 import { Sidebar, SidebarContent, SidebarHeader, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Music, Search, TrendingUp, MessageSquare, Radio } from 'lucide-react';
 import { useState } from 'react';

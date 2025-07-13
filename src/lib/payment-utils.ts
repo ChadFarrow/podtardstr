@@ -20,6 +20,10 @@ export interface PaymentResult {
   totalAmount: number;
 }
 
+export interface LightningProvider {
+  sendPayment: (invoice: string) => Promise<void>;
+}
+
 /**
  * Validates a Lightning address format
  */
@@ -104,7 +108,7 @@ export async function createInvoice(
  * Processes a single payment to a recipient
  */
 export async function processSinglePayment(
-  provider: any,
+  provider: LightningProvider,
   recipient: PaymentRecipient,
   amount: number
 ): Promise<boolean> {
@@ -122,7 +126,7 @@ export async function processSinglePayment(
  * Processes multiple payments with detailed error tracking
  */
 export async function processMultiplePayments(
-  provider: any,
+  provider: LightningProvider,
   recipients: PaymentRecipient[],
   totalAmount: number
 ): Promise<PaymentResult> {
@@ -151,8 +155,7 @@ export async function processMultiplePayments(
  * Formats payment status message
  */
 export function formatPaymentStatus(
-  result: PaymentResult, 
-  totalRecipients: number
+  result: PaymentResult
 ): string {
   const { successCount, errors } = result;
   
