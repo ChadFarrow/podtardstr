@@ -162,18 +162,42 @@ export async function fetchAndParseFeed(feedUrl: string): Promise<ParsedFeed> {
   try {
     console.log('Fetching RSS feed:', feedUrl);
     
-    // Use a CORS proxy if needed for client-side fetching
-    const response = await fetch(feedUrl, {
-      headers: {
-        'Accept': 'application/rss+xml, application/xml, text/xml',
+    // Try direct fetch first, then fallback to CORS proxy
+    let response: Response;
+    let xmlText: string;
+    
+    try {
+      // Direct fetch attempt
+      response = await fetch(feedUrl, {
+        headers: {
+          'Accept': 'application/rss+xml, application/xml, text/xml',
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Direct fetch failed: ${response.status}`);
       }
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch feed: ${response.status} ${response.statusText}`);
+      
+      xmlText = await response.text();
+    } catch (directError) {
+      console.log('Direct fetch failed, trying CORS proxy:', directError);
+      
+      // Fallback to CORS proxy
+      const corsProxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(feedUrl)}`;
+      response = await fetch(corsProxyUrl);
+      
+      if (!response.ok) {
+        throw new Error(`CORS proxy failed: ${response.status} ${response.statusText}`);
+      }
+      
+      const proxyData = await response.json();
+      xmlText = proxyData.contents;
+      
+      if (!xmlText) {
+        throw new Error('No content received from CORS proxy');
+      }
     }
-
-    const xmlText = await response.text();
+    
     console.log('Parsing RSS feed XML...');
     
     const parsedFeed = parseFeedXML(xmlText);
