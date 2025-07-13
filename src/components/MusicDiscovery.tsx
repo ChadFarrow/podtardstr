@@ -42,7 +42,7 @@ function usePaymentProcessor() {
     totalAmount: number
   ) => {
     setIsProcessing(true);
-    setStatus(`Splitting ${totalAmount} sats among ${recipients.length} recipients...`);
+    setStatus(`Boosting ${totalAmount} sats among ${recipients.length} recipients...`);
     
     try {
       const result = await processMultiplePayments(provider as LightningProvider, recipients, totalAmount);
@@ -181,8 +181,7 @@ function V4VPaymentButton({
           ) : (
             <>
               <Zap className="h-3 w-3 mr-1" />
-              Split {totalAmount} sats ({recipients.length} recipients)
-              {dataSource === 'rss' && ' (RSS)'}
+              Boost {totalAmount} sats ({recipients.length})
             </>
           )}
         </Button>

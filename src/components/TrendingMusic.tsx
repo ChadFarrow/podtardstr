@@ -38,7 +38,7 @@ function usePaymentProcessor() {
     totalAmount: number
   ) => {
     setIsProcessing(true);
-    setStatus(`Splitting ${totalAmount} sats among ${recipients.length} recipients...`);
+    setStatus(`Boosting ${totalAmount} sats among ${recipients.length} recipients...`);
     
     console.log(`🎵 TrendingMusic Payment Debug:`);
     console.log(`   Total Amount: ${totalAmount} sats`);
@@ -178,8 +178,7 @@ function V4VPaymentButton({
           ) : (
             <>
               <Zap className="h-3 w-3 mr-1" />
-              Split {totalAmount} sats ({recipients.length} recipients)
-              {dataSource === 'rss' && ' (RSS)'}
+              Boost {totalAmount} sats ({recipients.length})
             </>
           )}
         </Button>
