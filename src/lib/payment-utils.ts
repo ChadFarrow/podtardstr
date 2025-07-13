@@ -153,11 +153,16 @@ export function calculatePaymentAmounts(
 ): Array<{ recipient: PaymentRecipient; amount: number }> {
   const totalSplits = recipients.reduce((sum, r) => sum + r.split, 0);
   
+  console.log(`🧮 Payment calculation debug:`);
+  console.log(`   Total amount: ${totalAmount} sats`);
+  console.log(`   Total splits: ${totalSplits}`);
+  
   if (totalSplits === 0) return [];
   
   return recipients
     .map(recipient => {
       const amount = Math.floor((recipient.split / totalSplits) * totalAmount);
+      console.log(`   ${recipient.name}: ${recipient.split}/${totalSplits} * ${totalAmount} = ${amount} sats`);
       return { recipient, amount };
     })
     .filter(({ amount }) => amount > 0); // Only include recipients with positive amounts
@@ -185,6 +190,9 @@ export async function createInvoice(
     
     // LNURL-pay spec requires amount in millisats
     const amountMsats = amount * 1000;
+    console.log(`💰 Invoice creation for ${recipient.name}: ${amount} sats → ${amountMsats} msats`);
+    console.log(`   LNURL callback: ${lnurlData.callback}?amount=${amountMsats}`);
+    
     const invoiceRes = await fetch(`${lnurlData.callback}?amount=${amountMsats}`);
     
     if (!invoiceRes.ok) {
