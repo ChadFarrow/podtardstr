@@ -29,8 +29,7 @@ function V4VPaymentButton({
   const [isProcessing, setIsProcessing] = useState(false);
 
   const handleV4VPayment = async () => {
-    // For "The Wait is Over", we have hardcoded recipients, so skip this check
-    if (!contentTitle?.includes('Wait Is Over') && (!valueDestinations || valueDestinations.length === 0)) {
+    if (!valueDestinations || valueDestinations.length === 0) {
       setStatus('No payment recipients available.');
       return;
     }
@@ -55,27 +54,15 @@ function V4VPaymentButton({
         return;
       }
 
-      // Use the same logic as the UI for determining recipients
-      let paymentRecipients;
-      if (contentTitle?.includes('Wait Is Over')) {
-        paymentRecipients = [
-          { name: 'makeheroism', address: 'makeheroism@fountain.fm', type: 'lud16', split: 60 },
-          { name: 'PodcastIndex.org', address: 'support@podcastindex.org', type: 'lud16', split: 5 },
-          { name: 'BoostBot', address: 'boostbot@getalby.com', type: 'lud16', split: 30 },
-          { name: 'Demo Fallback', address: 'demo@getalby.com', type: 'lud16', split: 5 }
-        ];
-      } else {
-        const lightningRecipients = valueDestinations?.filter(d => d.type === 'lud16' && d.address) || [];
-        paymentRecipients = lightningRecipients.length > 0 ? lightningRecipients : [
-          { name: 'Demo Artist', address: 'demo@getalby.com', type: 'lud16', split: 100 }
-        ];
-      }
+      // Use the actual ValueBlock recipients from RSS feed
+      const lightningRecipients = valueDestinations.filter(d => d.type === 'lud16' && d.address) || [];
+      const paymentRecipients = lightningRecipients;
       
       setStatus(`Splitting ${totalAmount} sats among ${paymentRecipients.length} recipients...`);
       console.log('V4V Payment - Recipients:', paymentRecipients);
       
       // Calculate total splits
-      const totalSplits = paymentRecipients.reduce((sum, r) => sum + r.split, 0);
+      const totalSplits = paymentRecipients.reduce((sum: number, r: any) => sum + r.split, 0);
       
       // Process each payment
       let successCount = 0;
@@ -101,7 +88,7 @@ function V4VPaymentButton({
             await provider.sendPayment(invoiceData.pr);
             successCount++;
             
-            setStatus(`Sent to ${successCount}/${lightningRecipients.length} recipients...`);
+            setStatus(`Sent to ${successCount}/${paymentRecipients.length} recipients...`);
           }
         } catch (err) {
           console.error(`Payment failed to ${recipient.name}:`, err);
@@ -122,38 +109,20 @@ function V4VPaymentButton({
     }
   };
 
-  // Count valid Lightning recipients
+  // Use actual ValueBlock recipients from RSS feed
   const lightningRecipients = valueDestinations?.filter(d => d.type === 'lud16' && d.address) || [];
-  
-  // Special case for "The Wait is Over" - hardcoded ValueBlock for testing
-  let finalRecipients;
-  if (contentTitle?.includes('Wait Is Over')) {
-    finalRecipients = [
-      { name: 'makeheroism', address: 'makeheroism@fountain.fm', type: 'lud16', split: 60 },
-      { name: 'PodcastIndex.org', address: 'support@podcastindex.org', type: 'lud16', split: 5 },
-      { name: 'BoostBot', address: 'boostbot@getalby.com', type: 'lud16', split: 30 },
-      { name: 'Demo Fallback', address: 'demo@getalby.com', type: 'lud16', split: 5 }
-    ];
-    console.log('🎯 Using hardcoded ValueBlock for The Wait is Over');
-  } else {
-    // Always add a demo recipient if no real ones are found
-    finalRecipients = lightningRecipients.length > 0 ? lightningRecipients : [
-      { name: 'Demo Artist', address: 'demo@getalby.com', type: 'lud16', split: 100 }
-    ];
-  }
+  const finalRecipients: Array<{name: string; address: string; type: string; split: number}> = lightningRecipients;
   
   const hasRecipients = finalRecipients.length > 0;
 
-  // Debug logging for "The Wait is Over"
-  if (contentTitle?.includes('Wait Is Over')) {
-    console.log('🔍 THE WAIT IS OVER - ValueBlock Debug:', {
-      contentTitle,
-      valueDestinations,
-      lightningRecipients,
-      finalRecipients,
-      hasRecipients
-    });
-  }
+  // Debug logging for ValueBlock data
+  console.log('🔍 ValueBlock Debug:', {
+    contentTitle,
+    valueDestinations,
+    lightningRecipients,
+    finalRecipients,
+    hasRecipients
+  });
 
   return (
     <div className="mt-2">
@@ -179,7 +148,7 @@ function V4VPaymentButton({
       )}
       {hasRecipients && (
         <div className="text-xs text-muted-foreground mt-1">
-          Recipients: {finalRecipients.map(r => r.name).join(', ')}
+          Recipients: {finalRecipients.map((r: any) => r.name).join(', ')}
         </div>
       )}
     </div>
@@ -333,7 +302,7 @@ export function MusicDiscovery() {
                               {/* V4V split payment for track */}
                               <V4VPaymentButton 
                                 valueDestinations={episode.value?.destinations} 
-                                totalAmount={21} 
+                                totalAmount={33} 
                                 contentTitle={episode.title} 
                               />
                             </div>
@@ -462,7 +431,7 @@ export function MusicDiscovery() {
                     {/* V4V split payment for track */}
                     <V4VPaymentButton 
                       valueDestinations={episode.value?.destinations} 
-                      totalAmount={21} 
+                      totalAmount={33} 
                       contentTitle={episode.title} 
                     />
                   </div>
