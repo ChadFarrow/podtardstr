@@ -103,7 +103,12 @@ const Index = () => {
                   <Button
                     variant="ghost"
                     className="w-full justify-start text-sm"
-                    onClick={() => window.open('https://tools.rssblue.com', '_blank')}
+                    onClick={() => {
+                      // Try local first, fallback to external
+                      fetch('http://localhost:8081')
+                        .then(() => window.open('http://localhost:8081', '_blank'))
+                        .catch(() => window.open('https://tools.rssblue.com', '_blank'));
+                    }}
                   >
                     <ExternalLink className="h-4 w-4 mr-2" />
                     RSS Blue Validator

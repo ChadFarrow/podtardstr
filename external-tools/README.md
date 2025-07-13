@@ -21,26 +21,33 @@ This directory contains external tools and utilities that complement Podtardstr'
 
 ### Running RSS Blue Tools:
 
-#### Prerequisites:
+#### Easy Setup (Recommended):
 ```bash
-# Install Rust (if not already installed)
+# From project root - runs everything automatically
+./scripts/run-rss-blue.sh
+```
+This will:
+- Install Rust and Trunk if needed
+- Install npm dependencies  
+- Start RSS Blue on http://localhost:8081
+- Auto-open in browser
+
+#### Manual Setup:
+```bash
+# Install prerequisites
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-source ~/.cargo/env
-```
+cargo install trunk
 
-#### Build and Run:
-```bash
+# Run RSS Blue tools
 cd external-tools/rss-blue-tools
-
-# Build the validator
-cargo build --release
-
-# Run the web interface (serves on localhost)
-cargo run --release
-
-# Or build for web deployment
-trunk build --release
+npm install
+trunk serve --port 8081
 ```
+
+#### Smart Button Behavior:
+The "RSS Blue Validator" button in Podtardstr will:
+1. **Try localhost:8081 first** (your local instance)
+2. **Fallback to tools.rssblue.com** if local isn't running
 
 #### Alternative - Use their hosted version:
 Visit: https://tools.rssblue.com
