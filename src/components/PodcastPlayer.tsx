@@ -176,25 +176,25 @@ export function PodcastPlayer() {
         />
         
         <div className="flex items-center gap-4">
-          {/* Episode Info */}
-          <div className="flex items-center gap-3 min-w-0 flex-1">
+          {/* Episode Info - Clickable */}
+          <button 
+            onClick={() => setShowNowPlaying(true)}
+            className="flex items-center gap-3 min-w-0 flex-1 hover:bg-muted/50 -m-2 p-2 rounded-lg transition-colors"
+          >
             {currentPodcast.imageUrl && (
-              <button 
-                onClick={() => setShowNowPlaying(true)}
-                className="h-12 w-12 rounded object-cover flex-shrink-0 hover:ring-2 hover:ring-primary transition-all"
-              >
+              <div className="h-12 w-12 rounded object-cover flex-shrink-0">
                 <img 
                   src={currentPodcast.imageUrl} 
                   alt={currentPodcast.title}
                   className="h-12 w-12 rounded object-cover"
                 />
-              </button>
+              </div>
             )}
-            <div className="min-w-0">
+            <div className="min-w-0 text-left">
               <h4 className="font-medium text-sm truncate">{currentPodcast.title}</h4>
               <p className="text-xs text-muted-foreground truncate">{currentPodcast.author}</p>
             </div>
-          </div>
+          </button>
 
           {/* Controls */}
           <div className="flex items-center gap-2">
@@ -216,20 +216,33 @@ export function PodcastPlayer() {
           </div>
 
           {/* Progress */}
-          <div className="flex items-center gap-2 flex-1 max-w-md">
-            <span className="text-xs text-muted-foreground w-10 text-right">
+          <div className="flex items-center gap-2 flex-1 max-w-md group">
+            <button 
+              onClick={() => setShowNowPlaying(true)}
+              className="text-xs text-muted-foreground w-10 text-right hover:text-foreground transition-colors"
+            >
               {formatTime(currentTime)}
-            </span>
-            <Slider
-              value={[currentTime]}
-              max={duration || 100}
-              step={1}
-              onValueChange={handleSeek}
-              className="flex-1"
-            />
-            <span className="text-xs text-muted-foreground w-10">
+            </button>
+            <div className="flex-1 relative">
+              <Slider
+                value={[currentTime]}
+                max={duration || 100}
+                step={1}
+                onValueChange={handleSeek}
+                className="flex-1"
+              />
+              <button 
+                onClick={() => setShowNowPlaying(true)}
+                className="absolute inset-0 w-full opacity-0 hover:opacity-5 bg-primary transition-opacity rounded"
+                aria-label="Open Now Playing"
+              />
+            </div>
+            <button 
+              onClick={() => setShowNowPlaying(true)}
+              className="text-xs text-muted-foreground w-10 hover:text-foreground transition-colors"
+            >
               {formatTime(duration)}
-            </span>
+            </button>
           </div>
 
           {/* Volume */}
