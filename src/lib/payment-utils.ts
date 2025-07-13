@@ -22,6 +22,7 @@ export interface PaymentResult {
 
 export interface LightningProvider {
   sendPayment: (invoice: string) => Promise<void>;
+  keysend?: (args: { destination: string; amount: number; customRecords?: Record<string, string> }) => Promise<void>;
 }
 
 /**
@@ -192,9 +193,9 @@ export async function createInvoice(
   } 
   
   if (recipient.type === 'node' || recipient.type === 'keysend') {
-    // For node/keysend, we'd need to use a different approach
-    // For now, throw an error as we need special handling
-    throw new Error(`Payment type ${recipient.type} requires keysend support (not yet implemented)`);
+    // For node/keysend payments, we need to use the keysend method directly
+    // This will be handled in processSinglePayment function
+    throw new Error(`Keysend payments don't use invoices - use keysend method directly`);
   }
   
   throw new Error(`Unsupported recipient type: ${recipient.type}`);
@@ -209,9 +210,54 @@ export async function processSinglePayment(
   amount: number
 ): Promise<boolean> {
   try {
+    // Handle keysend payments (node type)
+    if (recipient.type === 'node' || recipient.type === 'keysend') {
+      console.log(`⚡ Attempting keysend payment to ${recipient.name} (${recipient.address})`);
+      
+      // Try to use keysend if available
+      if (provider.keysend) {
+        try {
+          await provider.keysend({
+            destination: recipient.address,
+            amount: amount * 1000, // Convert sats to millisats
+            customRecords: {
+              // TLV record 7629169 for podcast metadata (optional)
+              '7629169': JSON.stringify({
+                podcast: recipient.name,
+                action: 'boost',
+                ts: Math.floor(Date.now() / 1000)
+              })
+            }
+          });
+          console.log(`✅ Keysend payment successful to ${recipient.name}`);
+          return true;
+        } catch (keysendError) {
+          console.warn(`❌ Keysend failed for ${recipient.name}:`, keysendError);
+        }
+      }
+      
+      // Fallback: Try to use WebLN's sendPayment with a special keysend request
+      try {
+        // Some wallets support keysend through a special format
+        const keysendRequest = `keysend:${recipient.address}?amount=${amount * 1000}`;
+        await provider.sendPayment(keysendRequest);
+        console.log(`✅ Keysend payment successful to ${recipient.name} (via sendPayment fallback)`);
+        return true;
+      } catch (fallbackError) {
+        console.warn(`❌ Keysend fallback failed for ${recipient.name}:`, fallbackError);
+      }
+      
+      // Final fallback: Skip keysend payments gracefully
+      console.warn(`⚠️ Skipping keysend payment to ${recipient.name} - wallet doesn't support keysend`);
+      return false;
+    }
+    
+    // Handle invoice-based payments (lud16, lud06)
     const invoice = await createInvoice(recipient, amount);
     await provider.sendPayment(invoice);
+    console.log(`✅ Invoice payment successful to ${recipient.name}`);
     return true;
+    
   } catch (error) {
     console.error(`❌ Payment failed to ${recipient.name}:`, error);
     return false;
@@ -236,7 +282,12 @@ export async function processMultiplePayments(
     if (success) {
       successCount++;
     } else {
-      errors.push(`Failed to pay ${amount} sats to ${recipient.name}`);
+      // Categorize the error type
+      if (recipient.type === 'node' || recipient.type === 'keysend') {
+        errors.push(`Skipped keysend payment to ${recipient.name} (${amount} sats)`);
+      } else {
+        errors.push(`Failed to pay ${amount} sats to ${recipient.name}`);
+      }
     }
   }
 
@@ -259,8 +310,16 @@ export function formatPaymentStatus(
     return '❌ All payments failed';
   }
   
-  const errorSummary = errors.length > 0 ? ` (${errors.length} failed)` : '';
-  return `✅ Split ${result.totalAmount} sats among ${successCount} recipients! ⚡${errorSummary}`;
+  if (errors.length > 0) {
+    const skippedKeysend = errors.filter(error => error.includes('keysend')).length;
+    if (skippedKeysend > 0) {
+      return `✅ Split ${result.totalAmount} sats among ${successCount} recipients! ⚡\n⚠️ ${skippedKeysend} keysend payments skipped (wallet doesn't support keysend)`;
+    } else {
+      return `✅ Split ${result.totalAmount} sats among ${successCount} recipients! ⚡\n❌ ${errors.length} payments failed`;
+    }
+  }
+  
+  return `✅ Split ${result.totalAmount} sats among ${successCount} recipients! ⚡`;
 }
 
 /**
