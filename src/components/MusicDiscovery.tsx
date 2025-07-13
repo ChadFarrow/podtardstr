@@ -206,17 +206,23 @@ export function MusicDiscovery() {
     const podcastId = podcast.id.toString();
     
     // Check if any episode from this album is currently playing
-    // We need to check if the current podcast's metadata indicates it's from this album
-    const isThisAlbumPlaying = currentPodcast && (
+    const isThisAlbumPlaying = currentPodcast && isPlaying && (
       currentPodcast.author === podcast.author || 
       currentPodcast.id.startsWith(podcastId) ||
-      currentPodcast.title.includes(podcast.title)
+      currentPodcast.title.includes(podcast.title) ||
+      currentPodcast.id === `${podcastId}-album`
     );
     
-    if (isThisAlbumPlaying && isPlaying) {
-      // Toggle play/pause for current album
-      setIsPlaying(!isPlaying);
-    } else {
+    if (isThisAlbumPlaying) {
+      // Pause the current track
+      setIsPlaying(false);
+      return;
+    }
+    
+    // If not playing this album, start playing it
+    if (currentPodcast && isPlaying) {
+      // Something else is playing, so we need to start this album
+    }
       // Play new album
       setSelectedFeedId(podcast.id);
       
@@ -281,8 +287,15 @@ export function MusicDiscovery() {
     if (currentPodcast.id === id) return true;
     
     // For albums, check if the current podcast is from this feed
-    if (feedTitle && currentPodcast.author === feedTitle) return true;
-    if (currentPodcast.id.startsWith(id) || currentPodcast.id === `${id}-album`) return true;
+    if (feedTitle) {
+      // Check if current track is from this album/feed
+      return (
+        currentPodcast.author === feedTitle ||
+        currentPodcast.id.startsWith(id) ||
+        currentPodcast.id === `${id}-album` ||
+        currentPodcast.title.includes(feedTitle)
+      );
+    }
     
     return false;
   }, [currentPodcast, isPlaying]);
