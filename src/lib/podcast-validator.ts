@@ -117,16 +117,39 @@ export class PodcastValidator {
     const channel = this.doc.querySelector('rss > channel');
     if (!channel) {
       this.addError('MISSING_CHANNEL', 'RSS must contain a <channel> element');
+    } else {
+      // Debug: Count channel children
+      const channelChildren = channel.children.length;
+      this.addInfo('CHANNEL_STRUCTURE', `Channel contains ${channelChildren} child elements`);
     }
   }
 
   private validateRequiredElements() {
-    const requiredElements = ['title', 'description', 'link'];
+    const requiredElements = [
+      { name: 'title', selector: 'channel > title' },
+      { name: 'description', selector: 'channel > description' },
+      { name: 'link', selector: 'channel > link' }
+    ];
     
-    for (const elementName of requiredElements) {
-      const element = this.doc.querySelector(`channel > ${elementName}`);
+    for (const { name, selector } of requiredElements) {
+      const element = this.doc.querySelector(selector);
       if (!element || !element.textContent?.trim()) {
-        this.addError('MISSING_REQUIRED', `Channel must contain a <${elementName}> element with content`);
+        // For link, provide more debugging info
+        if (name === 'link') {
+          const allLinks = this.doc.querySelectorAll('link');
+          const channelLinks = this.doc.querySelectorAll('channel link');
+          this.addError('MISSING_REQUIRED', 
+            `Channel must contain a <${name}> element with content. ` +
+            `Found ${allLinks.length} total links, ${channelLinks.length} in channel`
+          );
+        } else {
+          this.addError('MISSING_REQUIRED', `Channel must contain a <${name}> element with content`);
+        }
+      } else {
+        // Add debug info for successful detection
+        if (name === 'link') {
+          this.addInfo('CHANNEL_LINK_FOUND', `Found channel link: ${element.textContent.trim()}`);
+        }
       }
     }
 
