@@ -210,7 +210,14 @@ export async function createInvoice(
 export async function processSinglePayment(
   provider: LightningProvider,
   recipient: PaymentRecipient,
-  amount: number
+  amount: number,
+  metadata?: {
+    feedId?: string;
+    episodeId?: string;
+    contentTitle?: string;
+    totalAmount?: number;
+    app?: string;
+  }
 ): Promise<boolean> {
   try {
     // Handle keysend payments (node type)
@@ -228,7 +235,13 @@ export async function processSinglePayment(
               '7629169': JSON.stringify({
                 podcast: recipient.name,
                 action: 'boost',
-                ts: Math.floor(Date.now() / 1000)
+                ts: Math.floor(Date.now() / 1000),
+                ...(metadata?.feedId && { feedId: metadata.feedId }),
+                ...(metadata?.episodeId && { episodeId: metadata.episodeId }),
+                ...(metadata?.contentTitle && { contentTitle: metadata.contentTitle }),
+                ...(metadata?.totalAmount && { totalAmount: metadata.totalAmount }),
+                ...(metadata?.app && { app: metadata.app }),
+                platform: 'web'
               })
             }
           });
@@ -274,14 +287,23 @@ export async function processSinglePayment(
 export async function processMultiplePayments(
   provider: LightningProvider,
   recipients: PaymentRecipient[],
-  totalAmount: number
+  totalAmount: number,
+  metadata?: {
+    feedId?: string;
+    episodeId?: string;
+    contentTitle?: string;
+    app?: string;
+  }
 ): Promise<PaymentResult> {
   const paymentAmounts = calculatePaymentAmounts(recipients, totalAmount);
   let successCount = 0;
   const errors: string[] = [];
 
   for (const { recipient, amount } of paymentAmounts) {
-    const success = await processSinglePayment(provider, recipient, amount);
+    const success = await processSinglePayment(provider, recipient, amount, {
+      ...metadata,
+      totalAmount
+    });
     
     if (success) {
       successCount++;

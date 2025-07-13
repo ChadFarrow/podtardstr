@@ -270,12 +270,17 @@ export function NowPlayingModal({ open, onOpenChange }: NowPlayingModalProps) {
   const wavlakeUrl = useMemo(() => {
     if (!isWavlakeTrack || !currentPodcast) return null;
     
-    // Try to extract Wavlake track ID or use a search approach
-    const trackTitle = encodeURIComponent(currentPodcast.title);
-    const artistName = encodeURIComponent(currentPodcast.author);
+    // Clean up the artist name by removing "via Wavlake"
+    const cleanArtist = currentPodcast.author?.replace(/ via Wavlake/i, '').trim() || '';
+    const trackTitle = currentPodcast.title;
     
-    // Return search URL on Wavlake
-    return `https://wavlake.com/search?q=${trackTitle}+${artistName}`;
+    // Try a simpler search format
+    const searchQuery = encodeURIComponent(`${trackTitle} ${cleanArtist}`.trim());
+    
+    console.log('🎵 Generating Wavlake URL:', { trackTitle, cleanArtist, searchQuery });
+    
+    // Return search URL on Wavlake - try the main search page
+    return `https://wavlake.com/?q=${searchQuery}`;
   }, [isWavlakeTrack, currentPodcast]);
 
   const handlePlayPause = () => {

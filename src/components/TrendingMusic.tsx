@@ -35,13 +35,19 @@ function usePaymentProcessor() {
   const processPayment = useCallback(async (
     provider: unknown,
     recipients: PaymentRecipient[],
-    totalAmount: number
+    totalAmount: number,
+    metadata?: {
+      feedId?: string;
+      episodeId?: string;
+      contentTitle?: string;
+      app?: string;
+    }
   ) => {
     setIsProcessing(true);
     setStatus(`Boosting ${totalAmount} sats among ${recipients.length} recipients...`);
     
     try {
-      const result = await processMultiplePayments(provider as LightningProvider, recipients, totalAmount);
+      const result = await processMultiplePayments(provider as LightningProvider, recipients, totalAmount, metadata);
       const statusMessage = formatPaymentStatus(result);
       setStatus(statusMessage);
       return result;
@@ -146,13 +152,16 @@ function V4VPaymentButton({
         return;
       }
 
-      await processPayment(provider as LightningProvider, recipients, totalAmount);
+      await processPayment(provider as LightningProvider, recipients, totalAmount, {
+        contentTitle,
+        app: 'Podtardstr'
+      });
       
     } catch (error) {
       console.error('V4V payment error:', error);
       setStatus(error instanceof Error ? error.message : 'Payment failed or cancelled.');
     }
-  }, [hasRecipients, connectWallet, processPayment, recipients, totalAmount, setStatus]);
+  }, [hasRecipients, connectWallet, processPayment, recipients, totalAmount, setStatus, contentTitle]);
 
   return (
     <div className="mt-2">
