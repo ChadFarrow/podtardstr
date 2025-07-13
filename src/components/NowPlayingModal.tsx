@@ -274,14 +274,28 @@ export function NowPlayingModal({ open, onOpenChange }: NowPlayingModalProps) {
     const cleanArtist = currentPodcast.author?.replace(/ via Wavlake/i, '').trim() || '';
     const trackTitle = currentPodcast.title;
     
-    // Try a simpler search format
-    const searchQuery = encodeURIComponent(`${trackTitle} ${cleanArtist}`.trim());
+    // For now, just link to the artist's profile if we can extract it
+    // TODO: Need to see real Wavlake URLs to improve this
+    if (cleanArtist) {
+      // Try artist page format: https://wavlake.com/artist/artistname
+      const artistSlug = cleanArtist.toLowerCase().replace(/[^a-z0-9]/g, '');
+      const artistUrl = `https://wavlake.com/artist/${artistSlug}`;
+      
+      console.log('🎵 Generating Wavlake URL:', { 
+        trackTitle, 
+        cleanArtist, 
+        artistSlug,
+        artistUrl,
+        feedData: feedData?.url 
+      });
+      
+      return artistUrl;
+    }
     
-    console.log('🎵 Generating Wavlake URL:', { trackTitle, cleanArtist, searchQuery });
-    
-    // Return search URL on Wavlake - try the main search page
-    return `https://wavlake.com/?q=${searchQuery}`;
-  }, [isWavlakeTrack, currentPodcast]);
+    // Fallback to search
+    const searchQuery = encodeURIComponent(`${trackTitle}`.trim());
+    return `https://wavlake.com/search?q=${searchQuery}`;
+  }, [isWavlakeTrack, currentPodcast, feedData]);
 
   const handlePlayPause = () => {
     setIsPlaying(!isPlaying);

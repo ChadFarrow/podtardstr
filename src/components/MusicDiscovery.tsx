@@ -27,6 +27,8 @@ interface V4VPaymentButtonProps {
   episodeGuid?: string;
   totalAmount?: number;
   contentTitle?: string;
+  feedId?: string;
+  episodeId?: string;
 }
 
 
@@ -161,6 +163,8 @@ function V4VPaymentButton({
 
       await processPayment(provider as LightningProvider, recipients, totalAmount, {
         contentTitle,
+        feedId: episode.feedId?.toString(),
+        episodeId: episode.id.toString(),
         app: 'Podtardstr'
       });
       

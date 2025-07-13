@@ -412,9 +412,14 @@ export function TrendingMusic() {
                           />
                           <button
                             onClick={() => handlePlayPauseAlbum(feed)}
-                            className="absolute inset-0 bg-black/50 rounded flex items-center justify-center opacity-0 group-hover:opacity-100 active:opacity-100 transition-opacity touch-manipulation"
+                            className="absolute inset-0 bg-black/30 hover:bg-black/60 active:bg-black/70 rounded flex items-center justify-center opacity-70 hover:opacity-100 active:opacity-100 transition-all touch-manipulation"
+                            aria-label={isCurrentlyPlaying(feed.id.toString(), feed.title) ? 'Pause' : 'Play'}
                           >
-                            {isCurrentlyPlaying(feed.id.toString(), feed.title) ? <Pause className="h-6 w-6 sm:h-4 sm:w-4 text-white" /> : <Play className="h-6 w-6 sm:h-4 sm:w-4 text-white" />}
+                            {isCurrentlyPlaying(feed.id.toString(), feed.title) ? (
+                              <Pause className="h-6 w-6 sm:h-4 sm:w-4 text-white drop-shadow-lg" />
+                            ) : (
+                              <Play className="h-6 w-6 sm:h-4 sm:w-4 text-white drop-shadow-lg" />
+                            )}
                           </button>
                           {/* Mobile rank badge - positioned on image */}
                           <span className="absolute top-1 right-1 sm:hidden text-xs font-mono text-white bg-black/70 px-1.5 py-0.5 rounded">
