@@ -178,12 +178,24 @@ export function MusicDiscovery() {
       // Toggle play/pause for current track
       setIsPlaying(!isPlaying);
     } else {
+      // Validate and clean the audio URL
+      let audioUrl = episode.enclosureUrl;
+      
+      // Skip if no valid audio URL
+      if (!audioUrl || !audioUrl.trim()) {
+        console.warn('No audio URL found for episode:', episode.title);
+        return;
+      }
+      
+      // Log the URL for debugging
+      console.log('Attempting to play audio URL:', audioUrl);
+      
       // Play new track
       playPodcast({
         id: episodeId,
         title: episode.title,
         author: episode.feedTitle,
-        url: episode.enclosureUrl,
+        url: audioUrl,
         imageUrl: episode.image || episode.feedImage,
         duration: episode.duration,
       });

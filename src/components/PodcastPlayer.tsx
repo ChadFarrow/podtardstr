@@ -79,7 +79,13 @@ export function PodcastPlayer() {
       }
     };
     const handleError = (e: Event) => {
-      console.error('Audio loading error:', e);
+      const target = e.target as HTMLAudioElement;
+      console.error('Audio loading error:', {
+        url: target?.src,
+        error: target?.error,
+        networkState: target?.networkState,
+        readyState: target?.readyState
+      });
       setIsLoading(false);
       setIsPlaying(false);
     };
@@ -156,6 +162,7 @@ export function PodcastPlayer() {
           ref={audioRef}
           src={currentPodcast.url}
           preload="metadata"
+          crossOrigin="anonymous"
         />
         
         <div className="flex items-center gap-4">
