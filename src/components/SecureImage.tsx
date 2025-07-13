@@ -18,14 +18,14 @@ export function SecureImage({ src, alt, fallback, ...props }: SecureImageProps) 
   const getSecureImageUrl = (url: string) => {
     if (!url) return fallback || '';
     
-    // If already HTTPS, use as-is
-    if (url.startsWith('https://')) {
-      return url;
+    // For any HTTP URL, immediately use proxy to avoid mixed content issues
+    if (url.startsWith('http://')) {
+      return `https://images.weserv.nl/?url=${encodeURIComponent(url)}`;
     }
     
-    // If HTTP, try converting to HTTPS first
-    if (url.startsWith('http://')) {
-      return url.replace('http://', 'https://');
+    // HTTPS URLs can be used directly
+    if (url.startsWith('https://')) {
+      return url;
     }
     
     return url;

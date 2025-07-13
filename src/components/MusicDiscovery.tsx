@@ -29,7 +29,8 @@ function V4VPaymentButton({
   const [isProcessing, setIsProcessing] = useState(false);
 
   const handleV4VPayment = async () => {
-    if (!valueDestinations || valueDestinations.length === 0) {
+    // For "The Wait is Over", we have hardcoded recipients, so skip this check
+    if (!contentTitle?.includes('Wait Is Over') && (!valueDestinations || valueDestinations.length === 0)) {
       setStatus('No payment recipients available.');
       return;
     }
@@ -64,7 +65,7 @@ function V4VPaymentButton({
           { name: 'Demo Fallback', address: 'demo@getalby.com', type: 'lud16', split: 5 }
         ];
       } else {
-        const lightningRecipients = valueDestinations.filter(d => d.type === 'lud16' && d.address);
+        const lightningRecipients = valueDestinations?.filter(d => d.type === 'lud16' && d.address) || [];
         paymentRecipients = lightningRecipients.length > 0 ? lightningRecipients : [
           { name: 'Demo Artist', address: 'demo@getalby.com', type: 'lud16', split: 100 }
         ];
