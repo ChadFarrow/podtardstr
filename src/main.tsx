@@ -33,12 +33,17 @@ if ('serviceWorker' in navigator) {
         if (newWorker) {
           newWorker.addEventListener('statechange', () => {
             if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-              // New content is available, notify user
-              console.log('🔄 New app version available. Refresh to update.');
+              // New content is available, auto-refresh after short delay
+              console.log('🔄 New app version available. Auto-refreshing...');
               
-              // Optional: Show a toast notification to user
-              // You can dispatch a custom event here to show an update notification
+              // Dispatch update event
               window.dispatchEvent(new CustomEvent('sw-update-available'));
+              
+              // Auto-refresh after 2 seconds to get latest version
+              setTimeout(() => {
+                console.log('♻️ Auto-refreshing for service worker update');
+                window.location.reload();
+              }, 2000);
             }
           });
         }

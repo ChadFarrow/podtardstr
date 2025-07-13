@@ -1,9 +1,9 @@
 // Service Worker for Podtardstr PWA
 // Provides offline support and caching for better mobile experience
 
-const CACHE_NAME = 'podtardstr-v3';
-const STATIC_CACHE_NAME = 'podtardstr-static-v3';
-const DYNAMIC_CACHE_NAME = 'podtardstr-dynamic-v3';
+const CACHE_NAME = 'podtardstr-v4';
+const STATIC_CACHE_NAME = 'podtardstr-static-v4';
+const DYNAMIC_CACHE_NAME = 'podtardstr-dynamic-v4';
 
 // Files to cache for offline functionality
 const STATIC_ASSETS = [
@@ -74,6 +74,13 @@ self.addEventListener('fetch', (event) => {
   
   // Handle different types of requests
   if (event.request.method === 'GET') {
+    // JavaScript bundles - always network first for updates
+    if (event.request.url.includes('/assets/') && 
+        (event.request.url.includes('.js') || event.request.url.includes('.css'))) {
+      event.respondWith(networkFirstStrategy(event.request));
+      return;
+    }
+    
     // Static assets - cache first strategy
     if (STATIC_ASSETS.some(asset => event.request.url.endsWith(asset))) {
       event.respondWith(cacheFirstStrategy(event.request));
