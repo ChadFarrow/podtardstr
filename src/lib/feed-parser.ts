@@ -167,16 +167,14 @@ export async function fetchAndParseFeed(feedUrl: string): Promise<ParsedFeed> {
     
     console.log('🔍 Attempting to fetch RSS feed:', finalFeedUrl);
     
-    // Use external CORS proxies for better reliability
+    // Use external CORS proxies with better URL encoding
     const proxies = [
-      // Primary proxy - more reliable and less rate-limited
-      (url: string) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
-      // Backup proxy - good for most feeds
-      (url: string) => `https://corsproxy.io/?${encodeURIComponent(url)}`,
-      // Alternative proxy - different service
-      (url: string) => `https://thingproxy.freeboard.io/fetch/${encodeURIComponent(url)}`,
-      // Last resort proxy
+      // Try allorigins first - most reliable for RSS feeds
       (url: string) => `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
+      // Corsproxy with simpler format
+      (url: string) => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+      // Alternative approach - try without cache busting
+      (url: string) => `https://api.allorigins.win/get?url=${encodeURIComponent(feedUrl)}`, // Original URL without cache bust
     ];
     
     let xmlText: string | undefined;
