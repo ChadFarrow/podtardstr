@@ -1,23 +1,37 @@
 # Project Overview
 
-This project is a Nostr client application built with React 18.x, TailwindCSS 3.x, Vite, shadcn/ui, and Nostrify.
+This project is **Podtardstr** - a Nostr-based music discovery application with Value4Value (V4V) Lightning payments integrated. Built with React 18.x, TailwindCSS 3.x, Vite, shadcn/ui, Nostrify, and Bitcoin Connect.
+
+## Core Features
+
+- **Music Discovery**: Browse Top 100 V4V Music Chart from Podcast Index
+- **Value4Value Payments**: Lightning payments to music creators via Bitcoin Connect
+- **RSS Feed Parsing**: Enhanced V4V data extraction from podcast RSS feeds
+- **Nostr Integration**: Social features, recommendations, and content sharing
+- **Podcast Player**: Built-in audio player with playlist support
+- **Multi-Relay Support**: Connect to different Nostr relays for content discovery
 
 ## Technology Stack
 
 - **React 18.x**: Stable version of React with hooks, concurrent rendering, and improved performance
 - **TailwindCSS 3.x**: Utility-first CSS framework for styling
-- **Vite**: Fast build tool and development server
+- **Vite**: Fast build tool and development server with CORS proxy configuration
 - **shadcn/ui**: Unstyled, accessible UI components built with Radix UI and Tailwind
 - **Nostrify**: Nostr protocol framework for Deno and web
+- **Bitcoin Connect**: Lightning wallet integration for V4V payments
 - **React Router**: For client-side routing with BrowserRouter and ScrollToTop functionality
 - **TanStack Query**: For data fetching, caching, and state management
 - **TypeScript**: For type-safe JavaScript development
+- **Podcast Index API**: Music discovery and metadata
+- **RSS Feed Parser**: Value4Value data extraction with CORS-safe implementation
 
 ## Project Structure
 
 - `/src/components/`: UI components including NostrProvider for Nostr integration
   - `/src/components/ui/`: shadcn/ui components (48+ components available)
   - `/src/components/auth/`: Authentication-related components (LoginArea, LoginDialog, etc.)
+  - **Music Components**: `MusicDiscovery`, `TrendingMusic`, `PodcastPlayer`, `V4VPaymentButton`
+  - **Feed Components**: `NostrPodcastFeed`, `FeedValueParser`, `PodcastValidator`
 - `/src/hooks/`: Custom hooks including:
   - `useNostr`: Core Nostr protocol integration
   - `useAuthor`: Fetch user profile data by pubkey
@@ -31,13 +45,38 @@ This project is a Nostr client application built with React 18.x, TailwindCSS 3.
   - `useLoggedInAccounts`: Manage multiple accounts
   - `useLoginActions`: Authentication actions
   - `useIsMobile`: Responsive design helper
+  - **Music Hooks**: `usePodcastIndex`, `useValueBlockFromRss`, `useTop100Music`
+  - **Player Hooks**: `usePodcastPlayer`, `useFeedParser`
 - `/src/pages/`: Page components used by React Router (Index, NotFound)
 - `/src/lib/`: Utility functions and shared logic
+  - **Payment Utils**: `payment-utils.ts` - Lightning payment processing
+  - **Feed Parser**: `feed-parser.ts` - RSS feed parsing with CORS-safe requests
+  - **Podcast Validator**: `podcast-validator.ts` - Feed validation
 - `/src/contexts/`: React context providers (AppContext)
 - `/src/test/`: Testing utilities including TestApp component
 - `/public/`: Static assets
 - `App.tsx`: Main app component with provider setup
 - `AppRouter.tsx`: React Router configuration
+
+## CORS Solution & Development Proxy
+
+The project includes a comprehensive CORS solution for development:
+
+### Vite Proxy Configuration
+- **`/api/podcastindex`** → `https://api.podcastindex.org/api/1.0`
+- **`/api/podcastindex-stats`** → `https://stats.podcastindex.org`
+- **`/api/proxy`** → Universal proxy for RSS feeds and external URLs
+
+### Development vs Production
+- **Development**: All external requests route through Vite proxy (no CORS errors)
+- **Production**: Uses original URLs with proper CORS headers
+- **Auto-detection**: `import.meta.env.DEV` switches between modes automatically
+
+### RSS Feed Parsing
+- **CORS-Safe Implementation**: Only uses safelisted headers to avoid preflight
+- **Multiple Proxy Fallbacks**: codetabs, corsproxy.io, thingproxy, allorigins.win
+- **Cache-Busting**: Timestamp parameters to avoid stale deployments
+- **Exponential Backoff**: Rate limit handling with delays between retries
 
 ## UI Components
 
@@ -99,6 +138,34 @@ The AI assistant's behavior and knowledge is defined by the CONTEXT.md file, whi
 
 1. Edit CONTEXT.md directly
 2. The changes take effect in the next session
+
+## Music Discovery & V4V Features
+
+### Top 100 Music Chart
+- Fetches from `https://stats.podcastindex.org/v4vmusic.json`
+- Aggressive caching (6 hours stale time, 24 hours cache time)
+- Enhanced with V4V data from Podcast Index API
+- Displays rank, boosts, and payment information
+
+### Value4Value Payment System
+- **Lightning Wallet Integration**: Bitcoin Connect for wallet connection
+- **Multi-Recipient Payments**: Split payments to multiple creators per track
+- **RSS Feed Enhancement**: Direct parsing for complete V4V data
+- **Payment Status**: Real-time feedback during payment processing
+- **Fallback Strategy**: Podcast Index API → RSS feed parsing
+
+### RSS Feed Parsing
+- **CORS-Safe Implementation**: Only uses safelisted headers to avoid preflight
+- **Multiple Proxy Fallbacks**: codetabs, thingproxy, allorigins.win
+- **Cache-Busting**: Timestamp parameters to avoid stale deployments
+- **No-CORS Fallback**: Detects blocked feeds gracefully
+- **Exponential Backoff**: Rate limit handling with delays
+
+### CORS Optimization
+- **Safelisted Headers Only**: Accept, X-Auth-Date, X-Auth-Key, Authorization
+- **No Preflight Requests**: Eliminates CORS preflight delays
+- **Aggressive Caching**: Reduces external requests
+- **Proxy Strategy**: Multiple fallback options for blocked feeds
 
 ## "Vibed with MKStack"
 
@@ -683,11 +750,15 @@ The router includes automatic scroll-to-top functionality and a 404 NotFound pag
 - Uses React Query for data fetching and caching
 - Follows shadcn/ui component patterns
 - Implements Path Aliases with `@/` prefix for cleaner imports
-- Uses Vite for fast development and production builds
+- Uses Vite for fast development and production builds with CORS proxy
 - Component-based architecture with React hooks
 - Default connection to one Nostr relay for best performance
 - Comprehensive provider setup with NostrLoginProvider, QueryClientProvider, and custom AppProvider
 - **Never use the `any` type**: Always use proper TypeScript types for type safety
+- **CORS-safe requests**: Only use safelisted headers to avoid preflight requests
+- **Aggressive caching**: Long cache times for static data like Top 100 music chart
+- **Multiple proxy fallbacks**: Robust RSS feed fetching with exponential backoff
+- **Environment-specific logic**: Use `import.meta.env.DEV` for development/production differences
 
 ## Loading States
 
