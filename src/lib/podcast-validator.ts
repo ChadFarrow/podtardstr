@@ -132,15 +132,40 @@ export class PodcastValidator {
     ];
     
     for (const { name, selector } of requiredElements) {
-      const element = this.doc.querySelector(selector);
+      let element = this.doc.querySelector(selector);
+      
+      // Special handling for link - try to find a reasonable channel link
+      if (name === 'link' && !element) {
+        // Look for any link that might be the channel link
+        const channel = this.doc.querySelector('channel');
+        if (channel) {
+          // Find the first direct child link of channel
+          for (const child of Array.from(channel.children)) {
+            if (child.tagName.toLowerCase() === 'link' && child.textContent?.trim()) {
+              element = child as Element;
+              break;
+            }
+          }
+        }
+      }
+      
       if (!element || !element.textContent?.trim()) {
         // For link, provide more debugging info
         if (name === 'link') {
           const allLinks = this.doc.querySelectorAll('link');
-          const channelLinks = this.doc.querySelectorAll('channel link');
+          const channelDirectLinks = this.doc.querySelectorAll('channel > link');
+          const itemLinks = this.doc.querySelectorAll('item > link');
+          
+          // Check if there's a channel-level link by looking at the first few links
+          const firstFewLinks = Array.from(allLinks).slice(0, 5).map(link => ({
+            content: link.textContent?.trim() || '',
+            parent: link.parentElement?.tagName || 'unknown'
+          }));
+          
           this.addError('MISSING_REQUIRED', 
             `Channel must contain a <${name}> element with content. ` +
-            `Found ${allLinks.length} total links, ${channelLinks.length} in channel`
+            `Found ${allLinks.length} total links, ${channelDirectLinks.length} direct channel links, ${itemLinks.length} item links. ` +
+            `First few: ${firstFewLinks.map(l => `${l.parent}:${l.content.substring(0, 30)}`).join('; ')}`
           );
         } else {
           this.addError('MISSING_REQUIRED', `Channel must contain a <${name}> element with content`);
