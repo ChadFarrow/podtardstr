@@ -246,15 +246,24 @@ export function NowPlayingModal({ open, onOpenChange }: NowPlayingModalProps) {
   const isWavlakeTrack = useMemo(() => {
     if (!currentPodcast || !feedData) return false;
     
+    console.log('🎵 Checking Wavlake for:', currentPodcast.title);
+    console.log('   Author:', currentPodcast.author);
+    console.log('   Feed URL:', feedData.url);
+    
     // Check if the feed URL or description contains wavlake
     const wavlakeIndicators = [
       feedData.url?.toLowerCase().includes('wavlake'),
       feedData.description?.toLowerCase().includes('wavlake'),
       feedData.link?.toLowerCase().includes('wavlake'),
-      feedData.originalUrl?.toLowerCase().includes('wavlake')
+      feedData.originalUrl?.toLowerCase().includes('wavlake'),
+      currentPodcast.author?.toLowerCase().includes('via wavlake'),
+      currentPodcast.title?.toLowerCase().includes('wavlake')
     ];
     
-    return wavlakeIndicators.some(Boolean);
+    const isWavlake = wavlakeIndicators.some(Boolean);
+    console.log('   Is Wavlake track:', isWavlake);
+    
+    return isWavlake;
   }, [currentPodcast, feedData]);
 
   // Generate Wavlake URL
@@ -303,7 +312,7 @@ export function NowPlayingModal({ open, onOpenChange }: NowPlayingModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl p-0 bg-gradient-to-br from-background via-background to-muted [&>button]:hidden">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0 bg-gradient-to-br from-background via-background to-muted [&>button]:hidden">
         <div className="relative p-8">
           {/* Close button */}
           <Button

@@ -33,8 +33,16 @@ export function PodcastPlayer() {
     const audio = audioRef.current;
     if (!audio) return;
 
-    const updateTime = () => setCurrentTime(audio.currentTime);
-    const updateDuration = () => setDuration(audio.duration);
+    const updateTime = () => {
+      const time = audio.currentTime;
+      setCurrentTime(time);
+      console.log('⏰ Time update:', time, 'Duration:', audio.duration);
+    };
+    const updateDuration = () => {
+      const dur = audio.duration;
+      setDuration(dur);
+      console.log('⏱️ Duration loaded:', dur);
+    };
 
     audio.addEventListener('timeupdate', updateTime);
     audio.addEventListener('loadedmetadata', updateDuration);
