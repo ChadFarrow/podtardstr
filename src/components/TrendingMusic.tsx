@@ -194,7 +194,6 @@ function V4VPaymentButton({
       {hasRecipients && (
         <div className="text-xs text-muted-foreground mt-1">
           Recipients: {recipients.map(r => r.name).join(', ')}
-          {dataSource && ` (${dataSource})`}
         </div>
       )}
     </div>
