@@ -66,7 +66,7 @@ function V4VPaymentButton({
   valueDestinations, 
   feedUrl,
   episodeGuid,
-  totalAmount = 21, 
+  totalAmount = 33, 
   contentTitle = 'Content' 
 }: V4VPaymentButtonProps) {
   const { connectWallet, isConnecting } = useLightningWallet();
@@ -360,7 +360,7 @@ export function MusicDiscovery() {
                                 valueDestinations={episode.value?.destinations} 
                                 feedUrl={episode.feedUrl}
                                 episodeGuid={episode.guid}
-                                totalAmount={21} 
+                                totalAmount={33} 
                                 contentTitle={episode.title} 
                               />
                             </div>
