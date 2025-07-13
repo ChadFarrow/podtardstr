@@ -168,42 +168,54 @@ export async function fetchAndParseFeed(feedUrl: string): Promise<ParsedFeed> {
     console.log('Fetching RSS feed:', finalFeedUrl);
     
     // Enhanced proxy list with better options
-    const proxies = [
-      // Primary proxy - more reliable and less rate-limited
-      (url: string) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
-      // Backup proxy - good for most feeds
-      (url: string) => `https://corsproxy.io/?${encodeURIComponent(url)}`,
-      // Alternative proxy - different service
-      (url: string) => `https://thingproxy.freeboard.io/fetch/${encodeURIComponent(url)}`,
-      // Last resort proxy
-      (url: string) => `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
-    ];
+    const proxies = import.meta.env.DEV 
+      ? [
+          // Use local Vite proxy in development
+          (url: string) => `/api/proxy/${encodeURIComponent(url)}`,
+        ]
+      : [
+          // Primary proxy - more reliable and less rate-limited
+          (url: string) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+          // Backup proxy - good for most feeds
+          (url: string) => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+          // Alternative proxy - different service
+          (url: string) => `https://thingproxy.freeboard.io/fetch/${encodeURIComponent(url)}`,
+          // Last resort proxy
+          (url: string) => `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
+        ];
     
     let xmlText: string | undefined;
     let lastError: Error | null = null;
     
-    // Try direct fetch first with CORS-safe headers only
-    try {
-      const response = await fetch(finalFeedUrl, {
-        method: 'GET',
-        // Only use CORS-safelisted headers to avoid preflight requests
-        headers: {
-          'Accept': 'application/rss+xml, application/xml, text/xml, text/html, */*',
-        },
-        redirect: 'follow',
-        mode: 'cors',
-      });
-      
-      if (response.ok) {
-        xmlText = await response.text();
-        console.log('Direct fetch successful');
-      } else {
-        throw new Error(`Direct fetch failed: ${response.status} ${response.statusText}`);
+    // Try direct fetch first (skip in development to avoid CORS errors)
+    if (!import.meta.env.DEV) {
+      try {
+        const response = await fetch(finalFeedUrl, {
+          method: 'GET',
+          // Only use CORS-safelisted headers to avoid preflight requests
+          headers: {
+            'Accept': 'application/rss+xml, application/xml, text/xml, text/html, */*',
+          },
+          redirect: 'follow',
+          mode: 'cors',
+        });
+        
+        if (response.ok) {
+          xmlText = await response.text();
+          console.log('Direct fetch successful');
+        } else {
+          throw new Error(`Direct fetch failed: ${response.status} ${response.statusText}`);
+        }
+      } catch (directError) {
+        console.log('Direct fetch failed, trying CORS proxies:', directError);
+        lastError = directError as Error;
       }
-    } catch (directError) {
-      console.log('Direct fetch failed, trying CORS proxies:', directError);
-      lastError = directError as Error;
-      
+    } else {
+      console.log('Skipping direct fetch in development mode');
+    }
+    
+    // If direct fetch failed or we're in dev mode, try no-cors mode (skip in dev)
+    if (!xmlText && !import.meta.env.DEV) {
       // Try no-cors mode as a last resort for direct fetch
       try {
         console.log('Trying no-cors mode for direct fetch...');
@@ -225,7 +237,9 @@ export async function fetchAndParseFeed(feedUrl: string): Promise<ParsedFeed> {
       } catch (noCorsError) {
         console.log('No-cors mode also failed:', noCorsError);
       }
-      
+    }
+    
+    if (!xmlText) {
       // Try each proxy in sequence with exponential backoff
       for (let i = 0; i < proxies.length; i++) {
         try {

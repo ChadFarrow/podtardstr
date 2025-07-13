@@ -111,7 +111,10 @@ const API_SECRET = import.meta.env.VITE_PODCAST_INDEX_API_SECRET || 'yzJtuQGBpfZ
 // Debug: Log which credentials are being used
 console.log('Podcast Index API Key:', API_KEY ? `${API_KEY.substring(0, 8)}...` : 'Not set');
 console.log('Using demo credentials:', !import.meta.env.VITE_PODCAST_INDEX_API_KEY);
-const BASE_URL = 'https://api.podcastindex.org/api/1.0';
+// Use proxy in development to avoid CORS issues
+const BASE_URL = import.meta.env.DEV 
+  ? '/api/podcastindex' 
+  : 'https://api.podcastindex.org/api/1.0';
 
 function generateAuthHeaders() {
   const apiHeaderTime = Math.floor(Date.now() / 1000);
@@ -353,7 +356,10 @@ export function useTrendingPodcasts() {
     queryFn: async () => {
       try {
         // Use official Podcast Index Top100 Music chart (same as LNBeats)
-        const response = await fetch('https://stats.podcastindex.org/v4vmusic.json');
+        const statsUrl = import.meta.env.DEV 
+          ? '/api/podcastindex-stats/v4vmusic.json'
+          : 'https://stats.podcastindex.org/v4vmusic.json';
+        const response = await fetch(statsUrl);
         
         if (!response.ok) {
           throw new Error('Failed to fetch top100 music chart');
@@ -468,7 +474,10 @@ export function useTop100Music() {
     queryFn: async () => {
       try {
         // Use official Podcast Index Top100 Music chart
-        const response = await fetch('https://stats.podcastindex.org/v4vmusic.json');
+        const statsUrl = import.meta.env.DEV 
+          ? '/api/podcastindex-stats/v4vmusic.json'
+          : 'https://stats.podcastindex.org/v4vmusic.json';
+        const response = await fetch(statsUrl);
         
         if (!response.ok) {
           throw new Error('Failed to fetch top100 music chart');
