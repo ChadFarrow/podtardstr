@@ -11,7 +11,7 @@ import { useTrendingPodcasts } from '@/hooks/usePodcastIndex';
 import { usePodcastPlayer } from '@/hooks/usePodcastPlayer';
 import { usePodcastEpisodes } from '@/hooks/usePodcastIndex';
 import type { PodcastIndexPodcast, PodcastIndexEpisode } from '@/hooks/usePodcastIndex';
-import { useValueBlockFromRss } from '@/hooks/useValueBlockFromRss';
+
 import { useLightningWallet } from '@/hooks/useLightningWallet';
 import { 
   getLightningRecipients, 
@@ -121,16 +121,7 @@ function V4VPaymentButton({
     }
   }, [hasRecipients, connectWallet, processPayment, recipients, totalAmount, setStatus]);
 
-  // Debug logging (only in development)
-  if (process.env.NODE_ENV === 'development') {
-    console.log('🔍 ValueBlock Debug:', {
-      contentTitle,
-      valueDestinations,
-      recipients,
-      hasRecipients,
-      isDemo
-    });
-  }
+
 
   return (
     <div className="mt-2">
@@ -178,14 +169,6 @@ export function MusicDiscovery() {
   const { data: episodesData } = usePodcastEpisodes(selectedFeedId || 0, { enabled: selectedFeedId !== null });
 
   const handlePlayTrack = (episode: PodcastIndexEpisode) => {
-    // Log the value block data for debugging
-    console.log('🎵 TRACK CLICKED:', episode.title);
-    console.log('🎵 Track value block:', {
-      title: episode.title,
-      value: episode.value,
-      hasDestinations: episode.value?.destinations && episode.value.destinations.length > 0
-    });
-    
     playPodcast({
       id: episode.id.toString(),
       title: episode.title,
@@ -197,17 +180,12 @@ export function MusicDiscovery() {
   };
 
   const handlePlayAlbum = async (podcast: PodcastIndexPodcast) => {
-    console.log('Play button clicked for:', podcast.title, 'Feed ID:', podcast.id);
-    console.log('Album value block:', podcast.value);
-    
     // First try to fetch episodes for this feed
     setSelectedFeedId(podcast.id);
     
     // If no episodes are found after a short delay, try to play the feed URL directly
     setTimeout(() => {
       if (selectedFeedId === podcast.id) {
-        console.log('No episodes found, trying to play feed URL directly:', podcast.url);
-        
         if (podcast.url) {
           // Create a mock episode from the feed data to play directly
           const mockEpisode = {
@@ -219,7 +197,6 @@ export function MusicDiscovery() {
             duration: 0,
           };
           
-          console.log('Playing feed URL as episode:', mockEpisode);
           playPodcast(mockEpisode);
         }
         
@@ -232,18 +209,10 @@ export function MusicDiscovery() {
   React.useEffect(() => {
     if (episodesData && Array.isArray(episodesData.episodes) && episodesData.episodes.length > 0) {
       const firstEpisode = episodesData.episodes[0];
-      console.log('Episodes loaded for feed:', selectedFeedId, episodesData.episodes);
-      console.log('First episode value block:', firstEpisode.value);
-      console.log('First episode:', firstEpisode);
       if (firstEpisode && firstEpisode.enclosureUrl) {
-        console.log('Playing episode:', firstEpisode.title, firstEpisode.enclosureUrl);
         handlePlayTrack(firstEpisode);
-      } else if (firstEpisode) {
-        console.log('No enclosure URL found for episode:', firstEpisode.title);
       }
       setSelectedFeedId(null); // Reset after playing
-    } else if (selectedFeedId !== null) {
-      console.log('No episodes found for feed:', selectedFeedId);
     }
   }, [episodesData]);
 

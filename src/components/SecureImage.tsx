@@ -34,7 +34,7 @@ export function SecureImage({ src, alt, fallback, ...props }: SecureImageProps) 
   const handleImageError = () => {
     if (!imageError && currentSrc && currentSrc.startsWith('https://') && src?.startsWith('http://')) {
       // If HTTPS version failed and we have an HTTP original, try a different approach
-      console.log(`Failed to load HTTPS version of: ${currentSrc}`);
+      
       
       // Try using an image proxy service
       const proxyUrl = `https://images.weserv.nl/?url=${encodeURIComponent(src)}`;
