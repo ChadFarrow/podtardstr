@@ -13,88 +13,12 @@ import type { PodcastIndexPodcast, PodcastIndexEpisode } from '@/hooks/usePodcas
 import { useValueBlockFromRss } from '@/hooks/useValueBlockFromRss';
 
 
-// Add WebLN type declaration for TypeScript
-declare global {
-  interface WebLN {
-    enable: () => Promise<void>;
-    sendPayment: (paymentRequest: string) => Promise<any>;
-    keysend: (args: {
-      destination: string;
-      amount: number;
-      customRecords?: Record<string, string>;
-    }) => Promise<any>;
-  }
-  interface Window {
-    webln?: WebLN;
-  }
-}
-
-// --- SupportArtistButton ---
-function SupportArtistButton({ 
-  lightningAddress, 
-  amount = 33, 
-  recipientName = 'Artist' 
-}: { 
-  lightningAddress?: string;
-  amount?: number;
-  recipientName?: string;
+// --- V4V Payment Component using webln-v4v ---
+function V4VPayment({ rssUrl, podcastTitle, episodeTitle }: { 
+  rssUrl?: string; 
+  podcastTitle?: string;
+  episodeTitle?: string;
 }) {
-  const [status, setStatus] = useState('');
-
-  const handleSupport = async () => {
-    if (!lightningAddress) {
-      setStatus('No Lightning address available.');
-      return;
-    }
-    if (!window.webln) {
-      setStatus('Install Alby or WebLN wallet.');
-      return;
-    }
-    try {
-      setStatus('Connecting...');
-      await window.webln.enable();
-      setStatus(`Sending ${amount} sats...`);
-      console.log('Attempting payment:', { lightningAddress, amount });
-      
-      // Convert lightning address to LNURL endpoint
-      const [name, domain] = lightningAddress.split('@');
-      const lnurlp = `https://${domain}/.well-known/lnurlp/${name}`;
-      const lnurlRes = await fetch(lnurlp);
-      const lnurlData = await lnurlRes.json();
-      
-      // Create invoice
-      const invoiceRes = await fetch(lnurlData.callback + `?amount=${amount * 1000}`);
-      const invoiceData = await invoiceRes.json();
-      
-      // Send payment
-      await window.webln.sendPayment(invoiceData.pr);
-      setStatus(`Sent ${amount} sats to ${recipientName}! ⚡`);
-    } catch (err) {
-      console.error('WebLN payment error:', err);
-      setStatus('Payment failed or cancelled.');
-    }
-  };
-
-  return (
-    <div className="mt-2">
-      <Button 
-        size="sm" 
-        variant="outline" 
-        onClick={handleSupport}
-        disabled={!lightningAddress || !window.webln}
-        className="text-xs"
-      >
-        Send {amount} sats
-      </Button>
-      {status && (
-        <p className="text-xs text-muted-foreground mt-1">{status}</p>
-      )}
-    </div>
-  );
-}
-
-// --- ValueBlockInfo Component ---
-function ValueBlockInfo({ rssUrl }: { rssUrl?: string }) {
   const { data: valueBlock, isLoading, error } = useValueBlockFromRss(rssUrl);
   
   if (isLoading) {
@@ -108,7 +32,7 @@ function ValueBlockInfo({ rssUrl }: { rssUrl?: string }) {
     );
   }
   
-  if (error || !valueBlock) {
+  if (error || !valueBlock || valueBlock.valueRecipients.length === 0) {
     return (
       <div className="mt-2 p-2 bg-muted/50 rounded text-xs">
         <div className="flex items-center gap-1">
@@ -119,46 +43,20 @@ function ValueBlockInfo({ rssUrl }: { rssUrl?: string }) {
     );
   }
 
-  const { type, method, suggested, valueRecipients } = valueBlock;
-  const suggestedSats = suggested ? parseInt(suggested) : 10;
+  // Convert ValueBlock to the format expected by webln-v4v
+  const valueBlockString = JSON.stringify(valueBlock);
+  const suggestedAmount = valueBlock.suggested || '10';
 
   return (
-    <div className="mt-2 p-2 bg-muted/50 rounded text-xs">
-      <div className="flex items-center gap-1 mb-1">
-        <Zap className="h-3 w-3" />
-        <span className="font-medium">Value4Value</span>
-        {suggested && (
-          <span className="text-muted-foreground">
-            ({suggestedSats} sats/min suggested)
-          </span>
-        )}
-      </div>
-      
-      {valueRecipients.length > 0 ? (
-        <div className="space-y-1">
-          {valueRecipients.map((recipient, index) => (
-            <div key={index} className="flex items-center justify-between">
-              <span className="truncate">
-                {recipient.name || 'Unknown'}
-                {recipient.split && ` (${recipient.split}%)`}
-              </span>
-              {recipient.type === 'lud16' ? (
-                <SupportArtistButton 
-                  lightningAddress={recipient.address}
-                  amount={suggestedSats}
-                  recipientName={recipient.name}
-                />
-              ) : (
-                <span className="text-muted-foreground" title="Keysend not supported in browser wallets">
-                  {recipient.type || 'Unknown'}
-                </span>
-              )}
-            </div>
-          ))}
-        </div>
-      ) : (
-        <span className="text-muted-foreground">No payment recipients found</span>
-      )}
+    <div className="mt-2">
+      <webln-v4v
+        value-block={valueBlockString}
+        suggested-amount={suggestedAmount}
+        podcast-title={podcastTitle}
+        episode-title={episodeTitle}
+        header="Support with"
+        footer="⚡ sats"
+      />
     </div>
   );
 }
@@ -321,8 +219,12 @@ export function MusicDiscovery() {
                               {episode.duration && (
                                 <p className="text-xs text-muted-foreground">{formatDuration(episode.duration)}</p>
                               )}
-                              {/* ValueBlock info for track - always show for music */}
-                              <ValueBlockInfo rssUrl={undefined} />
+                              {/* V4V payment for track */}
+                              <V4VPayment 
+                                rssUrl={undefined} 
+                                podcastTitle={episode.feedTitle}
+                                episodeTitle={episode.title}
+                              />
                             </div>
                             <Button 
                               size="sm" 
@@ -390,8 +292,12 @@ export function MusicDiscovery() {
                           {feed.author}
                         </button>
                         <p className="text-xs text-muted-foreground mt-1">{feed.description}</p>
-                        {/* ValueBlock info for album - always show for music */}
-                        <ValueBlockInfo rssUrl={feed.url} />
+                        {/* V4V payment for album */}
+                        <V4VPayment 
+                          rssUrl={feed.url} 
+                          podcastTitle={feed.title}
+                          episodeTitle={undefined}
+                        />
                       </div>
                     </div>
                   </CardContent>
@@ -442,8 +348,12 @@ export function MusicDiscovery() {
                       {episode.duration && <span>{formatDuration(episode.duration)}</span>}
                       <span>{new Date(episode.datePublished * 1000).toLocaleDateString()}</span>
                     </div>
-                    {/* ValueBlock info for track - always show for music */}
-                    <ValueBlockInfo rssUrl={undefined} />
+                    {/* V4V payment for track */}
+                    <V4VPayment 
+                      rssUrl={undefined} 
+                      podcastTitle={episode.feedTitle}
+                      episodeTitle={episode.title}
+                    />
                   </div>
                   <Button 
                     size="sm" 
