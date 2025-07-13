@@ -173,6 +173,13 @@ export function MusicDiscovery() {
   const handlePlayPauseTrack = useCallback((episode: PodcastIndexEpisode) => {
     const episodeId = episode.id.toString();
     
+    console.log('Play button clicked for episode:', {
+      id: episodeId,
+      title: episode.title,
+      enclosureUrl: episode.enclosureUrl,
+      hasEnclosure: !!episode.enclosureUrl
+    });
+    
     // Check if this is the currently playing track
     if (currentPodcast?.id === episodeId) {
       // Toggle play/pause for current track
@@ -183,7 +190,10 @@ export function MusicDiscovery() {
       
       // Skip if no valid audio URL
       if (!audioUrl || !audioUrl.trim()) {
-        console.warn('No audio URL found for episode:', episode.title);
+        console.warn('No audio URL found for episode:', {
+          title: episode.title,
+          episode: episode
+        });
         return;
       }
       
