@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { SecureImage } from '@/components/SecureImage';
-import { Play, Search, Zap, Heart, ExternalLink } from 'lucide-react';
+import { Play, Pause, Search, Zap, Heart, ExternalLink } from 'lucide-react';
 import { useRecentMusicEpisodes, useMusicSearch } from '@/hooks/useMusicIndex';
 import { useTrendingPodcasts } from '@/hooks/usePodcastIndex';
 import { usePodcastPlayer } from '@/hooks/usePodcastPlayer';
@@ -161,60 +161,79 @@ function V4VPaymentButton({
 export function MusicDiscovery() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFeedId, setSelectedFeedId] = useState<number | null>(null);
-  const { playPodcast } = usePodcastPlayer();
+  const { playPodcast, currentPodcast, isPlaying, setIsPlaying } = usePodcastPlayer();
 
   const { data: trendingMusic, isLoading: trendingLoading } = useTrendingPodcasts(); // Use same hook as main trending
   const { data: recentEpisodes, isLoading: recentLoading } = useRecentMusicEpisodes();
   const { data: searchResults, isLoading: searchLoading } = useMusicSearch(searchQuery, { enabled: searchQuery.length > 2 });
   const { data: episodesData } = usePodcastEpisodes(selectedFeedId || 0, { enabled: selectedFeedId !== null });
 
-  const handlePlayTrack = useCallback((episode: PodcastIndexEpisode) => {
-    playPodcast({
-      id: episode.id.toString(),
-      title: episode.title,
-      author: episode.feedTitle,
-      url: episode.enclosureUrl,
-      imageUrl: episode.image || episode.feedImage,
-      duration: episode.duration,
-    });
-  }, [playPodcast]);
 
-  const handlePlayAlbum = async (podcast: PodcastIndexPodcast) => {
-    // First try to fetch episodes for this feed
-    setSelectedFeedId(podcast.id);
+
+  const handlePlayPauseTrack = useCallback((episode: PodcastIndexEpisode) => {
+    const episodeId = episode.id.toString();
     
-    // If no episodes are found after a short delay, try to play the feed URL directly
-    setTimeout(() => {
-      if (selectedFeedId === podcast.id) {
-        if (podcast.url) {
-          // Create a mock episode from the feed data to play directly
-          const mockEpisode = {
-            id: podcast.id.toString(),
-            title: podcast.title,
-            author: podcast.author,
-            url: podcast.url,
-            imageUrl: podcast.image || podcast.artwork,
-            duration: 0,
-          };
+    // Check if this is the currently playing track
+    if (currentPodcast?.id === episodeId) {
+      // Toggle play/pause for current track
+      setIsPlaying(!isPlaying);
+    } else {
+      // Play new track
+      playPodcast({
+        id: episodeId,
+        title: episode.title,
+        author: episode.feedTitle,
+        url: episode.enclosureUrl,
+        imageUrl: episode.image || episode.feedImage,
+        duration: episode.duration,
+      });
+    }
+  }, [currentPodcast?.id, isPlaying, playPodcast, setIsPlaying]);
+
+  const handlePlayPauseAlbum = useCallback(async (podcast: PodcastIndexPodcast) => {
+    const podcastId = podcast.id.toString();
+    
+    // Check if this album is currently playing
+    if (currentPodcast?.id === podcastId) {
+      // Toggle play/pause for current album
+      setIsPlaying(!isPlaying);
+    } else {
+      // Play new album
+      setSelectedFeedId(podcast.id);
+      
+      // If no episodes are found after a short delay, try to play the feed URL directly
+      setTimeout(() => {
+        if (selectedFeedId === podcast.id) {
+          if (podcast.url) {
+            // Create a mock episode from the feed data to play directly
+            const mockEpisode = {
+              id: podcastId,
+              title: podcast.title,
+              author: podcast.author,
+              url: podcast.url,
+              imageUrl: podcast.image || podcast.artwork,
+              duration: 0,
+            };
+            
+            playPodcast(mockEpisode);
+          }
           
-          playPodcast(mockEpisode);
+          setSelectedFeedId(null);
         }
-        
-        setSelectedFeedId(null);
-      }
-    }, 2000); // Wait 2 seconds for episodes to load
-  };
+      }, 2000); // Wait 2 seconds for episodes to load
+    }
+  }, [currentPodcast?.id, isPlaying, playPodcast, setIsPlaying, selectedFeedId]);
 
   // Auto-play first episode when episodes are loaded
   React.useEffect(() => {
     if (episodesData && Array.isArray(episodesData.episodes) && episodesData.episodes.length > 0) {
       const firstEpisode = episodesData.episodes[0];
       if (firstEpisode && firstEpisode.enclosureUrl) {
-        handlePlayTrack(firstEpisode);
+        handlePlayPauseTrack(firstEpisode);
       }
       setSelectedFeedId(null); // Reset after playing
     }
-  }, [episodesData, handlePlayTrack]);
+  }, [episodesData, handlePlayPauseTrack]);
 
   const formatDuration = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -226,6 +245,11 @@ export function MusicDiscovery() {
   const handleArtistClick = (artistName: string) => {
     setSearchQuery(artistName);
   };
+
+  // Helper function to check if a track/album is currently playing
+  const isCurrentlyPlaying = useCallback((id: string) => {
+    return currentPodcast?.id === id && isPlaying;
+  }, [currentPodcast?.id, isPlaying]);
 
   return (
     <div className="space-y-8">
@@ -288,9 +312,9 @@ export function MusicDiscovery() {
                             </div>
                             <Button 
                               size="sm" 
-                              onClick={() => handlePlayTrack(episode)}
+                              onClick={() => handlePlayPauseTrack(episode)}
                             >
-                              <Play className="h-4 w-4" />
+                              {isCurrentlyPlaying(episode.id.toString()) ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
                             </Button>
                           </div>
                         ))}
@@ -337,10 +361,10 @@ export function MusicDiscovery() {
                           className="h-16 w-16 rounded object-cover"
                         />
                         <button
-                          onClick={() => handlePlayAlbum(feed)}
+                          onClick={() => handlePlayPauseAlbum(feed)}
                           className="absolute inset-0 bg-black/50 rounded flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                         >
-                          <Play className="h-6 w-6 text-white" />
+                          {isCurrentlyPlaying(feed.id.toString()) ? <Pause className="h-6 w-6 text-white" /> : <Play className="h-6 w-6 text-white" />}
                         </button>
                       </div>
                       <div className="flex-1 min-w-0">
@@ -417,9 +441,9 @@ export function MusicDiscovery() {
                   </div>
                   <Button 
                     size="sm" 
-                    onClick={() => handlePlayTrack(episode)}
+                    onClick={() => handlePlayPauseTrack(episode)}
                   >
-                    <Play className="h-4 w-4" />
+                    {isCurrentlyPlaying(episode.id.toString()) ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
                   </Button>
                 </div>
               ))}
