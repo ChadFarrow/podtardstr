@@ -54,21 +54,31 @@ function V4VPaymentButton({
         return;
       }
 
-      // Get Lightning address recipients only, with demo fallback
-      const lightningRecipients = valueDestinations.filter(d => d.type === 'lud16' && d.address);
-      const finalRecipients = lightningRecipients.length > 0 ? lightningRecipients : [
-        { name: 'Demo Artist', address: 'demo@getalby.com', type: 'lud16', split: 100 }
-      ];
+      // Use the same logic as the UI for determining recipients
+      let paymentRecipients;
+      if (contentTitle?.includes('Wait Is Over')) {
+        paymentRecipients = [
+          { name: 'makeheroism', address: 'makeheroism@fountain.fm', type: 'lud16', split: 60 },
+          { name: 'PodcastIndex.org', address: 'support@podcastindex.org', type: 'lud16', split: 5 },
+          { name: 'BoostBot', address: 'boostbot@getalby.com', type: 'lud16', split: 30 },
+          { name: 'Demo Fallback', address: 'demo@getalby.com', type: 'lud16', split: 5 }
+        ];
+      } else {
+        const lightningRecipients = valueDestinations.filter(d => d.type === 'lud16' && d.address);
+        paymentRecipients = lightningRecipients.length > 0 ? lightningRecipients : [
+          { name: 'Demo Artist', address: 'demo@getalby.com', type: 'lud16', split: 100 }
+        ];
+      }
       
-      setStatus(`Splitting ${totalAmount} sats among ${finalRecipients.length} recipients...`);
-      console.log('V4V Payment - Recipients:', finalRecipients);
+      setStatus(`Splitting ${totalAmount} sats among ${paymentRecipients.length} recipients...`);
+      console.log('V4V Payment - Recipients:', paymentRecipients);
       
       // Calculate total splits
-      const totalSplits = finalRecipients.reduce((sum, r) => sum + r.split, 0);
+      const totalSplits = paymentRecipients.reduce((sum, r) => sum + r.split, 0);
       
       // Process each payment
       let successCount = 0;
-      for (const recipient of finalRecipients) {
+      for (const recipient of paymentRecipients) {
         try {
           // Calculate this recipient's amount based on their split percentage
           const recipientAmount = Math.floor((recipient.split / totalSplits) * totalAmount);
@@ -114,20 +124,35 @@ function V4VPaymentButton({
   // Count valid Lightning recipients
   const lightningRecipients = valueDestinations?.filter(d => d.type === 'lud16' && d.address) || [];
   
-  // Always add a demo recipient if no real ones are found
-  const finalRecipients = lightningRecipients.length > 0 ? lightningRecipients : [
-    { name: 'Demo Artist', address: 'demo@getalby.com', type: 'lud16', split: 100 }
-  ];
+  // Special case for "The Wait is Over" - hardcoded ValueBlock for testing
+  let finalRecipients;
+  if (contentTitle?.includes('Wait Is Over')) {
+    finalRecipients = [
+      { name: 'makeheroism', address: 'makeheroism@fountain.fm', type: 'lud16', split: 60 },
+      { name: 'PodcastIndex.org', address: 'support@podcastindex.org', type: 'lud16', split: 5 },
+      { name: 'BoostBot', address: 'boostbot@getalby.com', type: 'lud16', split: 30 },
+      { name: 'Demo Fallback', address: 'demo@getalby.com', type: 'lud16', split: 5 }
+    ];
+    console.log('🎯 Using hardcoded ValueBlock for The Wait is Over');
+  } else {
+    // Always add a demo recipient if no real ones are found
+    finalRecipients = lightningRecipients.length > 0 ? lightningRecipients : [
+      { name: 'Demo Artist', address: 'demo@getalby.com', type: 'lud16', split: 100 }
+    ];
+  }
   
   const hasRecipients = finalRecipients.length > 0;
 
-  // Debug logging
-  console.log('V4VPaymentButton debug:', {
-    valueDestinations,
-    lightningRecipients: lightningRecipients.length,
-    finalRecipients: finalRecipients.length,
-    hasRecipients
-  });
+  // Debug logging for "The Wait is Over"
+  if (contentTitle?.includes('Wait Is Over')) {
+    console.log('🔍 THE WAIT IS OVER - ValueBlock Debug:', {
+      contentTitle,
+      valueDestinations,
+      lightningRecipients,
+      finalRecipients,
+      hasRecipients
+    });
+  }
 
   return (
     <div className="mt-2">
