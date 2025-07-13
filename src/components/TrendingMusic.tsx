@@ -40,6 +40,11 @@ function usePaymentProcessor() {
     setIsProcessing(true);
     setStatus(`Splitting ${totalAmount} sats among ${recipients.length} recipients...`);
     
+    console.log(`🎵 TrendingMusic Payment Debug:`);
+    console.log(`   Total Amount: ${totalAmount} sats`);
+    console.log(`   Recipients: ${recipients.length}`);
+    console.log(`   Recipients:`, recipients);
+    
     try {
       const result = await processMultiplePayments(provider as LightningProvider, recipients, totalAmount);
       const statusMessage = formatPaymentStatus(result);
