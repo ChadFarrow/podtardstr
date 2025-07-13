@@ -104,6 +104,10 @@ interface PodcastIndexResponse<T> {
 // API credentials from environment variables or fallback to demo credentials
 const API_KEY = import.meta.env.VITE_PODCAST_INDEX_API_KEY || 'UXKCGDSYGY6UIQNRNPJ7';
 const API_SECRET = import.meta.env.VITE_PODCAST_INDEX_API_SECRET || 'yzJtuQGBpfZp^t5V4vB^5PYg#H8&EX^kLx8EhZuP';
+
+// Debug: Log which credentials are being used
+console.log('Podcast Index API Key:', API_KEY ? `${API_KEY.substring(0, 8)}...` : 'Not set');
+console.log('Using demo credentials:', !import.meta.env.VITE_PODCAST_INDEX_API_KEY);
 const BASE_URL = 'https://api.podcastindex.org/api/1.0';
 
 function generateAuthHeaders() {
@@ -451,6 +455,7 @@ export function useTop100Music() {
             // If we have a feedId, try to get the full feed data with V4V info
             if (entry.feedId) {
               try {
+                console.log(`🔍 Fetching V4V data for feed ${entry.feedId} (${entry.title})...`);
                 const feedResponse = await podcastIndexFetch<PodcastIndexPodcast>('/podcasts/byfeedid', {
                   id: entry.feedId.toString(),
                 });
@@ -460,11 +465,13 @@ export function useTop100Music() {
                   valueData = feedData.value;
                   console.log(`✅ Found V4V data for ${entry.title}: ${feedData.value.destinations.length} recipients`);
                 } else {
-                  console.log(`ℹ️ No V4V destinations for ${entry.title}`);
+                  console.log(`ℹ️ No V4V destinations for ${entry.title} (feed data:`, feedData?.value, ')');
                 }
               } catch (error) {
                 console.log(`❌ Could not fetch V4V data for feed ${entry.feedId} (${entry.title}):`, error);
               }
+            } else {
+              console.log(`⚠️ No feedId for ${entry.title}, skipping V4V fetch`);
             }
             
             return {
@@ -536,6 +543,10 @@ export function useTop100Music() {
         } as PodcastIndexPodcast));
 
         const allFeeds = [...enhancedFeeds, ...remainingEntries];
+        
+        // Debug: Count how many feeds have V4V data
+        const feedsWithV4V = allFeeds.filter(feed => (feed.value?.destinations?.length ?? 0) > 0);
+        console.log(`📊 Top 100 Music Summary: ${feedsWithV4V.length}/${allFeeds.length} feeds have V4V data`);
 
         return {
           feeds: allFeeds,
