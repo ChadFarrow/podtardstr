@@ -83,13 +83,19 @@ function V4VPaymentButton({
     const lightningRecipients = getLightningRecipients(valueDestinations);
     const hasRealRecipients = lightningRecipients.length > 0;
     
-    // Don't use demo recipient for Top 100 tracks without payment info
+    // Check if this is a Top 100 entry with demo V4V data
+    const isTop100Demo = valueDestinations?.some(dest => 
+      dest.address?.includes('@getalby.com') && dest.name === dest.address.split('@')[0]
+    );
+    
+    // Use demo recipients for Top 100 entries
     const finalRecipients = hasRealRecipients ? lightningRecipients : [];
+    const isDemoPayment = isTop100Demo || false;
 
     return {
       recipients: finalRecipients,
-      hasRecipients: hasRealRecipients,
-      isDemo: false // Don't show demo for Top 100 tracks
+      hasRecipients: hasRealRecipients || isTop100Demo,
+      isDemo: isDemoPayment
     };
   }, [valueDestinations, contentTitle]);
 
