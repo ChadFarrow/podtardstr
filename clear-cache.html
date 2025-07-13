@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Clear Cache - Podtardstr</title>
+</head>
+<body>
+    <h1>Clear Browser Cache</h1>
+    <p>If you're experiencing 404 errors, try these steps:</p>
+    <ol>
+        <li>Hard refresh: Ctrl+Shift+R (or Cmd+Shift+R on Mac)</li>
+        <li>Clear browser cache and data for this site</li>
+        <li>Unregister service worker (see console)</li>
+    </ol>
+    <button onclick="clearCaches()">Clear All Caches</button>
+    <button onclick="unregisterSW()">Unregister Service Worker</button>
+    
+    <script>
+        async function clearCaches() {
+            if ('caches' in window) {
+                const cacheNames = await caches.keys();
+                await Promise.all(
+                    cacheNames.map(name => caches.delete(name))
+                );
+                console.log('All caches cleared');
+                alert('Caches cleared! Please refresh the page.');
+            }
+        }
+        
+        async function unregisterSW() {
+            if ('serviceWorker' in navigator) {
+                const registrations = await navigator.serviceWorker.getRegistrations();
+                for (const registration of registrations) {
+                    await registration.unregister();
+                }
+                console.log('Service workers unregistered');
+                alert('Service workers unregistered! Please refresh the page.');
+            }
+        }
+    </script>
+</body>
+</html>
