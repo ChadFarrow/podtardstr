@@ -6,7 +6,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { SecureImage } from '@/components/SecureImage';
 import { Play, Pause, Search, Zap, Heart, ExternalLink } from 'lucide-react';
 import { useRecentMusicEpisodes, useMusicSearch } from '@/hooks/useMusicIndex';
-import { useTrendingPodcasts } from '@/hooks/usePodcastIndex';
+import { useTrendingPodcasts, podcastIndexFetch } from '@/hooks/usePodcastIndex';
 import { usePodcastPlayer } from '@/hooks/usePodcastPlayer';
 import { usePodcastEpisodes } from '@/hooks/usePodcastIndex';
 import type { PodcastIndexPodcast, PodcastIndexEpisode } from '@/hooks/usePodcastIndex';
@@ -170,46 +170,70 @@ export function MusicDiscovery() {
 
 
 
-  const handlePlayPauseTrack = useCallback((episode: PodcastIndexEpisode) => {
+  const handlePlayPauseTrack = useCallback(async (episode: PodcastIndexEpisode) => {
     const episodeId = episode.id.toString();
     
     console.log('Play button clicked for episode:', {
       id: episodeId,
       title: episode.title,
       enclosureUrl: episode.enclosureUrl,
-      hasEnclosure: !!episode.enclosureUrl
+      hasEnclosure: !!episode.enclosureUrl,
+      feedId: episode.feedId
     });
     
     // Check if this is the currently playing track
     if (currentPodcast?.id === episodeId) {
       // Toggle play/pause for current track
       setIsPlaying(!isPlaying);
-    } else {
-      // Validate and clean the audio URL
-      let audioUrl = episode.enclosureUrl;
-      
-      // Skip if no valid audio URL
-      if (!audioUrl || !audioUrl.trim()) {
-        console.warn('No audio URL found for episode:', {
-          title: episode.title,
-          episode: episode
-        });
-        return;
-      }
-      
-      // Log the URL for debugging
-      console.log('Attempting to play audio URL:', audioUrl);
-      
-      // Play new track
-      playPodcast({
-        id: episodeId,
-        title: episode.title,
-        author: episode.feedTitle,
-        url: audioUrl,
-        imageUrl: episode.image || episode.feedImage,
-        duration: episode.duration,
-      });
+      return;
     }
+    
+    // If no enclosureUrl, try to fetch it from the feed
+    let audioUrl = episode.enclosureUrl;
+    
+    if (!audioUrl || !audioUrl.trim()) {
+      console.log('No audio URL in search result, trying to fetch full episode data...');
+      
+      // Try to get the full episode data from the feed using podcastIndexFetch
+      if (episode.feedId) {
+        try {
+          const response = await podcastIndexFetch<PodcastIndexEpisode>('/episodes/byfeedid', {
+            id: episode.feedId.toString(),
+            max: '50',
+          });
+          
+          const fullEpisode = response.items?.find((ep: any) => ep.id === episode.id);
+          if (fullEpisode?.enclosureUrl) {
+            audioUrl = fullEpisode.enclosureUrl;
+            console.log('Found audio URL from feed:', audioUrl);
+          }
+        } catch (error) {
+          console.error('Failed to fetch full episode data:', error);
+        }
+      }
+    }
+    
+    // Skip if still no valid audio URL
+    if (!audioUrl || !audioUrl.trim()) {
+      console.warn('No audio URL found for episode after all attempts:', {
+        title: episode.title,
+        feedId: episode.feedId
+      });
+      return;
+    }
+    
+    // Log the URL for debugging
+    console.log('Attempting to play audio URL:', audioUrl);
+    
+    // Play new track
+    playPodcast({
+      id: episodeId,
+      title: episode.title,
+      author: episode.feedTitle,
+      url: audioUrl,
+      imageUrl: episode.image || episode.feedImage,
+      duration: episode.duration,
+    });
   }, [currentPodcast?.id, isPlaying, playPodcast, setIsPlaying]);
 
   const handlePlayPauseAlbum = useCallback(async (podcast: PodcastIndexPodcast) => {
