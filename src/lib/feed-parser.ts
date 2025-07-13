@@ -167,14 +167,12 @@ export async function fetchAndParseFeed(feedUrl: string): Promise<ParsedFeed> {
     
     console.log('🔍 Attempting to fetch RSS feed:', finalFeedUrl);
     
-    // Use external CORS proxies with better URL encoding
+    // Use server-side RSS proxy to completely avoid CORS issues
     const proxies = [
-      // Try allorigins first - most reliable for RSS feeds
+      // Primary: Use our server-side RSS proxy
+      (url: string) => `/api/rss-proxy?url=${encodeURIComponent(url)}`,
+      // Fallback: External proxy if server is down
       (url: string) => `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
-      // Corsproxy with simpler format
-      (url: string) => `https://corsproxy.io/?${encodeURIComponent(url)}`,
-      // Alternative approach - try without cache busting
-      (url: string) => `https://api.allorigins.win/get?url=${encodeURIComponent(feedUrl)}`, // Original URL without cache bust
     ];
     
     let xmlText: string | undefined;
@@ -261,9 +259,14 @@ export async function fetchAndParseFeed(feedUrl: string): Promise<ParsedFeed> {
           }
           
           const contentType = response.headers.get('content-type') || '';
+          const proxyUrl = proxyFn(finalFeedUrl);
           
-          if (contentType.includes('application/json')) {
-            // Handle JSON response from allorigins.win and codetabs
+          if (proxyUrl.startsWith('/api/rss-proxy')) {
+            // Our server-side proxy returns XML directly
+            xmlText = await response.text();
+            console.log(`📡 Server-side proxy returned ${xmlText.length} chars`);
+          } else if (contentType.includes('application/json')) {
+            // Handle JSON response from external proxies
             const proxyData = await response.json();
             
             // Different proxies return different JSON structures
