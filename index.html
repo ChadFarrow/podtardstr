@@ -2,18 +2,46 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Podtardstr</title>
     <meta name="description" content="Podtardstr where music meets Nostr - discover and stream music with Value4Value" />
+    
+    <!-- PWA Meta Tags -->
+    <meta name="application-name" content="Podtardstr" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-status-bar-style" content="black-translucent" />
+    
+    <!-- iOS Specific Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Podtardstr" />
+    <meta name="apple-touch-fullscreen" content="yes" />
+    
+    <!-- Icons and Manifest -->
+    <link rel="manifest" href="/manifest.webmanifest">
+    <link rel="icon" type="image/svg+xml" href="/favicon-32x32.svg">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.svg">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.svg">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.svg">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.svg">
+    
+    <!-- iOS Splash Screens (optional - for better iOS experience) -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <!-- Social Media / SEO -->
     <meta property="og:type" content="website" />
     <meta property="og:title" content="Podtardstr" />
     <meta property="og:description" content="Podtardstr where music meets Nostr - discover and stream music with Value4Value" />
     <meta property="og:url" content="https://podtardstr.vercel.app/" />
+    <meta property="og:image" content="https://podtardstr.vercel.app/icon-512.svg" />
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content="Podtardstr" />
     <meta name="twitter:description" content="Podtardstr where music meets Nostr - discover and stream music with Value4Value" />
-    <meta http-equiv="content-security-policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; frame-src 'self' https:; font-src 'self'; base-uri 'self'; manifest-src 'self'; connect-src 'self' blob: https: wss: http:; img-src 'self' data: blob: https: http:; media-src 'self' https: http:">
-    <link rel="manifest" href="/manifest.webmanifest">
+    <meta name="twitter:image" content="https://podtardstr.vercel.app/icon-512.svg" />
+    
+    <!-- Security -->
+    <meta http-equiv="content-security-policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; frame-src 'self' https:; font-src 'self'; base-uri 'self'; manifest-src 'self'; connect-src 'self' blob: https: wss: http:; img-src 'self' data: blob: https: http:; media-src 'self' https: http:; worker-src 'self';">
   </head>
   <body>
     <div id="root"></div>

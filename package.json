@@ -13,6 +13,9 @@
     "deploy": "npm run build && npx -y nostr-deploy-cli deploy --skip-setup"
   },
   "dependencies": {
+    "@capacitor/android": "^7.4.2",
+    "@capacitor/cli": "^7.4.2",
+    "@capacitor/core": "^7.4.2",
     "@getalby/bitcoin-connect": "^3.8.2",
     "@hookform/resolvers": "^3.9.0",
     "@nostrify/nostrify": "npm:@jsr/nostrify__nostrify@^0.46.1",

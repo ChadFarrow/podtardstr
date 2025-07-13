@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 192 192">
+  <!-- Background circle -->
+  <circle cx="96" cy="96" r="96" fill="#1a1a1a"/>
+  
+  <!-- Lightning bolt (V4V symbol) -->
+  <path d="M67.19999999999999 48 L105.60000000000001 48 L86.4 86.4 L124.80000000000001 86.4 L67.19999999999999 144 L86.4 105.60000000000001 L48 105.60000000000001 Z" 
+        fill="#fbbf24" stroke="#f59e0b" stroke-width="1"/>
+  
+  <!-- Music note -->
+  <circle cx="134.39999999999998" cy="134.39999999999998" r="15.36" fill="#ffffff"/>
+  <rect x="130.56" y="96" width="7.68" height="38.400000000000006" fill="#ffffff"/>
+  <path d="M134.39999999999998 96 Q153.60000000000002 86.4 153.60000000000002 105.60000000000001" 
+        stroke="#ffffff" stroke-width="3.84" fill="none"/>
+  
+  <!-- Podcast wave lines -->
+  <circle cx="57.599999999999994" cy="134.39999999999998" r="7.68" fill="#ffffff"/>
+  <circle cx="57.599999999999994" cy="134.39999999999998" r="15.36" fill="none" stroke="#ffffff" stroke-width="1.92" opacity="0.6"/>
+  <circle cx="57.599999999999994" cy="134.39999999999998" r="23.04" fill="none" stroke="#ffffff" stroke-width="1.92" opacity="0.3"/>
+</svg>
