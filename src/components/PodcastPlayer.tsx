@@ -5,6 +5,7 @@ import { Slider } from '@/components/ui/slider';
 import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX } from 'lucide-react';
 import { usePodcastPlayer } from '@/hooks/usePodcastPlayer';
 import { NowPlayingModal } from '@/components/NowPlayingModal';
+import { Switch } from '@/components/ui/switch';
 
 export function PodcastPlayer() {
   const { 
@@ -20,7 +21,9 @@ export function PodcastPlayer() {
     setVolume,
     setIsMuted,
     playNext,
-    playPrevious
+    playPrevious,
+    autoPlay,
+    setAutoPlay
   } = usePodcastPlayer();
   const audioRef = useRef<HTMLAudioElement>(null);
   const [showNowPlaying, setShowNowPlaying] = useState(false);
@@ -35,14 +38,18 @@ export function PodcastPlayer() {
 
     audio.addEventListener('timeupdate', updateTime);
     audio.addEventListener('loadedmetadata', updateDuration);
-    audio.addEventListener('ended', () => setIsPlaying(false));
+    // Auto-play next track when ended, if enabled
+    const handleEnded = () => {
+      if (autoPlay) playNext();
+    };
+    audio.addEventListener('ended', handleEnded);
 
     return () => {
       audio.removeEventListener('timeupdate', updateTime);
       audio.removeEventListener('loadedmetadata', updateDuration);
-      audio.removeEventListener('ended', () => setIsPlaying(false));
+      audio.removeEventListener('ended', handleEnded);
     };
-  }, [setIsPlaying, setCurrentTime, setDuration]);
+  }, [setCurrentTime, setDuration, playNext, autoPlay]);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -251,6 +258,14 @@ export function PodcastPlayer() {
               onValueChange={handleVolumeChange}
               className="w-20"
             />
+          </div>
+
+          {/* Auto-Play Toggle */}
+          <div className="hidden sm:flex items-center gap-2">
+            <Switch id="autoplay-switch" checked={autoPlay} onCheckedChange={setAutoPlay} />
+            <label htmlFor="autoplay-switch" className="text-xs text-muted-foreground select-none cursor-pointer">
+              Auto-Play
+            </label>
           </div>
           
           {/* Mobile volume button only */}

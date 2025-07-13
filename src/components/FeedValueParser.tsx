@@ -345,7 +345,7 @@ export function FeedValueParser() {
               <Alert>
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
-                  Could not fetch data from Podcast Index API: {podcastIndexError.message}
+                  Could not fetch data from Podcast Index API: {String(podcastIndexError.message || 'Unknown error')}
                 </AlertDescription>
               </Alert>
             )}
@@ -374,10 +374,10 @@ export function FeedValueParser() {
                   <div>
                     <h4 className="font-semibold mb-2">API Query Info</h4>
                     <div className="text-sm space-y-1">
-                      <p><strong>Status:</strong> {podcastIndexData.status}</p>
-                      <p><strong>Query:</strong> {podcastIndexData.query}</p>
+                      <p><strong>Status:</strong> {String(podcastIndexData.status || 'Unknown')}</p>
+                      <p><strong>Query:</strong> {String(podcastIndexData.query || 'Unknown')}</p>
                       {podcastIndexData.description && (
-                        <p><strong>Description:</strong> {podcastIndexData.description}</p>
+                        <p><strong>Description:</strong> {String(podcastIndexData.description)}</p>
                       )}
                     </div>
                   </div>

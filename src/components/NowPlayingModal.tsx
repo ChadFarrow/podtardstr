@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, X } from 'lucide-react';
 import { usePodcastPlayer } from '@/hooks/usePodcastPlayer';
+import { Switch } from '@/components/ui/switch';
 
 interface NowPlayingModalProps {
   open: boolean;
@@ -20,9 +21,12 @@ export function NowPlayingModal({ open, onOpenChange }: NowPlayingModalProps) {
     volume,
     isMuted,
     setVolume,
-    setIsMuted
+    setIsMuted,
+    playNext,
+    playPrevious,
+    autoPlay,
+    setAutoPlay
   } = usePodcastPlayer();
-
 
   const handlePlayPause = () => {
     setIsPlaying(!isPlaying);
@@ -43,18 +47,6 @@ export function NowPlayingModal({ open, onOpenChange }: NowPlayingModalProps) {
 
   const handleMute = () => {
     setIsMuted(!isMuted);
-  };
-
-  const skipBackward = () => {
-    const mainAudio = document.querySelector('audio') as HTMLAudioElement;
-    if (!mainAudio) return;
-    mainAudio.currentTime = Math.max(0, mainAudio.currentTime - 15);
-  };
-
-  const skipForward = () => {
-    const mainAudio = document.querySelector('audio') as HTMLAudioElement;
-    if (!mainAudio) return;
-    mainAudio.currentTime = Math.min(duration, mainAudio.currentTime + 15);
   };
 
   const formatTime = (time: number) => {
@@ -118,7 +110,7 @@ export function NowPlayingModal({ open, onOpenChange }: NowPlayingModalProps) {
 
             {/* Controls */}
             <div className="flex items-center justify-center space-x-6">
-              <Button variant="ghost" size="icon" onClick={skipBackward} className="h-12 w-12">
+              <Button variant="ghost" size="icon" onClick={playPrevious} className="h-12 w-12">
                 <SkipBack className="h-6 w-6" />
               </Button>
               
@@ -130,7 +122,7 @@ export function NowPlayingModal({ open, onOpenChange }: NowPlayingModalProps) {
                 )}
               </Button>
               
-              <Button variant="ghost" size="icon" onClick={skipForward} className="h-12 w-12">
+              <Button variant="ghost" size="icon" onClick={playNext} className="h-12 w-12">
                 <SkipForward className="h-6 w-6" />
               </Button>
             </div>
@@ -151,6 +143,14 @@ export function NowPlayingModal({ open, onOpenChange }: NowPlayingModalProps) {
                 onValueChange={handleVolumeChange}
                 className="w-32"
               />
+            </div>
+
+            {/* Auto-Play Toggle */}
+            <div className="flex items-center justify-center space-x-2 mt-4">
+              <Switch id="autoplay-modal-switch" checked={autoPlay} onCheckedChange={setAutoPlay} />
+              <label htmlFor="autoplay-modal-switch" className="text-xs text-muted-foreground select-none cursor-pointer">
+                Auto-Play
+              </label>
             </div>
           </div>
         </div>

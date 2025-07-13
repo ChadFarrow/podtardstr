@@ -160,7 +160,7 @@ function V4VPaymentButton({
 }
 
 export function TrendingMusic() {
-  const { playPodcast, currentPodcast, isPlaying, setIsPlaying, queue } = usePodcastPlayer();
+  const { playPodcast, currentPodcast, isPlaying, setIsPlaying } = usePodcastPlayer();
   const { data: trendingMusic, isLoading: trendingLoading } = useTop100Music();
 
   const handlePlayPauseAlbum = useCallback(async (podcast: PodcastIndexPodcast) => {

@@ -19,6 +19,8 @@ interface PodcastPlayerState {
   duration: number;
   volume: number;
   isMuted: boolean;
+  autoPlay: boolean;
+  setAutoPlay: (auto: boolean) => void;
   playPodcast: (podcast: PodcastEpisode) => void;
   setIsPlaying: (playing: boolean) => void;
   setCurrentTime: (time: number) => void;
@@ -43,6 +45,8 @@ export const usePodcastPlayer = create<PodcastPlayerState>()(
       duration: 0,
       volume: 1,
       isMuted: false,
+      autoPlay: true,
+      setAutoPlay: (auto) => set({ autoPlay: auto }),
 
       playPodcast: (podcast) => {
         const state = get();
@@ -166,6 +170,7 @@ export const usePodcastPlayer = create<PodcastPlayerState>()(
         queue: state.queue,
         currentIndex: state.currentIndex,
         currentPodcast: state.currentPodcast,
+        autoPlay: state.autoPlay,
       }),
     }
   )
