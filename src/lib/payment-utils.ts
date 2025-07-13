@@ -44,6 +44,17 @@ export function isValidLightningAddress(address: string): boolean {
 }
 
 /**
+ * Validates a node pubkey format (66 hex characters)
+ */
+export function isValidNodePubkey(pubkey: string): boolean {
+  if (!pubkey || typeof pubkey !== 'string') return false;
+  
+  // Node pubkey should be 66 hex characters (33 bytes)
+  const hexRegex = /^[0-9a-fA-F]{66}$/;
+  return hexRegex.test(pubkey);
+}
+
+/**
  * Filters and validates Lightning recipients from ValueBlock destinations
  * Based on the Podcast Namespace value-recipient spec
  */
@@ -57,24 +68,53 @@ export function getLightningRecipients(destinations?: ValueDestination[]): Payme
   
   const processed = destinations
     .map((d, index) => {
-      const isLightningAddress = d.address && isValidLightningAddress(d.address);
+      // Validate address based on type
+      let validAddress = false;
+      let addressNote = '';
+      
+      switch (d.type) {
+        case 'lud16':
+        case 'lud06':
+          validAddress = Boolean(d.address && isValidLightningAddress(d.address));
+          addressNote = validAddress ? 'Valid Lightning address' : 'Invalid Lightning address format';
+          break;
+        case 'node':
+        case 'keysend':
+          validAddress = Boolean(d.address && isValidNodePubkey(d.address));
+          addressNote = validAddress ? 'Valid node pubkey' : 'Invalid node pubkey format (need 66 hex chars)';
+          break;
+        default:
+          addressNote = `Unsupported type: ${d.type}`;
+      }
+
       console.log(`Destination ${index}:`, {
         type: d.type,
         address: d.address,
         name: d.name,
         split: d.split,
-        isLightningAddress,
+        validAddress,
+        addressNote,
         addressLength: d.address?.length || 0
       });
       return d;
     })
     .filter(d => {
-      // Prioritize Lightning addresses (lud16/lud06) which we can actually pay
-      const supportedTypes = ['lud16', 'lud06'];
+      // Support different recipient types according to Podcast Namespace spec
+      const supportedTypes = ['lud16', 'lud06', 'node', 'keysend'];
       const validType = supportedTypes.includes(d.type);
       
-      // Only validate Lightning address format for supported types
-      const validAddress = d.address && isValidLightningAddress(d.address);
+      // Validate address format based on type
+      let validAddress = false;
+      switch (d.type) {
+        case 'lud16':
+        case 'lud06':
+          validAddress = Boolean(d.address && isValidLightningAddress(d.address));
+          break;
+        case 'node':
+        case 'keysend':
+          validAddress = Boolean(d.address && isValidNodePubkey(d.address));
+          break;
+      }
       
       const hasValidSplit = d.split !== undefined && d.split > 0;
       
@@ -85,7 +125,9 @@ export function getLightningRecipients(destinations?: ValueDestination[]): Payme
         hasValidSplit: hasValidSplit,
         split: d.split,
         included: validType && validAddress && hasValidSplit,
-        note: validType ? 'Supported type' : `Unsupported type (${d.type}), need lud16/lud06`
+        note: validType ? 
+          (validAddress ? 'Supported and valid' : `Invalid ${d.type} address format`) : 
+          `Unsupported type (${d.type})`
       });
       
       return validType && validAddress && hasValidSplit;

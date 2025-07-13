@@ -4,12 +4,13 @@ import { PodcastSearch } from '@/components/PodcastSearch';
 import { PodcastDiscovery } from '@/components/PodcastDiscovery';
 import { NostrPodcastFeed } from '@/components/NostrPodcastFeed';
 import { MusicDiscovery } from '@/components/MusicDiscovery';
+import { FeedValueParser } from '@/components/FeedValueParser';
 import { LoginArea } from '@/components/auth/LoginArea';
 import { RelaySelector } from '@/components/RelaySelector';
 import { Sidebar, SidebarContent, SidebarHeader, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Music, Search, TrendingUp, MessageSquare, Radio } from 'lucide-react';
+import { Music, Search, TrendingUp, MessageSquare, Radio, Code } from 'lucide-react';
 import { useState } from 'react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 
@@ -76,6 +77,14 @@ const Index = () => {
                     <MessageSquare className="h-4 w-4 mr-2" />
                     Nostr Feed
                   </Button>
+                  <Button
+                    variant={activeTab === 'feed-parser' ? 'secondary' : 'ghost'}
+                    className="w-full justify-start text-sm"
+                    onClick={() => setActiveTab('feed-parser')}
+                  >
+                    <Code className="h-4 w-4 mr-2" />
+                    Feed Parser
+                  </Button>
                 </div>
               </div>
 
@@ -103,12 +112,14 @@ const Index = () => {
                   {activeTab === 'search' && 'Search'}
                   {activeTab === 'music' && 'Music'}
                   {activeTab === 'nostr' && 'Nostr Feed'}
+                  {activeTab === 'feed-parser' && 'Feed Parser'}
                 </h2>
                 <p className="text-sm text-muted-foreground">
                   {activeTab === 'discover' && 'Trending music and recent releases'}
                   {activeTab === 'search' && 'Find music and tracks from Podcast Index'}
                   {activeTab === 'music' && 'Discover music with Value4Value and Podcasting 2.0'}
                   {activeTab === 'nostr' && 'Music recommendations and discussions on Nostr'}
+                  {activeTab === 'feed-parser' && 'Parse RSS feeds for Podcast Namespace value recipients'}
                 </p>
               </div>
             </div>
@@ -135,6 +146,10 @@ const Index = () => {
 
               <TabsContent value="nostr" className="space-y-6">
                 <NostrPodcastFeed />
+              </TabsContent>
+
+              <TabsContent value="feed-parser" className="space-y-6">
+                <FeedValueParser />
               </TabsContent>
 
             </Tabs>
