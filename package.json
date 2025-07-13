@@ -10,7 +10,10 @@
     "dev:old": "npm i && vite",
     "build": "npm i && vite build && cp dist/index.html dist/404.html",
     "test": "npm i && tsc -p tsconfig.app.json --noEmit && eslint && vitest run && vite build",
-    "deploy": "npm run build && npx -y nostr-deploy-cli deploy --skip-setup"
+    "deploy": "npm run build && npx -y nostr-deploy-cli deploy --skip-setup",
+    "build:apk": "./scripts/build-apk.sh",
+    "sync:android": "npx cap sync android",
+    "open:android": "npx cap open android"
   },
   "dependencies": {
     "@capacitor/android": "^7.4.2",

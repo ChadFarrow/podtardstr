@@ -1,9 +1,9 @@
 // Service Worker for Podtardstr PWA
 // Provides offline support and caching for better mobile experience
 
-const CACHE_NAME = 'podtardstr-v2';
-const STATIC_CACHE_NAME = 'podtardstr-static-v2';
-const DYNAMIC_CACHE_NAME = 'podtardstr-dynamic-v2';
+const CACHE_NAME = 'podtardstr-v3';
+const STATIC_CACHE_NAME = 'podtardstr-static-v3';
+const DYNAMIC_CACHE_NAME = 'podtardstr-dynamic-v3';
 
 // Files to cache for offline functionality
 const STATIC_ASSETS = [
