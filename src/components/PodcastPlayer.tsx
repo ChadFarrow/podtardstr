@@ -80,12 +80,23 @@ export function PodcastPlayer() {
     };
     const handleError = (e: Event) => {
       const target = e.target as HTMLAudioElement;
-      console.error('Audio loading error:', {
+      const errorCode = target?.error?.code;
+      const errorMessage = target?.error?.message;
+      
+      console.warn('Audio loading error:', {
         url: target?.src,
         error: target?.error,
+        errorCode,
+        errorMessage,
         networkState: target?.networkState,
         readyState: target?.readyState
       });
+      
+      // Handle CORS and network errors gracefully
+      if (errorCode === 2 || errorMessage?.includes('CORS') || errorMessage?.includes('network')) {
+        console.warn('Skipping track due to CORS/network restriction:', target?.src);
+      }
+      
       setIsLoading(false);
       setIsPlaying(false);
     };
@@ -162,7 +173,6 @@ export function PodcastPlayer() {
           ref={audioRef}
           src={currentPodcast.url}
           preload="metadata"
-          crossOrigin="anonymous"
         />
         
         <div className="flex items-center gap-4">
