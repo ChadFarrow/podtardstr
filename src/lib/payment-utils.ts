@@ -228,9 +228,10 @@ export async function processSinglePayment(
       // Try to use keysend if available
       if (provider.keysend) {
         try {
+          console.log(`💰 Direct keysend for ${recipient.name}: ${amount} sats`);
           await provider.keysend({
             destination: recipient.address,
-            amount: amount * 1000, // Convert sats to millisats
+            amount: amount, // Alby keysend expects sats, not msats
             customRecords: {
               // TLV record 7629169 for podcast metadata (optional)
               '7629169': JSON.stringify({
