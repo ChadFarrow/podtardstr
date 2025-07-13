@@ -229,11 +229,19 @@ export function MusicDiscovery() {
     if (episodesData && Array.isArray(episodesData.episodes) && episodesData.episodes.length > 0) {
       const firstEpisode = episodesData.episodes[0];
       if (firstEpisode && firstEpisode.enclosureUrl) {
-        handlePlayPauseTrack(firstEpisode);
+        // Play the first episode without calling handlePlayPauseTrack to avoid infinite loops
+        playPodcast({
+          id: firstEpisode.id.toString(),
+          title: firstEpisode.title,
+          author: firstEpisode.feedTitle,
+          url: firstEpisode.enclosureUrl,
+          imageUrl: firstEpisode.image || firstEpisode.feedImage,
+          duration: firstEpisode.duration,
+        });
       }
       setSelectedFeedId(null); // Reset after playing
     }
-  }, [episodesData, handlePlayPauseTrack]);
+  }, [episodesData, playPodcast]);
 
   const formatDuration = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
