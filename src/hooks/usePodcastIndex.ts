@@ -425,7 +425,7 @@ export function useTrendingPodcasts() {
   });
 }
 
-// Full Top 100 Music Chart for the Music page
+// Full Top 100 Music Chart for the Music page with enhanced V4V data
 export function useTop100Music() {
   return useQuery({
     queryKey: ['podcast-index', 'top100-music'],
@@ -441,44 +441,66 @@ export function useTop100Music() {
         const top100Response = await response.json();
         const top100Data: Top100MusicEntry[] = top100Response.items || [];
         
-        // Convert to our PodcastIndexPodcast format - use ALL entries for music page
-        const musicFeeds: PodcastIndexPodcast[] = top100Data.map((entry) => ({
-          id: entry.feedId || entry.rank,
-          title: entry.title,
-          url: entry.feedUrl || '', 
-          originalUrl: '',
-          link: '',
-          description: `Rank #${entry.rank} on V4V Music Chart with ${entry.boosts} boosts`,
-          author: entry.author,
-          ownerName: '',
-          image: entry.image,
-          artwork: entry.image,
-          lastUpdateTime: 0,
-          lastCrawlTime: 0,
-          lastParseTime: 0,
-          lastGoodHttpStatusTime: 0,
-          lastHttpStatus: 200,
-          contentType: '',
-          itunesType: 'music',
-          generator: '',
-          language: 'en',
-          type: 0,
-          dead: 0,
-          crawlErrors: 0,
-          parseErrors: 0,
-          categories: { 'music': 'Music' },
-          locked: 0,
-          imageUrlHash: 0,
-          newestItemPubdate: 0,
-          episodeCount: 1,
-          // These are from V4V chart but we don't have payment data from this API
-          // The actual payment recipients would need to be fetched from individual feeds
-          value: undefined
-        }));
+        // For feeds with feedIds, fetch their actual V4V data from Podcast Index API
+        const enhancedFeeds = await Promise.all(
+          top100Data.map(async (entry) => {
+            let valueData = undefined;
+            
+            // If we have a feedId, try to get the full feed data with V4V info
+            if (entry.feedId) {
+              try {
+                const feedResponse = await podcastIndexFetch<PodcastIndexPodcast>('/podcasts/byfeedid', {
+                  id: entry.feedId.toString(),
+                });
+                
+                const feedData = feedResponse.feed;
+                if (feedData?.value?.destinations?.length) {
+                  valueData = feedData.value;
+                  console.log(`Found V4V data for ${entry.title}:`, valueData);
+                }
+              } catch (error) {
+                console.log(`Could not fetch V4V data for feed ${entry.feedId}:`, error);
+              }
+            }
+            
+            return {
+              id: entry.feedId || entry.rank,
+              title: entry.title,
+              url: entry.feedUrl || '', 
+              originalUrl: '',
+              link: '',
+              description: `Rank #${entry.rank} on V4V Music Chart with ${entry.boosts} boosts`,
+              author: entry.author,
+              ownerName: '',
+              image: entry.image,
+              artwork: entry.image,
+              lastUpdateTime: 0,
+              lastCrawlTime: 0,
+              lastParseTime: 0,
+              lastGoodHttpStatusTime: 0,
+              lastHttpStatus: 200,
+              contentType: '',
+              itunesType: 'music',
+              generator: '',
+              language: 'en',
+              type: 0,
+              dead: 0,
+              crawlErrors: 0,
+              parseErrors: 0,
+              categories: { 'music': 'Music' },
+              locked: 0,
+              imageUrlHash: 0,
+              newestItemPubdate: 0,
+              episodeCount: 1,
+              // Use real V4V data if available, otherwise undefined
+              value: valueData
+            } as PodcastIndexPodcast;
+          })
+        );
 
         return {
-          feeds: musicFeeds,
-          count: musicFeeds.length,
+          feeds: enhancedFeeds,
+          count: enhancedFeeds.length,
         };
       } catch (error) {
         console.error('Failed to fetch top100 music chart:', error);
