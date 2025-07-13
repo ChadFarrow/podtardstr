@@ -182,14 +182,13 @@ export async function fetchAndParseFeed(feedUrl: string): Promise<ParsedFeed> {
     let xmlText: string | undefined;
     let lastError: Error | null = null;
     
-    // Try direct fetch first with better headers
+    // Try direct fetch first with CORS-safe headers only
     try {
       const response = await fetch(finalFeedUrl, {
         method: 'GET',
+        // Only use CORS-safelisted headers to avoid preflight requests
         headers: {
           'Accept': 'application/rss+xml, application/xml, text/xml, text/html, */*',
-          'User-Agent': 'Mozilla/5.0 (compatible; Podtardstr/1.0; RSS Parser)',
-          'Cache-Control': 'no-cache',
         },
         redirect: 'follow',
         mode: 'cors',
@@ -204,6 +203,28 @@ export async function fetchAndParseFeed(feedUrl: string): Promise<ParsedFeed> {
     } catch (directError) {
       console.log('Direct fetch failed, trying CORS proxies:', directError);
       lastError = directError as Error;
+      
+      // Try no-cors mode as a last resort for direct fetch
+      try {
+        console.log('Trying no-cors mode for direct fetch...');
+        const noCorsResponse = await fetch(finalFeedUrl, {
+          method: 'GET',
+          mode: 'no-cors',
+        });
+        
+        // With no-cors, we can't read the response, but we can detect if the request succeeded
+        if (noCorsResponse.type === 'opaque') {
+          console.log('Feed exists but is CORS-blocked (no-cors mode detected)');
+          // Return empty feed since we can't read the content
+          return {
+            title: 'Feed CORS-Blocked',
+            description: 'Feed exists but is blocked by CORS policy',
+            episodes: []
+          };
+        }
+      } catch (noCorsError) {
+        console.log('No-cors mode also failed:', noCorsError);
+      }
       
       // Try each proxy in sequence with exponential backoff
       for (let i = 0; i < proxies.length; i++) {
@@ -221,9 +242,9 @@ export async function fetchAndParseFeed(feedUrl: string): Promise<ParsedFeed> {
           
           const response = await fetch(proxyUrl, {
             method: 'GET',
+            // Only use CORS-safelisted headers
             headers: {
               'Accept': 'application/json, text/plain, text/xml, */*',
-              'User-Agent': 'Mozilla/5.0 (compatible; Podtardstr/1.0; RSS Parser)',
             },
             redirect: 'follow',
           });
