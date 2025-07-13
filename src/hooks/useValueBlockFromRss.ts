@@ -20,44 +20,58 @@ export function useValueBlockFromRss(
 
       console.log('Fetching Value4Value data from RSS:', { feedUrl, episodeGuid });
       
-      const parsedFeed = await fetchAndParseFeed(feedUrl);
-      
-      let recipients: ValueDestination[] = [];
-      
-      if (episodeGuid) {
-        // Get episode-specific Value4Value data
-        const episode = parsedFeed.episodes.find(ep => ep.guid === episodeGuid);
-        if (episode?.value) {
-          recipients = convertToPaymentRecipients(episode.value);
-          console.log('Found episode-specific Value4Value data:', {
-            episodeTitle: episode.title,
+      try {
+        const parsedFeed = await fetchAndParseFeed(feedUrl);
+        
+        let recipients: ValueDestination[] = [];
+        
+        if (episodeGuid) {
+          // Get episode-specific Value4Value data
+          const episode = parsedFeed.episodes.find(ep => ep.guid === episodeGuid);
+          if (episode?.value) {
+            recipients = convertToPaymentRecipients(episode.value);
+            console.log('Found episode-specific Value4Value data:', {
+              episodeTitle: episode.title,
+              recipientCount: recipients.length,
+              recipients
+            });
+          }
+        }
+        
+        // Fallback to channel-level Value4Value data if no episode-specific data
+        if (recipients.length === 0 && parsedFeed.value) {
+          recipients = convertToPaymentRecipients(parsedFeed.value);
+          console.log('Using channel-level Value4Value data:', {
+            feedTitle: parsedFeed.title,
             recipientCount: recipients.length,
             recipients
           });
         }
-      }
-      
-      // Fallback to channel-level Value4Value data if no episode-specific data
-      if (recipients.length === 0 && parsedFeed.value) {
-        recipients = convertToPaymentRecipients(parsedFeed.value);
-        console.log('Using channel-level Value4Value data:', {
-          feedTitle: parsedFeed.title,
-          recipientCount: recipients.length,
-          recipients
-        });
-      }
 
-      return {
-        recipients,
-        hasValue: recipients.length > 0,
-        feedTitle: parsedFeed.title,
-        episodeTitle: episodeGuid ? parsedFeed.episodes.find(ep => ep.guid === episodeGuid)?.title : undefined,
-        isEpisodeSpecific: episodeGuid && recipients.length > 0
-      };
+        return {
+          recipients,
+          hasValue: recipients.length > 0,
+          feedTitle: parsedFeed.title,
+          episodeTitle: episodeGuid ? parsedFeed.episodes.find(ep => ep.guid === episodeGuid)?.title : undefined,
+          isEpisodeSpecific: episodeGuid && recipients.length > 0
+        };
+      } catch (error) {
+        console.warn('Failed to fetch RSS feed:', feedUrl, error);
+        // Return empty result instead of throwing to prevent UI errors
+        return {
+          recipients: [],
+          hasValue: false,
+          feedTitle: undefined,
+          episodeTitle: undefined,
+          isEpisodeSpecific: false,
+          error: error instanceof Error ? error.message : 'Unknown error'
+        };
+      }
     },
     enabled: options.enabled !== false && !!feedUrl,
     staleTime: 30 * 60 * 1000, // 30 minutes
-    retry: 2,
+    retry: 1, // Reduce retries to avoid overwhelming proxies
+    retryDelay: 2000, // Add delay between retries
   });
 }
 
@@ -102,7 +116,8 @@ export function useValue4ValueData(
     hasPodcastIndexData,
     dataSource,
     recipientCount: finalRecipients.length,
-    rssError: rssError?.message
+    rssError: rssError?.message,
+    rssDataError: rssData?.error
   });
 
   return {
@@ -110,7 +125,7 @@ export function useValue4ValueData(
     hasValue: finalRecipients.length > 0,
     dataSource,
     isLoading: rssLoading,
-    error: rssError,
+    error: rssError || (rssData?.error ? new Error(rssData.error) : undefined),
     rssData,
     podcastIndexData
   };

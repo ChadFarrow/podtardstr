@@ -162,40 +162,87 @@ export async function fetchAndParseFeed(feedUrl: string): Promise<ParsedFeed> {
   try {
     console.log('Fetching RSS feed:', feedUrl);
     
-    // Try direct fetch first, then fallback to CORS proxy
-    let response: Response;
-    let xmlText: string;
+    // Try multiple CORS proxies with fallback strategy
+    const proxies = [
+      // Primary proxy - more reliable
+      (url: string) => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+      // Backup proxy
+      (url: string) => `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
+      // Alternative proxy
+      (url: string) => `https://cors-anywhere.herokuapp.com/${url}`,
+    ];
     
+    let xmlText: string | undefined;
+    let lastError: Error | null = null;
+    
+    // Try direct fetch first
     try {
-      // Direct fetch attempt
-      response = await fetch(feedUrl, {
+      const response = await fetch(feedUrl, {
         headers: {
-          'Accept': 'application/rss+xml, application/xml, text/xml',
-        }
+          'Accept': 'application/rss+xml, application/xml, text/xml, text/html',
+          'User-Agent': 'Podtardstr/1.0 (RSS Parser)',
+        },
+        redirect: 'follow', // Follow redirects
       });
       
-      if (!response.ok) {
+      if (response.ok) {
+        xmlText = await response.text();
+        console.log('Direct fetch successful');
+      } else {
         throw new Error(`Direct fetch failed: ${response.status}`);
       }
-      
-      xmlText = await response.text();
     } catch (directError) {
-      console.log('Direct fetch failed, trying CORS proxy:', directError);
+      console.log('Direct fetch failed, trying CORS proxies:', directError);
+      lastError = directError as Error;
       
-      // Fallback to CORS proxy
-      const corsProxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(feedUrl)}`;
-      response = await fetch(corsProxyUrl);
-      
-      if (!response.ok) {
-        throw new Error(`CORS proxy failed: ${response.status} ${response.statusText}`);
+      // Try each proxy in sequence
+      for (const proxyFn of proxies) {
+        try {
+          const proxyUrl = proxyFn(feedUrl);
+          console.log('Trying proxy:', proxyUrl);
+          
+          const response = await fetch(proxyUrl, {
+            headers: {
+              'Accept': 'application/json, text/plain, */*',
+            },
+          });
+          
+          if (!response.ok) {
+            throw new Error(`Proxy failed: ${response.status} ${response.statusText}`);
+          }
+          
+          const contentType = response.headers.get('content-type');
+          
+          if (contentType?.includes('application/json')) {
+            // Handle JSON response from allorigins.win
+            const proxyData = await response.json();
+            xmlText = proxyData.contents;
+            
+            if (!xmlText) {
+              throw new Error('No content received from proxy');
+            }
+          } else {
+            // Handle direct XML response from other proxies
+            xmlText = await response.text();
+          }
+          
+          console.log('Proxy fetch successful');
+          break;
+        } catch (proxyError) {
+          console.log('Proxy failed:', proxyError);
+          lastError = proxyError as Error;
+          continue;
+        }
       }
-      
-      const proxyData = await response.json();
-      xmlText = proxyData.contents;
-      
-      if (!xmlText) {
-        throw new Error('No content received from CORS proxy');
-      }
+    }
+    
+    if (!xmlText) {
+      throw new Error(`All fetch methods failed. Last error: ${lastError?.message}`);
+    }
+    
+    // Validate that we got XML content
+    if (!xmlText.trim().startsWith('<')) {
+      throw new Error('Response is not valid XML');
     }
     
     console.log('Parsing RSS feed XML...');
