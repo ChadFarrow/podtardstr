@@ -446,7 +446,7 @@ export function useTop100Music() {
         const topEntries = top100Data.slice(0, 50);
         const enhancedFeeds = await Promise.all(
           topEntries.map(async (entry) => {
-            let valueData = undefined;
+            let valueData: PodcastIndexPodcast['value'] = undefined;
             
             // If we have a feedId, try to get the full feed data with V4V info
             if (entry.feedId) {
@@ -455,7 +455,7 @@ export function useTop100Music() {
                   id: entry.feedId.toString(),
                 });
                 
-                const feedData = feedResponse.feed;
+                const feedData = feedResponse.feeds?.[0];
                 if (feedData?.value?.destinations?.length) {
                   valueData = feedData.value;
                   console.log(`✅ Found V4V data for ${entry.title}: ${feedData.value.destinations.length} recipients`);

@@ -112,11 +112,11 @@ const Index = () => {
         </Sidebar>
 
         <div className="flex-1 flex flex-col">
-          <header className="border-b p-4 flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <SidebarTrigger />
-              <div>
-                <h2 className="text-xl font-semibold">
+          <header className="border-b p-3 sm:p-6 flex items-center justify-between">
+            <div className="flex items-center gap-2 sm:gap-4 min-w-0 flex-1">
+              <SidebarTrigger className="h-8 w-8 sm:h-6 sm:w-6" />
+              <div className="min-w-0 flex-1">
+                <h2 className="text-base sm:text-xl font-semibold truncate">
                   {activeTab === 'music' && 'Music'}
                   {activeTab === 'top100' && 'Top 100 V4V tracks'}
                   {activeTab === 'discover' && 'Discover'}
@@ -124,7 +124,7 @@ const Index = () => {
                   {activeTab === 'nostr' && 'Nostr Feed'}
                   {activeTab === 'feed-parser' && 'Feed Parser'}
                 </h2>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">
                   {activeTab === 'music' && 'Search and discover music with Value4Value'}
                   {activeTab === 'top100' && 'The hottest Value4Value music tracks ranked by community boosts'}
                   {activeTab === 'discover' && 'Trending music and recent releases'}
@@ -135,12 +135,12 @@ const Index = () => {
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
               <ThemeToggle />
             </div>
           </header>
 
-          <main className="flex-1 p-6 overflow-auto">
+          <main className="flex-1 p-3 sm:p-6 overflow-auto">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
 
               <TabsContent value="music" className="space-y-6">

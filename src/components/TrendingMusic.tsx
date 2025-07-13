@@ -12,8 +12,7 @@ import { useLightningWallet } from '@/hooks/useLightningWallet';
 import { 
   getLightningRecipients, 
   processMultiplePayments, 
-  formatPaymentStatus, 
-  getDemoRecipient,
+  formatPaymentStatus,
   type ValueDestination,
   type PaymentRecipient,
   LightningProvider
@@ -237,52 +236,60 @@ export function TrendingMusic() {
         </CardHeader>
         <CardContent>
           {trendingLoading ? (
-            <div className="grid gap-3 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
               {[...Array(9)].map((_, i) => (
-                <Skeleton key={i} className="h-32 w-full" />
+                <Skeleton key={i} className="h-24 sm:h-32 w-full" />
               ))}
             </div>
           ) : trendingMusic && trendingMusic.feeds.length > 0 ? (
             <div className="space-y-4">
-              <div className="text-sm text-muted-foreground">
+              <div className="text-sm text-muted-foreground px-1">
                 Showing Top {trendingMusic.feeds.length} tracks from the Value4Value Music Chart
               </div>
-              <div className="grid gap-3 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-4 grid-cols-3 sm:grid-cols-2 lg:grid-cols-3">
                 {trendingMusic.feeds.map((feed, index) => (
                   <Card key={`trending-${feed.id}-${index}`} className="hover:shadow-md transition-shadow">
-                    <CardContent className="p-3">
-                      <div className="flex items-center gap-3">
-                        <div className="relative group h-12 w-12 flex-shrink-0">
+                    <CardContent className="p-2 sm:p-3">
+                      {/* Mobile: Vertical layout for 3 columns */}
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+                        <div className="relative group h-20 w-full sm:h-12 sm:w-12 flex-shrink-0">
                           <SecureImage 
                             src={feed.image || feed.artwork} 
                             alt={feed.title}
-                            className="h-12 w-12 rounded object-cover"
+                            className="h-20 w-full sm:h-12 sm:w-12 rounded object-cover"
                           />
                           <button
                             onClick={() => handlePlayPauseAlbum(feed)}
-                            className="absolute inset-0 bg-black/50 rounded flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                            className="absolute inset-0 bg-black/50 rounded flex items-center justify-center opacity-0 group-hover:opacity-100 active:opacity-100 transition-opacity touch-manipulation"
                           >
-                            {isCurrentlyPlaying(feed.id.toString(), feed.title) ? <Pause className="h-4 w-4 text-white" /> : <Play className="h-4 w-4 text-white" />}
+                            {isCurrentlyPlaying(feed.id.toString(), feed.title) ? <Pause className="h-6 w-6 sm:h-4 sm:w-4 text-white" /> : <Play className="h-6 w-6 sm:h-4 sm:w-4 text-white" />}
                           </button>
+                          {/* Mobile rank badge - positioned on image */}
+                          <span className="absolute top-1 right-1 sm:hidden text-xs font-mono text-white bg-black/70 px-1.5 py-0.5 rounded">
+                            #{index + 1}
+                          </span>
                         </div>
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-start justify-between gap-2">
+                          <div className="flex items-start justify-between gap-2 sm:gap-1">
                             <div className="flex-1 min-w-0">
-                              <h5 className="font-medium text-sm truncate">{feed.title}</h5>
+                              <h5 className="font-medium text-xs sm:text-sm truncate leading-tight">{feed.title}</h5>
                               <p className="text-xs text-muted-foreground truncate">
                                 {feed.author}
                               </p>
                             </div>
-                            <span className="text-xs font-mono text-muted-foreground bg-muted px-1 rounded">
+                            {/* Desktop rank badge */}
+                            <span className="hidden sm:block text-xs font-mono text-muted-foreground bg-muted px-1 py-0 rounded">
                               #{index + 1}
                             </span>
                           </div>
                           {/* V4V split payment for track */}
-                          <V4VPaymentButton 
-                            valueDestinations={feed.value?.destinations} 
-                            totalAmount={33} 
-                            contentTitle={feed.title} 
-                          />
+                          <div className="mt-2">
+                            <V4VPaymentButton 
+                              valueDestinations={feed.value?.destinations} 
+                              totalAmount={33} 
+                              contentTitle={feed.title} 
+                            />
+                          </div>
                         </div>
                       </div>
                     </CardContent>

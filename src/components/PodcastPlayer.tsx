@@ -113,7 +113,7 @@ export function PodcastPlayer() {
       audio.removeEventListener('canplay', handleCanPlay);
       audio.removeEventListener('error', handleError);
     };
-  }, [currentPodcast?.url, setCurrentTime, setDuration, isPlaying, setIsPlaying]);
+  }, [currentPodcast, setCurrentTime, setDuration, isPlaying, setIsPlaying]);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -168,50 +168,50 @@ export function PodcastPlayer() {
 
   return (
     <Card className="border-t rounded-none sticky bottom-0 bg-background">
-      <div className="p-4">
+      <div className="p-3 sm:p-4">
         <audio
           ref={audioRef}
           src={currentPodcast.url}
           preload="metadata"
         />
         
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3 sm:gap-4">
           {/* Episode Info - Clickable */}
           <button 
             onClick={() => setShowNowPlaying(true)}
-            className="flex items-center gap-3 min-w-0 flex-1 hover:bg-muted/50 -m-2 p-2 rounded-lg transition-colors"
+            className="flex items-center gap-3 min-w-0 flex-1 hover:bg-muted/50 active:bg-muted/70 -m-2 p-2 rounded-lg transition-colors touch-manipulation"
           >
             {currentPodcast.imageUrl && (
-              <div className="h-12 w-12 rounded object-cover flex-shrink-0">
+              <div className="h-12 w-12 sm:h-12 sm:w-12 rounded object-cover flex-shrink-0">
                 <img 
                   src={currentPodcast.imageUrl} 
                   alt={currentPodcast.title}
-                  className="h-12 w-12 rounded object-cover"
+                  className="h-12 w-12 sm:h-12 sm:w-12 rounded object-cover"
                 />
               </div>
             )}
             <div className="min-w-0 text-left">
-              <h4 className="font-medium text-sm truncate">{currentPodcast.title}</h4>
+              <h4 className="font-medium text-sm sm:text-sm truncate">{currentPodcast.title}</h4>
               <p className="text-xs text-muted-foreground truncate">{currentPodcast.author}</p>
             </div>
           </button>
 
           {/* Controls */}
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" onClick={skipBackward}>
-              <SkipBack className="h-4 w-4" />
+          <div className="flex items-center gap-1 sm:gap-2">
+            <Button variant="ghost" size="icon" onClick={skipBackward} className="h-10 w-10 sm:h-9 sm:w-9 touch-manipulation">
+              <SkipBack className="h-5 w-5 sm:h-4 sm:w-4" />
             </Button>
             
-            <Button onClick={handlePlayPause} size="icon">
+            <Button onClick={handlePlayPause} size="icon" className="h-10 w-10 sm:h-9 sm:w-9 touch-manipulation">
               {isPlaying ? (
-                <Pause className="h-4 w-4" />
+                <Pause className="h-5 w-5 sm:h-4 sm:w-4" />
               ) : (
-                <Play className="h-4 w-4" />
+                <Play className="h-5 w-5 sm:h-4 sm:w-4" />
               )}
             </Button>
             
-            <Button variant="ghost" size="icon" onClick={skipForward}>
-              <SkipForward className="h-4 w-4" />
+            <Button variant="ghost" size="icon" onClick={skipForward} className="h-10 w-10 sm:h-9 sm:w-9 touch-manipulation">
+              <SkipForward className="h-5 w-5 sm:h-4 sm:w-4" />
             </Button>
           </div>
 
@@ -219,7 +219,7 @@ export function PodcastPlayer() {
           <div className="flex items-center gap-2 flex-1 max-w-md group">
             <button 
               onClick={() => setShowNowPlaying(true)}
-              className="text-xs text-muted-foreground w-10 text-right hover:text-foreground transition-colors"
+              className="text-xs text-muted-foreground w-8 sm:w-10 text-right hover:text-foreground transition-colors touch-manipulation"
             >
               {formatTime(currentTime)}
             </button>
@@ -229,24 +229,24 @@ export function PodcastPlayer() {
                 max={duration || 100}
                 step={1}
                 onValueChange={handleSeek}
-                className="flex-1"
+                className="flex-1 [&_.slider-thumb]:h-5 [&_.slider-thumb]:w-5 sm:[&_.slider-thumb]:h-4 sm:[&_.slider-thumb]:w-4 [&_.slider-track]:h-2 sm:[&_.slider-track]:h-1.5"
               />
               <button 
                 onClick={() => setShowNowPlaying(true)}
-                className="absolute inset-0 w-full opacity-0 hover:opacity-5 bg-primary transition-opacity rounded"
+                className="absolute inset-0 w-full opacity-0 hover:opacity-5 bg-primary transition-opacity rounded touch-manipulation"
                 aria-label="Open Now Playing"
               />
             </div>
             <button 
               onClick={() => setShowNowPlaying(true)}
-              className="text-xs text-muted-foreground w-10 hover:text-foreground transition-colors"
+              className="text-xs text-muted-foreground w-8 sm:w-10 hover:text-foreground transition-colors touch-manipulation"
             >
               {formatTime(duration)}
             </button>
           </div>
 
-          {/* Volume */}
-          <div className="flex items-center gap-2">
+          {/* Volume - Hidden on mobile to save space */}
+          <div className="hidden sm:flex items-center gap-2">
             <Button variant="ghost" size="icon" onClick={handleMute}>
               {isMuted || volume === 0 ? (
                 <VolumeX className="h-4 w-4" />
@@ -261,6 +261,17 @@ export function PodcastPlayer() {
               onValueChange={handleVolumeChange}
               className="w-20"
             />
+          </div>
+          
+          {/* Mobile volume button only */}
+          <div className="sm:hidden">
+            <Button variant="ghost" size="icon" onClick={handleMute} className="h-10 w-10 touch-manipulation">
+              {isMuted || volume === 0 ? (
+                <VolumeX className="h-5 w-5" />
+              ) : (
+                <Volume2 className="h-5 w-5" />
+              )}
+            </Button>
           </div>
         </div>
       </div>

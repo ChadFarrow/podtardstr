@@ -8,14 +8,13 @@ import { Play, Pause, Search, Zap } from 'lucide-react';
 import { useMusicSearch } from '@/hooks/useMusicIndex';
 import { podcastIndexFetch } from '@/hooks/usePodcastIndex';
 import { usePodcastPlayer } from '@/hooks/usePodcastPlayer';
-import type { PodcastIndexPodcast, PodcastIndexEpisode } from '@/hooks/usePodcastIndex';
+import type { PodcastIndexEpisode } from '@/hooks/usePodcastIndex';
 
 import { useLightningWallet } from '@/hooks/useLightningWallet';
 import { 
   getLightningRecipients, 
   processMultiplePayments, 
-  formatPaymentStatus, 
-  getDemoRecipient,
+  formatPaymentStatus,
   type ValueDestination,
   type PaymentRecipient,
   LightningProvider
@@ -216,7 +215,7 @@ export function MusicDiscovery() {
             max: '50',
           });
           
-          const fullEpisode = response.items?.find((ep: any) => ep.id === episode.id);
+          const fullEpisode = response.items?.find((ep: PodcastIndexEpisode) => ep.id === episode.id);
           if (fullEpisode?.enclosureUrl) {
             audioUrl = fullEpisode.enclosureUrl;
             console.log('Found audio URL from feed:', audioUrl);
