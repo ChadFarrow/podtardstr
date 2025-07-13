@@ -160,7 +160,12 @@ function getTextContent(parent: Element, selector: string, attribute?: string): 
  */
 export async function fetchAndParseFeed(feedUrl: string): Promise<ParsedFeed> {
   try {
-    console.log('Fetching RSS feed:', feedUrl);
+    // Add cache-busting parameter to avoid stale deployments
+    const urlWithCacheBust = new URL(feedUrl);
+    urlWithCacheBust.searchParams.set('_cb', Date.now().toString());
+    const finalFeedUrl = urlWithCacheBust.toString();
+    
+    console.log('Fetching RSS feed:', finalFeedUrl);
     
     // Enhanced proxy list with better options
     const proxies = [
@@ -179,7 +184,7 @@ export async function fetchAndParseFeed(feedUrl: string): Promise<ParsedFeed> {
     
     // Try direct fetch first with better headers
     try {
-      const response = await fetch(feedUrl, {
+      const response = await fetch(finalFeedUrl, {
         method: 'GET',
         headers: {
           'Accept': 'application/rss+xml, application/xml, text/xml, text/html, */*',
@@ -204,7 +209,7 @@ export async function fetchAndParseFeed(feedUrl: string): Promise<ParsedFeed> {
       for (let i = 0; i < proxies.length; i++) {
         try {
           const proxyFn = proxies[i];
-          const proxyUrl = proxyFn(feedUrl);
+          const proxyUrl = proxyFn(finalFeedUrl);
           console.log(`Trying proxy ${i + 1}/${proxies.length}:`, proxyUrl);
           
           // Add delay between retries to avoid rate limiting
@@ -274,7 +279,7 @@ export async function fetchAndParseFeed(feedUrl: string): Promise<ParsedFeed> {
     
     if (!xmlText) {
       // Return empty feed instead of throwing for better UX
-      console.warn(`All fetch methods failed for ${feedUrl}. Last error: ${lastError?.message}`);
+      console.warn(`All fetch methods failed for ${finalFeedUrl}. Last error: ${lastError?.message}`);
       return {
         title: 'Feed Unavailable',
         description: 'Unable to fetch feed due to CORS or network issues',
