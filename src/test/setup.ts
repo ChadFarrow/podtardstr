@@ -38,3 +38,20 @@ global.ResizeObserver = vi.fn().mockImplementation((_callback) => ({
   unobserve: vi.fn(),
   disconnect: vi.fn(),
 }));
+
+// Mock fetch for relative URLs in test environment
+const originalFetch = global.fetch;
+global.fetch = vi.fn().mockImplementation((input, init) => {
+  // If it's a relative URL starting with /api/, mock it
+  if (typeof input === 'string' && input.startsWith('/api/')) {
+    return Promise.resolve({
+      ok: true,
+      status: 200,
+      json: () => Promise.resolve({ status: 'true', feeds: [] }),
+      text: () => Promise.resolve('<?xml version="1.0"?><rss></rss>'),
+    } as Response);
+  }
+  
+  // For absolute URLs, use the original fetch
+  return originalFetch(input, init);
+});
