@@ -153,16 +153,11 @@ export function calculatePaymentAmounts(
 ): Array<{ recipient: PaymentRecipient; amount: number }> {
   const totalSplits = recipients.reduce((sum, r) => sum + r.split, 0);
   
-  console.log(`🧮 Payment calculation debug:`);
-  console.log(`   Total amount: ${totalAmount} sats`);
-  console.log(`   Total splits: ${totalSplits}`);
-  
   if (totalSplits === 0) return [];
   
   return recipients
     .map(recipient => {
       const amount = Math.floor((recipient.split / totalSplits) * totalAmount);
-      console.log(`   ${recipient.name}: ${recipient.split}/${totalSplits} * ${totalAmount} = ${amount} sats`);
       return { recipient, amount };
     })
     .filter(({ amount }) => amount > 0); // Only include recipients with positive amounts
@@ -190,9 +185,6 @@ export async function createInvoice(
     
     // LNURL-pay spec requires amount in millisats
     const amountMsats = amount * 1000;
-    console.log(`💰 Invoice creation for ${recipient.name}: ${amount} sats → ${amountMsats} msats`);
-    console.log(`   LNURL callback: ${lnurlData.callback}?amount=${amountMsats}`);
-    
     const invoiceRes = await fetch(`${lnurlData.callback}?amount=${amountMsats}`);
     
     if (!invoiceRes.ok) {
@@ -228,7 +220,6 @@ export async function processSinglePayment(
       // Try to use keysend if available
       if (provider.keysend) {
         try {
-          console.log(`💰 Direct keysend for ${recipient.name}: ${amount} sats`);
           await provider.keysend({
             destination: recipient.address,
             amount: amount, // Alby keysend expects sats, not msats
@@ -253,7 +244,6 @@ export async function processSinglePayment(
         // Some wallets support keysend through a special format
         // Note: keysend: URL scheme expects sats, not msats
         const keysendRequest = `keysend:${recipient.address}?amount=${amount}`;
-        console.log(`💰 Keysend fallback for ${recipient.name}: ${amount} sats via ${keysendRequest}`);
         await provider.sendPayment(keysendRequest);
         console.log(`✅ Keysend payment successful to ${recipient.name} (via sendPayment fallback)`);
         return true;

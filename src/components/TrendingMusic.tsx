@@ -62,7 +62,7 @@ function V4VPaymentButton({
   valueDestinations, 
   feedUrl,
   episodeGuid,
-  totalAmount = 1, 
+  totalAmount = 21, 
   contentTitle = 'Content' 
 }: V4VPaymentButtonProps) {
   const { connectWallet, isConnecting } = useLightningWallet();
@@ -430,7 +430,7 @@ export function TrendingMusic() {
                             <V4VPaymentButton 
                               valueDestinations={feed.value?.destinations} 
                               feedUrl={feed.url}
-                              totalAmount={1} 
+                              totalAmount={21} 
                               contentTitle={feed.title} 
                             />
                           </div>
