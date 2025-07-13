@@ -167,7 +167,7 @@ export function PodcastPlayer() {
   }
 
   return (
-    <Card className="border-t rounded-none sticky bottom-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <Card className="border-t rounded-none sticky bottom-0 bg-background">
       <div className="p-4">
         <audio
           ref={audioRef}
