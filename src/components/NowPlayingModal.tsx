@@ -268,33 +268,28 @@ export function NowPlayingModal({ open, onOpenChange }: NowPlayingModalProps) {
 
   // Generate Wavlake URL
   const wavlakeUrl = useMemo(() => {
-    if (!isWavlakeTrack || !currentPodcast) return null;
+    if (!isWavlakeTrack || !currentPodcast || !feedData) return null;
     
-    // Clean up the artist name by removing "via Wavlake"
-    const cleanArtist = currentPodcast.author?.replace(/ via Wavlake/i, '').trim() || '';
-    const trackTitle = currentPodcast.title;
+    console.log('🎵 Generating Wavlake URL:', { 
+      trackTitle: currentPodcast.title, 
+      author: currentPodcast.author,
+      feedUrl: feedData.url 
+    });
     
-    // For now, just link to the artist's profile if we can extract it
-    // TODO: Need to see real Wavlake URLs to improve this
-    if (cleanArtist) {
-      // Try artist page format: https://wavlake.com/artist/artistname
-      const artistSlug = cleanArtist.toLowerCase().replace(/[^a-z0-9]/g, '');
-      const artistUrl = `https://wavlake.com/artist/${artistSlug}`;
-      
-      console.log('🎵 Generating Wavlake URL:', { 
-        trackTitle, 
-        cleanArtist, 
-        artistSlug,
-        artistUrl,
-        feedData: feedData?.url 
-      });
-      
-      return artistUrl;
+    // Extract album ID from Wavlake feed URL
+    // Format: https://wavlake.com/feed/music/[album-id] or https://www.wavlake.com/feed/[album-id]
+    const wavlakeUrlPattern = /(?:www\.)?wavlake\.com\/feed\/(?:music\/)?([a-f0-9\-]{36})/i;
+    const match = feedData.url?.match(wavlakeUrlPattern);
+    
+    if (match && match[1]) {
+      const albumId = match[1];
+      const albumUrl = `https://wavlake.com/album/${albumId}`;
+      console.log('✅ Extracted Wavlake album ID:', albumId, '→', albumUrl);
+      return albumUrl;
     }
     
-    // Fallback to search
-    const searchQuery = encodeURIComponent(`${trackTitle}`.trim());
-    return `https://wavlake.com/search?q=${searchQuery}`;
+    console.log('❌ Could not extract Wavlake album ID from:', feedData.url);
+    return null;
   }, [isWavlakeTrack, currentPodcast, feedData]);
 
   const handlePlayPause = () => {

@@ -76,7 +76,9 @@ function V4VPaymentButton({
   feedUrl,
   episodeGuid,
   totalAmount = 33, 
-  contentTitle = 'Content' 
+  contentTitle = 'Content',
+  feedId,
+  episodeId
 }: V4VPaymentButtonProps) {
   const { connectWallet, isConnecting } = useLightningWallet();
   const { processPayment, isProcessing, status, setStatus } = usePaymentProcessor();
@@ -163,8 +165,8 @@ function V4VPaymentButton({
 
       await processPayment(provider as LightningProvider, recipients, totalAmount, {
         contentTitle,
-        feedId: episode.feedId?.toString(),
-        episodeId: episode.id.toString(),
+        feedId,
+        episodeId,
         app: 'Podtardstr'
       });
       
@@ -172,7 +174,7 @@ function V4VPaymentButton({
       console.error('V4V payment error:', error);
       setStatus(error instanceof Error ? error.message : 'Payment failed or cancelled.');
     }
-  }, [hasRecipients, connectWallet, processPayment, recipients, totalAmount, setStatus, contentTitle]);
+  }, [hasRecipients, connectWallet, processPayment, recipients, totalAmount, setStatus, contentTitle, feedId, episodeId]);
 
 
 
@@ -374,7 +376,9 @@ export function MusicDiscovery() {
                                 feedUrl={episode.feedUrl}
                                 episodeGuid={episode.guid}
                                 totalAmount={33} 
-                                contentTitle={episode.title} 
+                                contentTitle={episode.title}
+                                feedId={episode.feedId?.toString()}
+                                episodeId={episode.id.toString()}
                               />
                             </div>
                             <Button 

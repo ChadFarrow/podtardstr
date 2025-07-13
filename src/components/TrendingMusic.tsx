@@ -25,6 +25,8 @@ interface V4VPaymentButtonProps {
   episodeGuid?: string;
   totalAmount?: number;
   contentTitle?: string;
+  feedId?: string;
+  episodeId?: string;
 }
 
 // Custom hook for payment processing
@@ -70,7 +72,9 @@ function V4VPaymentButton({
   feedUrl,
   episodeGuid,
   totalAmount = 33, 
-  contentTitle = 'Content' 
+  contentTitle = 'Content',
+  feedId,
+  episodeId
 }: V4VPaymentButtonProps) {
   const { connectWallet, isConnecting } = useLightningWallet();
   const { processPayment, isProcessing, status, setStatus } = usePaymentProcessor();
@@ -155,6 +159,8 @@ function V4VPaymentButton({
 
       await processPayment(provider as LightningProvider, recipients, totalAmount, {
         contentTitle,
+        feedId,
+        episodeId,
         app: 'Podtardstr'
       });
       
@@ -162,7 +168,7 @@ function V4VPaymentButton({
       console.error('V4V payment error:', error);
       setStatus(error instanceof Error ? error.message : 'Payment failed or cancelled.');
     }
-  }, [hasRecipients, connectWallet, processPayment, recipients, totalAmount, setStatus, contentTitle]);
+  }, [hasRecipients, connectWallet, processPayment, recipients, totalAmount, setStatus, contentTitle, feedId, episodeId]);
 
   return (
     <div className="mt-2">
@@ -445,7 +451,8 @@ export function TrendingMusic() {
                               valueDestinations={feed.value?.destinations} 
                               feedUrl={feed.url}
                               totalAmount={33} 
-                              contentTitle={feed.title} 
+                              contentTitle={feed.title}
+                              feedId={feed.id.toString()}
                             />
                           </div>
                         </div>
