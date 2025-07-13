@@ -33,6 +33,39 @@ export function useFeedParser(feedUrl: string, options: { enabled?: boolean } = 
 }
 
 /**
+ * Hook to get comprehensive feed data from Podcast Index API
+ */
+export function usePodcastIndexFeedData(feedUrl: string, options: { enabled?: boolean } = {}) {
+  return useQuery({
+    queryKey: ['podcast-index-feed-data', feedUrl],
+    queryFn: async () => {
+      if (!feedUrl) {
+        throw new Error('Feed URL is required');
+      }
+
+      // Import the podcastIndexFetch function
+      const { podcastIndexFetch } = await import('@/hooks/usePodcastIndex');
+      
+      try {
+        // Try to find the feed by URL first
+        const searchResponse = await podcastIndexFetch('/podcasts/byfeedurl', {
+          url: feedUrl,
+        });
+
+        console.log('Podcast Index API response:', searchResponse);
+        return searchResponse;
+      } catch (error) {
+        console.error('Failed to fetch from Podcast Index API:', error);
+        return null;
+      }
+    },
+    enabled: options.enabled !== false && !!feedUrl,
+    staleTime: 30 * 60 * 1000, // 30 minutes
+    retry: 1,
+  });
+}
+
+/**
  * Hook to get value recipients from a specific episode in a feed
  */
 export function useEpisodeValueRecipients(
