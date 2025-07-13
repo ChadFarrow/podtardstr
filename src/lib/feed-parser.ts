@@ -178,57 +178,11 @@ export async function fetchAndParseFeed(feedUrl: string): Promise<ParsedFeed> {
     let xmlText: string | undefined;
     let lastError: Error | null = null;
     
-    // Try direct fetch first but expect it to fail due to CORS
-    if (false) { // Skip direct fetch, go straight to proxies
-      try {
-        const response = await fetch(finalFeedUrl, {
-          method: 'GET',
-          // Only use CORS-safelisted headers to avoid preflight requests
-          headers: {
-            'Accept': 'application/rss+xml, application/xml, text/xml, text/html, */*',
-          },
-          redirect: 'follow',
-          mode: 'cors',
-        });
-        
-        if (response.ok) {
-          xmlText = await response.text();
-          console.log('Direct fetch successful');
-        } else {
-          throw new Error(`Direct fetch failed: ${response.status} ${response.statusText}`);
-        }
-      } catch (directError) {
-        console.log('Direct fetch failed, trying CORS proxies:', directError);
-        lastError = directError as Error;
-      }
-    } else {
-      console.log('Skipping direct fetch - using CORS proxies');
-    }
+    // Skipping direct fetch - using CORS proxies
+    console.log('Skipping direct fetch - using CORS proxies');
     
     // Skip no-cors mode, go straight to proxies
-    if (false) {
-      // Try no-cors mode as a last resort for direct fetch
-      try {
-        console.log('Trying no-cors mode for direct fetch...');
-        const noCorsResponse = await fetch(finalFeedUrl, {
-          method: 'GET',
-          mode: 'no-cors',
-        });
-        
-        // With no-cors, we can't read the response, but we can detect if the request succeeded
-        if (noCorsResponse.type === 'opaque') {
-          console.log('Feed exists but is CORS-blocked (no-cors mode detected)');
-          // Return empty feed since we can't read the content
-          return {
-            title: 'Feed CORS-Blocked',
-            description: 'Feed exists but is blocked by CORS policy',
-            episodes: []
-          };
-        }
-      } catch (noCorsError) {
-        console.log('No-cors mode also failed:', noCorsError);
-      }
-    }
+    // Skipping no-cors mode, go straight to proxies
     
     if (!xmlText) {
       // Try each proxy in sequence with exponential backoff
@@ -259,7 +213,6 @@ export async function fetchAndParseFeed(feedUrl: string): Promise<ParsedFeed> {
           }
           
           const contentType = response.headers.get('content-type') || '';
-          const proxyUrl = proxyFn(finalFeedUrl);
           
           if (proxyUrl.startsWith('/api/rss-proxy')) {
             // Our server-side proxy returns XML directly
