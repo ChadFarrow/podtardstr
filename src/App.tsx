@@ -13,7 +13,6 @@ import { NostrLoginProvider } from '@nostrify/react/login';
 import { AppProvider } from '@/components/AppProvider';
 import { AppConfig } from '@/contexts/AppContext';
 import AppRouter from './AppRouter';
-import { VersionDisplay } from '@/components/VersionDisplay';
 
 const head = createHead({
   plugins: [
@@ -56,7 +55,6 @@ export function App() {
                 <Suspense>
                   <AppRouter />
                 </Suspense>
-                <VersionDisplay />
               </TooltipProvider>
             </NostrProvider>
           </NostrLoginProvider>

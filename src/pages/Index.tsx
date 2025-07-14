@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import { Music, MessageSquare, Radio, Code, Star, Shield } from 'lucide-react';
 import { useState } from 'react';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { VersionDisplay } from '@/components/VersionDisplay';
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState('top100');
@@ -116,6 +117,7 @@ const Index = () => {
                 <p className="text-xs text-muted-foreground mb-2">
                   Vibed with <a href="https://soapbox.pub/mkstack" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">MKStack</a>
                 </p>
+                <VersionDisplay />
               </div>
             </div>
           </SidebarContent>

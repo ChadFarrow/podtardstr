@@ -1,4 +1,4 @@
-import { useMemo, useCallback, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
@@ -6,57 +6,12 @@ import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, X, Zap, ExternalL
 import { usePodcastPlayer } from '@/hooks/usePodcastPlayer';
 import { Switch } from '@/components/ui/switch';
 import { useTop100Music } from '@/hooks/usePodcastIndex';
-import { useLightningWallet } from '@/hooks/useLightningWallet';
-import { useValue4ValueData } from '@/hooks/useValueBlockFromRss';
-import { 
-  getLightningRecipients, 
-  processMultiplePayments, 
-  formatPaymentStatus,
-  type ValueDestination,
-  type PaymentRecipient,
-  LightningProvider
-} from '@/lib/payment-utils';
+import { BoostModal } from '@/components/BoostModal';
+import { type ValueDestination } from '@/lib/payment-utils';
 
 interface NowPlayingModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-}
-
-// Custom hook for payment processing
-function usePaymentProcessor() {
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [status, setStatus] = useState('');
-
-  const processPayment = useCallback(async (
-    provider: unknown,
-    recipients: PaymentRecipient[],
-    totalAmount: number,
-    metadata?: {
-      feedId?: string;
-      episodeId?: string;
-      contentTitle?: string;
-      app?: string;
-      message?: string;
-    }
-  ) => {
-    setIsProcessing(true);
-    setStatus(`Boosting ${totalAmount} sats among ${recipients.length} recipients...`);
-    
-    try {
-      const result = await processMultiplePayments(provider as LightningProvider, recipients, totalAmount, metadata);
-      const statusMessage = formatPaymentStatus(result);
-      setStatus(statusMessage);
-      return result;
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Payment processing failed';
-      setStatus(`❌ ${errorMessage}`);
-      throw error;
-    } finally {
-      setIsProcessing(false);
-    }
-  }, []);
-
-  return { processPayment, isProcessing, status, setStatus };
 }
 
 // V4V Payment Button for Now Playing Modal
@@ -75,152 +30,29 @@ function V4VPaymentButton({
   totalAmount = 33, 
   contentTitle = 'Content' 
 }: V4VPaymentButtonProps) {
-  const { connectWallet, isConnecting } = useLightningWallet();
-  const { processPayment, isProcessing, status, setStatus } = usePaymentProcessor();
-
-  // Add message state
-  const [message, setMessage] = useState('');
-
-  // Use the Value4Value hook to get complete data
-  const { 
-    recipients: v4vRecipients, 
-    hasValue: hasV4VData, 
-    dataSource, 
-    isLoading: v4vLoading 
-  } = useValue4ValueData(feedUrl, episodeGuid, valueDestinations);
-
-  // Memoize recipients to avoid unnecessary recalculations
-  const { recipients, hasRecipients } = useMemo(() => {
-    console.log(`🔍 Now Playing V4V Payment for "${contentTitle}":`, {
-      valueDestinations,
-      destinationsCount: valueDestinations?.length || 0,
-      feedUrl,
-      episodeGuid,
-      hasV4VData,
-      dataSource,
-      v4vRecipients: v4vRecipients
-    });
-
-    // Use the enhanced Value4Value data if available
-    if (hasV4VData && v4vRecipients.length > 0) {
-      const lightningRecipients = getLightningRecipients(v4vRecipients);
-      console.log('Using enhanced V4V data for now playing:', {
-        dataSource,
-        originalCount: valueDestinations?.length || 0,
-        enhancedCount: v4vRecipients.length,
-        parsedCount: lightningRecipients.length,
-        recipients: lightningRecipients
-      });
-      return {
-        recipients: lightningRecipients,
-        hasRecipients: lightningRecipients.length > 0
-      };
-    }
-
-    // Fallback to original Podcast Index data
-    const lightningRecipients = getLightningRecipients(valueDestinations);
-    const hasRealRecipients = lightningRecipients.length > 0;
-    
-    console.log(`⚡ Lightning recipients for now playing "${contentTitle}":`, {
-      recipients: lightningRecipients,
-      hasRecipients: hasRealRecipients
-    });
-
-    return {
-      recipients: lightningRecipients,
-      hasRecipients: hasRealRecipients
-    };
-  }, [valueDestinations, contentTitle, feedUrl, episodeGuid, hasV4VData, v4vRecipients, dataSource]);
-
-  const handleV4VPayment = useCallback(async () => {
-    if (!hasRecipients) {
-      setStatus('No payment recipients available.');
-      return;
-    }
-
-    try {
-      setStatus('Connecting to Lightning wallet...');
-      const provider = await connectWallet();
-      
-      if (!provider) {
-        setStatus('No Lightning wallet connected.');
-        return;
-      }
-
-      await processPayment(provider as LightningProvider, recipients, totalAmount, {
-        contentTitle,
-        app: 'Podtardstr',
-        message, // Pass the message
-      });
-      
-    } catch (error) {
-      console.error('V4V payment error:', error);
-      setStatus(error instanceof Error ? error.message : 'Payment failed or cancelled.');
-    }
-  }, [hasRecipients, connectWallet, processPayment, recipients, totalAmount, setStatus, contentTitle, message]);
-
-  if (v4vLoading) {
-    return (
-      <div className="text-sm text-muted-foreground text-center">
-        ⚡ Loading V4V data...
-      </div>
-    );
-  }
-
-  if (!hasRecipients) {
-    if (valueDestinations && valueDestinations.length > 0) {
-      return (
-        <div className="text-sm text-muted-foreground text-center">
-          ⚡ V4V enabled - loading recipients...
-        </div>
-      );
-    }
-    return (
-      <div className="text-sm text-muted-foreground text-center">
-        💰 V4V payment not configured
-      </div>
-    );
-  }
+  const [boostModalOpen, setBoostModalOpen] = useState(false);
 
   return (
     <div className="space-y-3">
-      {/* Message input box */}
-      <input
-        type="text"
-        className="w-full px-2 py-1 border rounded text-xs"
-        placeholder="Add a message (optional)"
-        value={message}
-        onChange={e => setMessage(e.target.value)}
-        maxLength={240}
-        disabled={isProcessing || isConnecting}
-        style={{ fontSize: '0.95em' }}
-      />
       <Button 
         size="lg" 
         variant="outline" 
-        onClick={handleV4VPayment}
-        disabled={isProcessing || isConnecting}
+        onClick={() => setBoostModalOpen(true)}
         className="w-full"
       >
-        {isProcessing || isConnecting ? (
-          'Processing...'
-        ) : (
-          <>
-            <Zap className="h-4 w-4 mr-2" />
-            Boost {totalAmount} sats
-          </>
-        )}
+        <Zap className="h-4 w-4 mr-2" />
+        Boost {totalAmount} sats
       </Button>
       
-      {status && (
-        <p className="text-sm text-muted-foreground text-center">{status}</p>
-      )}
-      
-      {hasRecipients && (
-        <div className="text-sm text-muted-foreground text-center">
-          Recipients: {recipients.map(r => r.name).join(', ')}
-        </div>
-      )}
+      <BoostModal
+        open={boostModalOpen}
+        onOpenChange={setBoostModalOpen}
+        valueDestinations={valueDestinations || []}
+        feedUrl={feedUrl}
+        episodeGuid={episodeGuid}
+        totalAmount={totalAmount}
+        contentTitle={contentTitle}
+      />
     </div>
   );
 }
@@ -353,7 +185,7 @@ export function NowPlayingModal({ open, onOpenChange }: NowPlayingModalProps) {
     
     // Extract album ID from LNBeats feed URL
     // Format could be various LNBeats URL patterns
-    const lnbeatsUrlPattern = /lnbeats\.com.*?([a-f0-9\-]{36})/i;
+    const lnbeatsUrlPattern = /lnbeats.com.*?([a-f0-9-]{36})/i;
     const match = feedData.url?.match(lnbeatsUrlPattern);
     
     if (match && match[1]) {
@@ -364,7 +196,7 @@ export function NowPlayingModal({ open, onOpenChange }: NowPlayingModalProps) {
     }
     
     // Try alternative patterns if needed
-    const directPattern = /([a-f0-9\-]{36})/i;
+    const directPattern = /([a-f0-9-]{36})/i;
     const directMatch = feedData.url?.match(directPattern);
     
     if (directMatch && directMatch[1] && feedData.url?.includes('lnbeats')) {

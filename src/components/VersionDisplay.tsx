@@ -19,7 +19,7 @@ export function VersionDisplay() {
   const githubUrl = `https://github.com/ChadFarrow/podtardstr/commit/${commitHash}`;
 
   return (
-    <div className="fixed bottom-2 left-2 z-50">
+    <div className="mt-2">
       <a
         href={githubUrl}
         target="_blank"

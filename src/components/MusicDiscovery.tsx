@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,17 +9,8 @@ import { useMusicSearch } from '@/hooks/useMusicIndex';
 import { podcastIndexFetch } from '@/hooks/usePodcastIndex';
 import { usePodcastPlayer } from '@/hooks/usePodcastPlayer';
 import type { PodcastIndexEpisode } from '@/hooks/usePodcastIndex';
-
-import { useLightningWallet } from '@/hooks/useLightningWallet';
-import { useValue4ValueData } from '@/hooks/useValueBlockFromRss';
-import { 
-  getLightningRecipients, 
-  processMultiplePayments, 
-  formatPaymentStatus,
-  type ValueDestination,
-  type PaymentRecipient,
-  LightningProvider
-} from '@/lib/payment-utils';
+import { BoostModal } from '@/components/BoostModal';
+import { type ValueDestination } from '@/lib/payment-utils';
 
 interface V4VPaymentButtonProps {
   valueDestinations?: ValueDestination[];
@@ -33,43 +24,6 @@ interface V4VPaymentButtonProps {
 
 
 
-// Custom hook for payment processing
-function usePaymentProcessor() {
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [status, setStatus] = useState('');
-
-  const processPayment = useCallback(async (
-    provider: unknown,
-    recipients: PaymentRecipient[],
-    totalAmount: number,
-    metadata?: {
-      feedId?: string;
-      episodeId?: string;
-      contentTitle?: string;
-      app?: string;
-      message?: string;
-    }
-  ) => {
-    setIsProcessing(true);
-    setStatus(`Boosting ${totalAmount} sats among ${recipients.length} recipients...`);
-    
-    try {
-      const result = await processMultiplePayments(provider as LightningProvider, recipients, totalAmount, metadata);
-      const statusMessage = formatPaymentStatus(result);
-      setStatus(statusMessage);
-      return result;
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Payment processing failed';
-      setStatus(`❌ ${errorMessage}`);
-      throw error;
-    } finally {
-      setIsProcessing(false);
-    }
-  }, []);
-
-  return { processPayment, isProcessing, status, setStatus };
-}
-
 // --- V4V Split Payment Button ---
 function V4VPaymentButton({ 
   valueDestinations, 
@@ -80,161 +34,31 @@ function V4VPaymentButton({
   feedId,
   episodeId
 }: V4VPaymentButtonProps) {
-  const { connectWallet, isConnecting } = useLightningWallet();
-  const { processPayment, isProcessing, status, setStatus } = usePaymentProcessor();
-
-  // Add message state
-  const [message, setMessage] = useState('');
-
-  // Use the new Value4Value hook to get complete data
-  const { 
-    recipients: v4vRecipients, 
-    hasValue: hasV4VData, 
-    dataSource, 
-    isLoading: v4vLoading 
-  } = useValue4ValueData(feedUrl, episodeGuid, valueDestinations);
-
-  // Memoize recipients to avoid unnecessary recalculations
-  const { recipients, hasRecipients } = useMemo(() => {
-    // Debug logging for value destinations
-    console.log('V4V Payment Debug:', {
-      contentTitle,
-      hasValueDestinations: !!valueDestinations,
-      valueDestinations: valueDestinations,
-      destinationCount: valueDestinations?.length || 0,
-      feedUrl,
-      episodeGuid,
-      hasV4VData,
-      dataSource,
-      v4vRecipients: v4vRecipients
-    });
-
-    // Special case for "The Wait is Over" - use only real V4V recipient
-    if (contentTitle?.includes('Wait Is Over')) {
-      const realRecipient = [
-        { name: 'makeheroism', address: 'makeheroism@fountain.fm', type: 'lud16', split: 100 }
-      ];
-      return {
-        recipients: realRecipient,
-        hasRecipients: true
-      };
-    }
-
-    // Use the enhanced Value4Value data if available
-    if (hasV4VData && v4vRecipients.length > 0) {
-      const lightningRecipients = getLightningRecipients(v4vRecipients);
-      console.log('Using enhanced V4V data:', {
-        dataSource,
-        originalCount: valueDestinations?.length || 0,
-        enhancedCount: v4vRecipients.length,
-        parsedCount: lightningRecipients.length,
-        recipients: lightningRecipients
-      });
-      return {
-        recipients: lightningRecipients,
-        hasRecipients: lightningRecipients.length > 0
-      };
-    }
-
-    // Fallback to original Podcast Index data
-    const lightningRecipients = getLightningRecipients(valueDestinations);
-    console.log('Using Podcast Index data:', {
-      originalCount: valueDestinations?.length || 0,
-      parsedCount: lightningRecipients.length,
-      recipients: lightningRecipients
-    });
-    const hasRealRecipients = lightningRecipients.length > 0;
-
-    return {
-      recipients: lightningRecipients,
-      hasRecipients: hasRealRecipients
-    };
-  }, [valueDestinations, contentTitle, feedUrl, episodeGuid, hasV4VData, v4vRecipients, dataSource]);
-
-  const handleV4VPayment = useCallback(async () => {
-    if (!hasRecipients) {
-      setStatus('No payment recipients available.');
-      return;
-    }
-
-    try {
-      setStatus('Connecting to Lightning wallet...');
-      const provider = await connectWallet();
-      
-      if (!provider) {
-        setStatus('No Lightning wallet connected.');
-        return;
-      }
-
-      await processPayment(provider as LightningProvider, recipients, totalAmount, {
-        contentTitle,
-        feedId,
-        episodeId,
-        app: 'Podtardstr',
-        message, // Pass the message
-      });
-      
-    } catch (error) {
-      console.error('V4V payment error:', error);
-      setStatus(error instanceof Error ? error.message : 'Payment failed or cancelled.');
-    }
-  }, [hasRecipients, connectWallet, processPayment, recipients, totalAmount, setStatus, contentTitle, feedId, episodeId, message]);
-
-
+  const [boostModalOpen, setBoostModalOpen] = useState(false);
 
   return (
-    <div className="mt-2 space-y-2">
-      {/* Message input box */}
-      <input
-        type="text"
-        className="w-full px-2 py-1 border rounded text-xs"
-        placeholder="Add a message (optional)"
-        value={message}
-        onChange={e => setMessage(e.target.value)}
-        maxLength={240}
-        disabled={isProcessing || isConnecting}
-        style={{ fontSize: '0.85em' }}
+    <div className="mt-2">
+      <Button 
+        size="sm" 
+        variant="outline" 
+        onClick={() => setBoostModalOpen(true)}
+        className="text-xs"
+      >
+        <Zap className="h-3 w-3 mr-1" />
+        Boost {totalAmount} sats
+      </Button>
+      
+      <BoostModal
+        open={boostModalOpen}
+        onOpenChange={setBoostModalOpen}
+        valueDestinations={valueDestinations || []}
+        feedUrl={feedUrl}
+        episodeGuid={episodeGuid}
+        totalAmount={totalAmount}
+        contentTitle={contentTitle}
+        feedId={feedId}
+        episodeId={episodeId}
       />
-      {v4vLoading ? (
-        <div className="text-xs text-muted-foreground">
-          ⚡ Loading V4V data...
-        </div>
-      ) : hasRecipients ? (
-        <Button 
-          size="sm" 
-          variant="outline" 
-          onClick={handleV4VPayment}
-          disabled={isProcessing || isConnecting}
-          className="text-xs"
-        >
-          {isProcessing || isConnecting ? (
-            'Processing...'
-          ) : (
-            <>
-              <Zap className="h-3 w-3 mr-1" />
-              Boost {totalAmount} sats ({recipients.length})
-            </>
-          )}
-        </Button>
-      ) : valueDestinations && valueDestinations.length > 0 ? (
-        <div className="text-xs text-muted-foreground">
-          ⚡ V4V enabled - loading recipients...
-        </div>
-      ) : (
-        <div className="text-xs text-muted-foreground">
-          💰 V4V payment not configured
-        </div>
-      )}
-      
-      {status && (
-        <p className="text-xs text-muted-foreground mt-1">{status}</p>
-      )}
-      
-      {hasRecipients && (
-        <div className="text-xs text-muted-foreground mt-1">
-          Recipients: {recipients.map(r => r.name).join(', ')}
-        </div>
-      )}
     </div>
   );
 }
