@@ -8,7 +8,6 @@ import { TrendingMusic } from '@/components/TrendingMusic';
 import { FeedValueParser } from '@/components/FeedValueParser';
 import { PodcastValidator } from '@/components/PodcastValidator';
 import { LoginArea } from '@/components/auth/LoginArea';
-import { RelaySelector } from '@/components/RelaySelector';
 import { UserNameInput } from '@/components/UserNameInput';
 import { Sidebar, SidebarContent, SidebarHeader, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
@@ -110,7 +109,6 @@ const Index = () => {
 
               <div>
                 <h3 className="text-sm font-medium text-muted-foreground mb-3">Relay</h3>
-                <RelaySelector className="w-full" />
               </div>
 
               <div>
