@@ -246,6 +246,7 @@ export async function processSinglePayment(
     app?: string;
     message?: string;
     senderName?: string;
+    episodeGuid?: string;
   }
 ): Promise<boolean> {
   try {
@@ -262,24 +263,19 @@ export async function processSinglePayment(
             customRecords: {
               // TLV record 7629169 for Podcast Index 2.0 standard
               '7629169': JSON.stringify({
-                // Required fields
-                podcast: recipient.name,
-                action: 'boost',
+                podcast: metadata?.contentTitle || '',
+                feedID: metadata?.feedId || '',
+                itemID: metadata?.episodeId || '',
+                episode: metadata?.contentTitle || '',
                 ts: Math.floor(Date.now() / 1000),
-                
-                // Podcast Index 2.0 standard fields
-                ...(metadata?.feedId && { feedId: metadata.feedId }),
-                ...(metadata?.episodeId && { episodeId: metadata.episodeId }),
-                ...(metadata?.totalAmount && { amount: metadata.totalAmount }),
-                app: (metadata?.app || 'Podtardstr'), // Always set app name
-                platform: 'web',
-                
-                // Additional context (optional)
-                ...(metadata?.contentTitle && { contentTitle: metadata.contentTitle }),
-                ...(metadata?.message && { message: metadata.message }),
-                
-                // Sender information
-                sender_name: metadata?.senderName || 'random podtardstr'
+                action: 'boost',
+                app_name: metadata?.app || 'Podtardstr',
+                value_msat: (amount || 0) * 1000,
+                value_msat_total: metadata?.totalAmount ? metadata.totalAmount * 1000 : (amount || 0) * 1000,
+                name: recipient.name || '',
+                message: metadata?.message || '',
+                sender_name: metadata?.senderName || 'random podtardstr',
+                episode_guid: metadata?.episodeGuid || ''
               })
             }
           });
@@ -333,6 +329,7 @@ export async function processMultiplePayments(
     app?: string;
     message?: string;
     senderName?: string;
+    episodeGuid?: string;
   }
 ): Promise<PaymentResult> {
   const paymentAmounts = calculatePaymentAmounts(recipients, totalAmount);
