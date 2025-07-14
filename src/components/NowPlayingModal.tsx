@@ -30,13 +30,20 @@ function usePaymentProcessor() {
   const processPayment = useCallback(async (
     provider: unknown,
     recipients: PaymentRecipient[],
-    totalAmount: number
+    totalAmount: number,
+    metadata?: {
+      feedId?: string;
+      episodeId?: string;
+      contentTitle?: string;
+      app?: string;
+      message?: string;
+    }
   ) => {
     setIsProcessing(true);
     setStatus(`Boosting ${totalAmount} sats among ${recipients.length} recipients...`);
     
     try {
-      const result = await processMultiplePayments(provider as LightningProvider, recipients, totalAmount);
+      const result = await processMultiplePayments(provider as LightningProvider, recipients, totalAmount, metadata);
       const statusMessage = formatPaymentStatus(result);
       setStatus(statusMessage);
       return result;
@@ -70,6 +77,9 @@ function V4VPaymentButton({
 }: V4VPaymentButtonProps) {
   const { connectWallet, isConnecting } = useLightningWallet();
   const { processPayment, isProcessing, status, setStatus } = usePaymentProcessor();
+
+  // Add message state
+  const [message, setMessage] = useState('');
 
   // Use the Value4Value hook to get complete data
   const { 
@@ -137,13 +147,17 @@ function V4VPaymentButton({
         return;
       }
 
-      await processPayment(provider as LightningProvider, recipients, totalAmount);
+      await processPayment(provider as LightningProvider, recipients, totalAmount, {
+        contentTitle,
+        app: 'Podtardstr',
+        message, // Pass the message
+      });
       
     } catch (error) {
       console.error('V4V payment error:', error);
       setStatus(error instanceof Error ? error.message : 'Payment failed or cancelled.');
     }
-  }, [hasRecipients, connectWallet, processPayment, recipients, totalAmount, setStatus]);
+  }, [hasRecipients, connectWallet, processPayment, recipients, totalAmount, setStatus, contentTitle, message]);
 
   if (v4vLoading) {
     return (
@@ -170,6 +184,17 @@ function V4VPaymentButton({
 
   return (
     <div className="space-y-3">
+      {/* Message input box */}
+      <input
+        type="text"
+        className="w-full px-2 py-1 border rounded text-xs"
+        placeholder="Add a message (optional)"
+        value={message}
+        onChange={e => setMessage(e.target.value)}
+        maxLength={240}
+        disabled={isProcessing || isConnecting}
+        style={{ fontSize: '0.95em' }}
+      />
       <Button 
         size="lg" 
         variant="outline" 
@@ -266,6 +291,30 @@ export function NowPlayingModal({ open, onOpenChange }: NowPlayingModalProps) {
     return isWavlake;
   }, [currentPodcast, feedData]);
 
+  // Check if this is a LNBeats track
+  const isLNBeatsTrack = useMemo(() => {
+    if (!currentPodcast || !feedData) return false;
+    
+    console.log('🎵 Checking LNBeats for:', currentPodcast.title);
+    console.log('   Author:', currentPodcast.author);
+    console.log('   Feed URL:', feedData.url);
+    
+    // Check if the feed URL or description contains lnbeats
+    const lnbeatsIndicators = [
+      feedData.url?.toLowerCase().includes('lnbeats'),
+      feedData.description?.toLowerCase().includes('lnbeats'),
+      feedData.link?.toLowerCase().includes('lnbeats'),
+      feedData.originalUrl?.toLowerCase().includes('lnbeats'),
+      currentPodcast.author?.toLowerCase().includes('via lnbeats'),
+      currentPodcast.title?.toLowerCase().includes('lnbeats')
+    ];
+    
+    const isLNBeats = lnbeatsIndicators.some(Boolean);
+    console.log('   Is LNBeats track:', isLNBeats);
+    
+    return isLNBeats;
+  }, [currentPodcast, feedData]);
+
   // Generate Wavlake URL
   const wavlakeUrl = useMemo(() => {
     if (!isWavlakeTrack || !currentPodcast || !feedData) return null;
@@ -291,6 +340,43 @@ export function NowPlayingModal({ open, onOpenChange }: NowPlayingModalProps) {
     console.log('❌ Could not extract Wavlake album ID from:', feedData.url);
     return null;
   }, [isWavlakeTrack, currentPodcast, feedData]);
+
+  // Generate LNBeats URL
+  const lnbeatsUrl = useMemo(() => {
+    if (!isLNBeatsTrack || !currentPodcast || !feedData) return null;
+    
+    console.log('🎵 Generating LNBeats URL:', { 
+      trackTitle: currentPodcast.title, 
+      author: currentPodcast.author,
+      feedUrl: feedData.url 
+    });
+    
+    // Extract album ID from LNBeats feed URL
+    // Format could be various LNBeats URL patterns
+    const lnbeatsUrlPattern = /lnbeats\.com.*?([a-f0-9\-]{36})/i;
+    const match = feedData.url?.match(lnbeatsUrlPattern);
+    
+    if (match && match[1]) {
+      const albumId = match[1];
+      const albumUrl = `https://lnbeats.com/album/${albumId}`;
+      console.log('✅ Extracted LNBeats album ID:', albumId, '→', albumUrl);
+      return albumUrl;
+    }
+    
+    // Try alternative patterns if needed
+    const directPattern = /([a-f0-9\-]{36})/i;
+    const directMatch = feedData.url?.match(directPattern);
+    
+    if (directMatch && directMatch[1] && feedData.url?.includes('lnbeats')) {
+      const albumId = directMatch[1];
+      const albumUrl = `https://lnbeats.com/album/${albumId}`;
+      console.log('✅ Extracted LNBeats album ID (alt pattern):', albumId, '→', albumUrl);
+      return albumUrl;
+    }
+    
+    console.log('❌ Could not extract LNBeats album ID from:', feedData.url);
+    return null;
+  }, [isLNBeatsTrack, currentPodcast, feedData]);
 
   const handlePlayPause = () => {
     setIsPlaying(!isPlaying);
@@ -440,6 +526,21 @@ export function NowPlayingModal({ open, onOpenChange }: NowPlayingModalProps) {
                 >
                   <ExternalLink className="h-4 w-4 mr-2" />
                   View on Wavlake
+                </Button>
+              </div>
+            )}
+
+            {/* LNBeats Link */}
+            {isLNBeatsTrack && lnbeatsUrl && (
+              <div className="mt-4">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full"
+                  onClick={() => window.open(lnbeatsUrl, '_blank')}
+                >
+                  <ExternalLink className="h-4 w-4 mr-2" />
+                  View on LNBeats
                 </Button>
               </div>
             )}

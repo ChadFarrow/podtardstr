@@ -79,6 +79,9 @@ function V4VPaymentButton({
   const { connectWallet, isConnecting } = useLightningWallet();
   const { processPayment, isProcessing, status, setStatus } = usePaymentProcessor();
 
+  // Add message state
+  const [message, setMessage] = useState('');
+
   // Use the new Value4Value hook to get complete data
   const { 
     recipients: v4vRecipients, 
@@ -161,17 +164,29 @@ function V4VPaymentButton({
         contentTitle,
         feedId,
         episodeId,
-        app: 'Podtardstr'
+        app: 'Podtardstr',
+        message, // Pass the message
       });
       
     } catch (error) {
       console.error('V4V payment error:', error);
       setStatus(error instanceof Error ? error.message : 'Payment failed or cancelled.');
     }
-  }, [hasRecipients, connectWallet, processPayment, recipients, totalAmount, setStatus, contentTitle, feedId, episodeId]);
+  }, [hasRecipients, connectWallet, processPayment, recipients, totalAmount, setStatus, contentTitle, feedId, episodeId, message]);
 
   return (
-    <div className="mt-2">
+    <div className="mt-2 space-y-2">
+      {/* Message input box */}
+      <input
+        type="text"
+        className="w-full px-2 py-1 border rounded text-xs"
+        placeholder="Add a message (optional)"
+        value={message}
+        onChange={e => setMessage(e.target.value)}
+        maxLength={240}
+        disabled={isProcessing || isConnecting}
+        style={{ fontSize: '0.85em' }}
+      />
       {v4vLoading ? (
         <div className="text-xs text-muted-foreground">
           ⚡ Loading V4V data...
