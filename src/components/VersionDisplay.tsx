@@ -3,7 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { ExternalLink } from 'lucide-react';
 
 // Version number - increment this for releases
-const APP_VERSION = '1.10';
+const APP_VERSION = '1.01';
 
 export function VersionDisplay() {
   const [commitHash, setCommitHash] = useState<string>('');
