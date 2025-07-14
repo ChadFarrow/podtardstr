@@ -238,6 +238,12 @@ export function TrendingMusic() {
       return;
     }
     
+    // If this is the same track that's already loaded but not playing, just play it
+    if (currentPodcast && currentPodcast.id.startsWith(podcastId) && !isPlaying) {
+      setIsPlaying(true);
+      return;
+    }
+    
     // Try to fetch episodes first, then play the first one
     try {
       const response = await podcastIndexFetch<PodcastIndexEpisode>('/episodes/byfeedid', {
@@ -419,12 +425,13 @@ export function TrendingMusic() {
                             className="h-20 w-full sm:h-12 sm:w-12 rounded object-cover"
                           />
                           <button
-                            onClick={(e) => {
+                            onPointerDown={(e) => {
                               e.preventDefault();
                               e.stopPropagation();
                               handlePlayPauseAlbum(feed);
                             }}
-                            className="absolute inset-0 bg-black/30 hover:bg-black/60 active:bg-black/70 rounded flex items-center justify-center opacity-70 hover:opacity-100 active:opacity-100 transition-all touch-manipulation"
+                            className="absolute inset-0 bg-black/30 hover:bg-black/60 active:bg-black/70 rounded flex items-center justify-center opacity-70 hover:opacity-100 active:opacity-100 transition-all"
+                            style={{ touchAction: 'manipulation' }}
                             aria-label={isCurrentlyPlaying(feed.id.toString(), feed.title) ? 'Pause' : 'Play'}
                           >
                             {isCurrentlyPlaying(feed.id.toString(), feed.title) ? (

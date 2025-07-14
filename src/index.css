@@ -102,6 +102,10 @@
     -webkit-overflow-scrolling: touch;
     /* Prevent zoom on double tap */
     touch-action: manipulation;
+    /* Fix PWA zoom issues */
+    zoom: 1;
+    -ms-zoom: 1;
+    -webkit-zoom: 1;
   }
 
   body {

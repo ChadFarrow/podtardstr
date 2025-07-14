@@ -110,6 +110,12 @@ export function PodcastPlayer() {
       // Handle CORS and network errors gracefully
       if (errorCode === 2 || errorMessage?.includes('CORS') || errorMessage?.includes('network')) {
         console.warn('Skipping track due to CORS/network restriction:', target?.src);
+        // Auto-skip to next track if autoPlay is enabled
+        if (autoPlay) {
+          setTimeout(() => {
+            playNext();
+          }, 1000);
+        }
       }
       
       setIsLoading(false);
@@ -167,7 +173,7 @@ export function PodcastPlayer() {
 
   if (!currentPodcast) {
     return (
-      <Card className="border-t rounded-none sticky bottom-0 bg-background">
+      <Card className="border-t rounded-none fixed bottom-0 left-0 right-0 bg-background z-50">
         <div className="p-3 sm:p-4 text-center text-muted-foreground text-sm">
           No track selected. Click play on any track to start listening.
         </div>
@@ -176,7 +182,7 @@ export function PodcastPlayer() {
   }
 
   return (
-    <Card className="border-t rounded-none sticky bottom-0 bg-background">
+    <Card className="border-t rounded-none fixed bottom-0 left-0 right-0 bg-background z-50">
       <div className="p-3 sm:p-4">
         <audio
           ref={audioRef}

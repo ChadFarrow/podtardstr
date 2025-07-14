@@ -152,7 +152,7 @@ const Index = () => {
             </div>
           </header>
 
-          <main className="flex-1 p-3 sm:p-6 overflow-auto">
+          <main className="flex-1 p-3 sm:p-6 overflow-auto pb-20">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
 
               <TabsContent value="music" className="space-y-6">
