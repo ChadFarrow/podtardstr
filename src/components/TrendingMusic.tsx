@@ -220,9 +220,16 @@ export function TrendingMusic() {
   const { playPodcast, currentPodcast, isPlaying, setIsPlaying, addToQueue, clearQueue } = usePodcastPlayer();
   const { data: trendingMusic, isLoading: trendingLoading } = useTop100Music();
   const [isLoadingPlayAll, setIsLoadingPlayAll] = useState(false);
+  const [loadingTrackId, setLoadingTrackId] = useState<string | null>(null);
 
   const handlePlayPauseAlbum = useCallback(async (podcast: PodcastIndexPodcast) => {
     const podcastId = podcast.id.toString();
+    
+    // Prevent rapid clicks while loading
+    if (loadingTrackId && loadingTrackId !== podcastId) {
+      console.log('Ignoring click - another track is loading');
+      return;
+    }
     
     // Check if any episode from this album is currently playing
     const isThisAlbumPlaying = currentPodcast && isPlaying && (
@@ -243,6 +250,9 @@ export function TrendingMusic() {
       setIsPlaying(true);
       return;
     }
+    
+    // Set loading state
+    setLoadingTrackId(podcastId);
     
     // Try to fetch episodes first, then play the first one
     try {
@@ -271,8 +281,11 @@ export function TrendingMusic() {
       }
     } catch (error) {
       console.error('Failed to fetch album episodes:', error);
+    } finally {
+      // Clear loading state after a short delay
+      setTimeout(() => setLoadingTrackId(null), 1000);
     }
-  }, [currentPodcast, isPlaying, playPodcast, setIsPlaying]);
+  }, [currentPodcast, isPlaying, playPodcast, setIsPlaying, loadingTrackId]);
 
   // Play All Top 100 tracks in order
   const handlePlayAll = useCallback(async () => {
@@ -430,11 +443,14 @@ export function TrendingMusic() {
                               e.stopPropagation();
                               handlePlayPauseAlbum(feed);
                             }}
-                            className="absolute inset-0 bg-black/30 hover:bg-black/60 active:bg-black/70 rounded flex items-center justify-center opacity-70 hover:opacity-100 active:opacity-100 transition-all"
+                            disabled={loadingTrackId === feed.id.toString()}
+                            className="absolute inset-0 bg-black/30 hover:bg-black/60 active:bg-black/70 rounded flex items-center justify-center opacity-70 hover:opacity-100 active:opacity-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                             style={{ touchAction: 'manipulation' }}
                             aria-label={isCurrentlyPlaying(feed.id.toString(), feed.title) ? 'Pause' : 'Play'}
                           >
-                            {isCurrentlyPlaying(feed.id.toString(), feed.title) ? (
+                            {loadingTrackId === feed.id.toString() ? (
+                              <div className="h-6 w-6 sm:h-4 sm:w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                            ) : isCurrentlyPlaying(feed.id.toString(), feed.title) ? (
                               <Pause className="h-6 w-6 sm:h-4 sm:w-4 text-white drop-shadow-lg" />
                             ) : (
                               <Play className="h-6 w-6 sm:h-4 sm:w-4 text-white drop-shadow-lg" />

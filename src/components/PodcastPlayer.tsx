@@ -76,6 +76,11 @@ export function PodcastPlayer() {
     const audio = audioRef.current;
     if (!audio || !currentPodcast) return;
 
+    // Abort any existing loading to prevent conflicts
+    audio.pause();
+    audio.removeAttribute('src');
+    audio.load();
+
     // Reset time when a new track is loaded
     setCurrentTime(0);
     setDuration(0);
@@ -126,7 +131,8 @@ export function PodcastPlayer() {
     audio.addEventListener('canplay', handleCanPlay);
     audio.addEventListener('error', handleError);
 
-    // Load the new audio source
+    // Set the new audio source and load
+    audio.src = currentPodcast.url;
     audio.load();
 
     return () => {
