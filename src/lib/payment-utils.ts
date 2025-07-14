@@ -279,7 +279,7 @@ export async function processSinglePayment(
                 ...(metadata?.message && { message: metadata.message }),
                 
                 // Sender information
-                sender: metadata?.senderName || 'random podtardstr'
+                sender_name: metadata?.senderName || 'random podtardstr'
               })
             }
           });
