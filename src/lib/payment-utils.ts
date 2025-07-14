@@ -245,6 +245,7 @@ export async function processSinglePayment(
     totalAmount?: number;
     app?: string;
     message?: string;
+    senderName?: string;
   }
 ): Promise<boolean> {
   try {
@@ -278,7 +279,7 @@ export async function processSinglePayment(
                 ...(metadata?.message && { message: metadata.message }),
                 
                 // Sender information
-                sender: 'Chad Farrow'
+                sender: metadata?.senderName || 'random podtardstr'
               })
             }
           });
@@ -331,6 +332,7 @@ export async function processMultiplePayments(
     contentTitle?: string;
     app?: string;
     message?: string;
+    senderName?: string;
   }
 ): Promise<PaymentResult> {
   const paymentAmounts = calculatePaymentAmounts(recipients, totalAmount);

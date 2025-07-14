@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Zap, X } from 'lucide-react';
 import { useLightningWallet } from '@/hooks/useLightningWallet';
 import { useValue4ValueData } from '@/hooks/useValueBlockFromRss';
+import { useUserName } from '@/hooks/useUserName';
 import { 
   getLightningRecipients, 
   processMultiplePayments, 
@@ -41,6 +42,7 @@ function usePaymentProcessor() {
       contentTitle?: string;
       app?: string;
       message?: string;
+      senderName?: string;
     }
   ) => {
     setIsProcessing(true);
@@ -75,6 +77,7 @@ export function BoostModal({
   const { connectWallet, isConnecting } = useLightningWallet();
   const { processPayment, isProcessing, status, setStatus } = usePaymentProcessor();
   const [message, setMessage] = useState('');
+  const { getDisplayName } = useUserName();
 
   // Use the Value4Value hook to get complete data
   const { 
@@ -146,6 +149,7 @@ export function BoostModal({
         contentTitle,
         app: 'Podtardstr',
         message,
+        senderName: getDisplayName(),
       });
       
       // Close modal on success after a short delay
@@ -159,7 +163,7 @@ export function BoostModal({
       console.error('Boost payment error:', error);
       setStatus(error instanceof Error ? error.message : 'Payment failed or cancelled.');
     }
-  }, [hasRecipients, connectWallet, processPayment, recipients, totalAmount, setStatus, contentTitle, message, onOpenChange]);
+  }, [hasRecipients, connectWallet, processPayment, recipients, totalAmount, setStatus, contentTitle, message, onOpenChange, getDisplayName]);
 
   const handleClose = () => {
     onOpenChange(false);
