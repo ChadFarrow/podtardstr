@@ -44,7 +44,7 @@ const Index = () => {
             </div>
           </SidebarHeader>
 
-          <SidebarContent className="p-6">
+          <SidebarContent className="p-6 pb-24">
             <div className="space-y-6">
               <div>
                 <h3 className="text-sm font-medium text-muted-foreground mb-3">Navigation</h3>

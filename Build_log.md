@@ -3,8 +3,8 @@
 ## 🎯 Project Overview
 **Podtardstr** - A Nostr-based music discovery application with Value4Value (V4V) Lightning payments integrated.
 
-**Last Updated**: July 13, 2025  
-**Version**: 0.0.1  
+**Last Updated**: January 13, 2025  
+**Version**: 1.01  
 **Status**: 🟢 Production Ready
 
 ---
@@ -20,7 +20,7 @@
 | **Nostr Integration** | ✅ Complete | Social features, profile management, event publishing |
 | **Value4Value Payments** | ✅ Complete | Lightning payments via Bitcoin Connect |
 | **RSS Feed Parsing** | ✅ Complete | Enhanced V4V data extraction with CORS-safe requests |
-| **Theme System** | ✅ Complete | Light/dark mode with CSS custom properties |
+| **Theme System** | ✅ Complete | Dark mode enforced, light mode removed |
 | **Responsive Design** | ✅ Complete | Mobile-first design with Tailwind CSS |
 | **PWA Support** | ✅ Complete | Full iOS/Android PWA with service worker, offline caching |
 | **Android APK Build** | ✅ Complete | Capacitor setup ready for APK generation |
@@ -30,6 +30,8 @@
 | **Wavlake Integration** | ✅ Complete | Direct album links from feed URLs |
 | **Mobile Viewport** | ✅ Complete | Fixed zoom and horizontal scrolling issues |
 | **Dark Mode Default** | ✅ Complete | App now defaults to dark theme |
+| **Configurable User Names** | ✅ Complete | Users can set custom names for Lightning payments |
+| **Boost Flow Refactor** | ✅ Complete | Modal appears after clicking Boost, not before |
 
 ### 🔄 **In Progress**
 | Feature | Status | Progress | Notes |
@@ -95,6 +97,7 @@
 | **Bitcoin Connect** | ✅ Stable | Lightning wallet integration |
 | **V4V Data Parsing** | ✅ Stable | RSS feed + API fallback |
 | **Payment Processing** | ✅ Stable | Multi-recipient support |
+| **User Name Management** | ✅ Stable | Configurable sender names in TLV metadata |
 
 ### ✅ **Audio & Media**
 | Component | Status | Notes |
@@ -127,6 +130,14 @@
 
 ## 🎯 Recent Achievements
 
+### **January 13, 2025**
+- ✅ **Version 1.01 Released**: Updated versioning format (1.0, 1.01, 1.02, 1.03...)
+- ✅ **Configurable User Names**: Users can set custom names for Lightning payments with localStorage persistence
+- ✅ **Boost Flow Refactor**: Modal appears after clicking Boost button, not before
+- ✅ **Dark Mode Enforcement**: Removed light mode support, app is dark-only
+- ✅ **Version Display Enhancement**: Shows version number and build hash in sidebar
+- ✅ **TLV Metadata Enhancement**: User names included in Lightning payment metadata with "random podtardstr" fallback
+
 ### **July 13, 2025**
 - ✅ **Wavlake Integration Enhanced**: Extract album IDs from feed URLs for direct album links
 - ✅ **Mobile Viewport Fixed**: Prevented horizontal scrolling and unwanted zoom on mobile
@@ -136,7 +147,7 @@
 - ✅ **TLV Metadata Enhanced**: Improved boost info with proper Podcast Index 2.0 compliance
 - ✅ **Payment Split Fairness**: Recipients now get minimum 1 sat if they have valid splits
 
-### **January 13, 2025**
+### **Previous Milestones**
 - ✅ **Complete PWA Implementation**: Full iOS/Android support with service worker
 - ✅ **Keysend Payment Support**: Both Lightning addresses and node pubkeys
 - ✅ **Server-side RSS Proxy**: CORS-free V4V data via Vercel functions
@@ -144,19 +155,6 @@
 - ✅ **Deployment Optimization**: Fixed caching and 404 issues
 - ✅ **Manifest Fixes**: Proper PWA installation support
 - ✅ **TLV App Name Always Set**: Podtardstr is now always included as the app name in the TLV metadata for all Lightning payments, ensuring Podcast Index 2.0 compatibility
-
-### **December 19, 2024**
-- ✅ **Android APK Build Support**: Complete Capacitor setup
-- ✅ **Play All Feature**: Top 100 tracks queue in order
-- ✅ **Known Issues Documentation**: Comprehensive troubleshooting guide
-- ✅ **CORS Optimization**: Multiple proxy fallbacks implemented
-- ✅ **V4V Data Enhancement**: RSS feed parsing with API fallback
-
-### **Previous Milestones**
-- ✅ **PWA Implementation**: Progressive Web App capabilities
-- ✅ **Lightning Payments**: Bitcoin Connect integration
-- ✅ **Nostr Integration**: Social features and event publishing
-- ✅ **Music Discovery**: Top 100 V4V chart implementation
 
 ---
 
@@ -190,6 +188,8 @@
 - [x] TLV app name always set for all Lightning payments
 - [x] Mobile viewport optimized (no zoom/scroll issues)
 - [x] Wavlake direct album linking
+- [x] Configurable user names for payments
+- [x] Dark mode enforced throughout app
 
 ### **Feature Goals**
 - [x] Top 100 V4V music discovery
@@ -197,6 +197,7 @@
 - [x] Nostr social features
 - [x] Podcast player with queue
 - [x] Cross-platform compatibility
+- [x] User name customization
 
 ### **User Experience Goals**
 - [x] Fast loading times
@@ -204,6 +205,7 @@
 - [x] Reliable audio playback
 - [x] Seamless payment flow
 - [x] Mobile-optimized interface
+- [x] Personalized payment experience
 
 ---
 
@@ -223,5 +225,6 @@
 - **Last Build**: Successful production build ✅
 - **Last Deployment**: Ready for deployment ✅
 - **APK Status**: Ready for generation (requires Java JDK) ✅
+- **Version**: 1.01 (following 1.0, 1.01, 1.02, 1.03... format) ✅
 
-**Project Health**: 🟢 **Excellent** - Production ready! All core features complete, PWA fully functional, keysend payments working, no critical issues. Ready for user testing and broader deployment. 
+**Project Health**: 🟢 **Excellent** - Production ready! All core features complete, PWA fully functional, keysend payments working, user name customization implemented, no critical issues. Ready for user testing and broader deployment. 
