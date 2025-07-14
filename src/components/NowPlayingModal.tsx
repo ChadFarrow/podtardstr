@@ -21,6 +21,8 @@ interface V4VPaymentButtonProps {
   episodeGuid?: string;
   totalAmount?: number;
   contentTitle?: string;
+  feedId?: string;
+  episodeId?: string;
 }
 
 function V4VPaymentButton({ 
@@ -28,7 +30,9 @@ function V4VPaymentButton({
   feedUrl,
   episodeGuid,
   totalAmount = 33, 
-  contentTitle = 'Content' 
+  contentTitle = 'Content',
+  feedId,
+  episodeId
 }: V4VPaymentButtonProps) {
   const [boostModalOpen, setBoostModalOpen] = useState(false);
 
@@ -52,6 +56,8 @@ function V4VPaymentButton({
         episodeGuid={episodeGuid}
         totalAmount={totalAmount}
         contentTitle={contentTitle}
+        feedId={feedId}
+        episodeId={episodeId}
       />
     </div>
   );
@@ -123,28 +129,10 @@ export function NowPlayingModal({ open, onOpenChange }: NowPlayingModalProps) {
     return isWavlake;
   }, [currentPodcast, feedData]);
 
-  // Check if this is a LNBeats track
+  // All tracks are available on LNBeats
   const isLNBeatsTrack = useMemo(() => {
-    if (!currentPodcast || !feedData) return false;
-    
-    console.log('🎵 Checking LNBeats for:', currentPodcast.title);
-    console.log('   Author:', currentPodcast.author);
-    console.log('   Feed URL:', feedData.url);
-    
-    // Check if the feed URL or description contains lnbeats
-    const lnbeatsIndicators = [
-      feedData.url?.toLowerCase().includes('lnbeats'),
-      feedData.description?.toLowerCase().includes('lnbeats'),
-      feedData.link?.toLowerCase().includes('lnbeats'),
-      feedData.originalUrl?.toLowerCase().includes('lnbeats'),
-      currentPodcast.author?.toLowerCase().includes('via lnbeats'),
-      currentPodcast.title?.toLowerCase().includes('lnbeats')
-    ];
-    
-    const isLNBeats = lnbeatsIndicators.some(Boolean);
-    console.log('   Is LNBeats track:', isLNBeats);
-    
-    return isLNBeats;
+    // Every track is on LNBeats.com, so always return true when we have track data
+    return !!(currentPodcast && feedData);
   }, [currentPodcast, feedData]);
 
   // Generate Wavlake URL
@@ -173,41 +161,30 @@ export function NowPlayingModal({ open, onOpenChange }: NowPlayingModalProps) {
     return null;
   }, [isWavlakeTrack, currentPodcast, feedData]);
 
-  // Generate LNBeats URL
+  // Generate LNBeats URL - every track is available on LNBeats
   const lnbeatsUrl = useMemo(() => {
     if (!isLNBeatsTrack || !currentPodcast || !feedData) return null;
     
-    console.log('🎵 Generating LNBeats URL:', { 
-      trackTitle: currentPodcast.title, 
-      author: currentPodcast.author,
-      feedUrl: feedData.url 
-    });
+    console.log('🎵 Generating LNBeats URL for:', currentPodcast.title, 'by', currentPodcast.author);
     
-    // Extract album ID from LNBeats feed URL
-    // Format could be various LNBeats URL patterns
-    const lnbeatsUrlPattern = /lnbeats.com.*?([a-f0-9-]{36})/i;
-    const match = feedData.url?.match(lnbeatsUrlPattern);
-    
-    if (match && match[1]) {
-      const albumId = match[1];
-      const albumUrl = `https://lnbeats.com/album/${albumId}`;
-      console.log('✅ Extracted LNBeats album ID:', albumId, '→', albumUrl);
-      return albumUrl;
+    // First try to extract album ID from feed URL if it's actually from LNBeats
+    if (feedData.url?.toLowerCase().includes('lnbeats')) {
+      const lnbeatsUrlPattern = /lnbeats.com.*?([a-f0-9-]{36})/i;
+      const match = feedData.url?.match(lnbeatsUrlPattern);
+      
+      if (match && match[1]) {
+        const albumId = match[1];
+        const albumUrl = `https://lnbeats.com/album/${albumId}`;
+        console.log('✅ Extracted LNBeats album ID:', albumId, '→', albumUrl);
+        return albumUrl;
+      }
     }
     
-    // Try alternative patterns if needed
-    const directPattern = /([a-f0-9-]{36})/i;
-    const directMatch = feedData.url?.match(directPattern);
-    
-    if (directMatch && directMatch[1] && feedData.url?.includes('lnbeats')) {
-      const albumId = directMatch[1];
-      const albumUrl = `https://lnbeats.com/album/${albumId}`;
-      console.log('✅ Extracted LNBeats album ID (alt pattern):', albumId, '→', albumUrl);
-      return albumUrl;
-    }
-    
-    console.log('❌ Could not extract LNBeats album ID from:', feedData.url);
-    return null;
+    // For all other tracks, create a search URL to find them on LNBeats
+    const searchQuery = encodeURIComponent(`${currentPodcast.title} ${currentPodcast.author}`);
+    const searchUrl = `https://lnbeats.com/search?q=${searchQuery}`;
+    console.log('✅ Generated LNBeats search URL:', searchUrl);
+    return searchUrl;
   }, [isLNBeatsTrack, currentPodcast, feedData]);
 
   const handlePlayPause = () => {
@@ -342,7 +319,9 @@ export function NowPlayingModal({ open, onOpenChange }: NowPlayingModalProps) {
                   valueDestinations={feedData.value?.destinations} 
                   feedUrl={feedData.url}
                   totalAmount={33} 
-                  contentTitle={currentPodcast.title} 
+                  contentTitle={currentPodcast.title}
+                  feedId={feedData.id?.toString()}
+                  episodeId={currentPodcast.id}
                 />
               </div>
             )}
@@ -372,7 +351,7 @@ export function NowPlayingModal({ open, onOpenChange }: NowPlayingModalProps) {
                   onClick={() => window.open(lnbeatsUrl, '_blank')}
                 >
                   <ExternalLink className="h-4 w-4 mr-2" />
-                  View on LNBeats
+                  Find on LNBeats
                 </Button>
               </div>
             )}

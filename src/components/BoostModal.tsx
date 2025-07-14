@@ -37,12 +37,18 @@ function usePaymentProcessor() {
     recipients: PaymentRecipient[],
     totalAmount: number,
     metadata?: {
-      feedId?: string;
-      episodeId?: string;
+      feedId?: string | number;
+      itemId?: string | number;
+      episodeId?: string | number;
       contentTitle?: string;
       app?: string;
+      appVersion?: string;
       message?: string;
       senderName?: string;
+      episodeGuid?: string;
+      feedUrl?: string;
+      speed?: string;
+      uuid?: string;
     }
   ) => {
     setIsProcessing(true);
@@ -72,7 +78,9 @@ export function BoostModal({
   feedUrl,
   episodeGuid,
   totalAmount = 33, 
-  contentTitle = 'Content'
+  contentTitle = 'Content',
+  feedId,
+  episodeId
 }: BoostModalProps) {
   const { connectWallet, isConnecting } = useLightningWallet();
   const { processPayment, isProcessing, status, setStatus } = usePaymentProcessor();
@@ -146,10 +154,16 @@ export function BoostModal({
       }
 
       await processPayment(provider as LightningProvider, recipients, totalAmount, {
+        feedId: feedId,
+        episodeId: episodeId,
         contentTitle,
         app: 'Podtardstr',
+        appVersion: '1.03',
         message,
         senderName: getDisplayName(),
+        episodeGuid: episodeGuid,
+        feedUrl: feedUrl,
+        speed: '1',
       });
       
       // Close modal on success after a short delay

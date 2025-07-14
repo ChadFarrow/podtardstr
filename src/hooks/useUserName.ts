@@ -12,9 +12,15 @@ export function useUserName() {
     return userName.trim() || 'random podtardstr';
   };
   
+  // Clear user name - useful for logout
+  const clearUserName = () => {
+    setUserName('');
+  };
+  
   return {
     userName,
     setUserName,
-    getDisplayName
+    getDisplayName,
+    clearUserName
   };
 } 

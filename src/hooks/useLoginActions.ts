@@ -1,11 +1,13 @@
 import { useNostr } from '@nostrify/react';
 import { NLogin, useNostrLogin } from '@nostrify/react/login';
+import { useUserName } from './useUserName';
 
 // NOTE: This file should not be edited except for adding new login methods.
 
 export function useLoginActions() {
   const { nostr } = useNostr();
   const { logins, addLogin, removeLogin } = useNostrLogin();
+  const { clearUserName } = useUserName();
 
   return {
     // Login with a Nostr secret key
@@ -28,6 +30,8 @@ export function useLoginActions() {
       const login = logins[0];
       if (login) {
         removeLogin(login.id);
+        // Also clear the user's name from boost settings
+        clearUserName();
       }
     }
   };

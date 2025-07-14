@@ -1,11 +1,84 @@
 # Podtardstr Project Status Board
 
+---
+
+## 🔖 Quick Reference for Future Sessions (as of July 14, 2025)
+
+### **Current Status**
+- **Version:** 1.03 (auto-increments on commits)
+- **Status:** 🟢 Production Ready - All core features complete
+- **Live URL:** https://podtardstr.vercel.app
+- **Repo:** https://github.com/ChadFarrow/podtardstr
+
+### **Key Architecture & Tech Stack**
+- **Frontend:** React 18.3.1 + TypeScript + Vite + TailwindCSS + shadcn/ui
+- **Nostr:** @nostrify/react for social features, login, profile management
+- **Lightning:** Bitcoin Connect for wallet integration, supports both LUD16/06 and keysend
+- **Audio:** HTML5 audio with Zustand state management for player
+- **Deployment:** Vercel with service worker for PWA functionality
+- **Mobile:** PWA installable on iOS/Android, fixed bottom player positioning
+
+### **Core Features Complete**
+✅ **Top 100 V4V Music Chart** - Podcast Index API with caching  
+✅ **Music Discovery** - Search and browse with V4V payments  
+✅ **Podcast Player** - Queue management, auto-play, bottom-fixed positioning  
+✅ **Value4Value Payments** - Lightning splits with TLV metadata (Podcast Index 2.0 spec)  
+✅ **Platform Integration** - Wavlake & LNBeats direct album linking  
+✅ **Message Support** - Optional messages in Lightning payment TLV records  
+✅ **User Customization** - Custom sender names, dark mode enforced  
+✅ **Mobile Optimized** - Fixed viewport, single-click play, loading states  
+
+### **Recent Critical Changes (Reference for Context)**
+- **TLV Metadata:** Now matches Podcast Index 2.0 spec exactly (podcast, feedID, itemID, episode, etc.)
+- **Audio Loading:** Fixed "fetching process aborted" with proper loading state management
+- **Bottom Player:** Changed from sticky to fixed positioning, always visible
+- **Platform Detection:** Wavlake & LNBeats integration with UUID extraction from feed URLs
+- **Boost Flow:** Modal-based with message input, enhanced UX
+- **Version Auto-increment:** Commits automatically bump version number
+
+### **Important Implementation Details**
+- **Payment Flow:** BoostModal component handles all V4V interactions
+- **Audio State:** usePodcastPlayer hook with Zustand for global state
+- **Platform URLs:** Extract UUIDs from feed URLs to generate proper album links
+- **TLV Records:** Use 7629169 for Podcast Index 2.0 compliance with all required fields
+- **Loading Prevention:** Track loading states to prevent rapid-click conflicts
+- **Mobile PWA:** Service worker, manifest, proper viewport settings prevent zoom issues
+
+### **File Structure Notes**
+- **Components:** Modular design with V4V payment buttons in each component
+- **Payment Utils:** `src/lib/payment-utils.ts` handles all Lightning payment logic
+- **Player State:** `src/hooks/usePodcastPlayer.ts` for global audio management
+- **Platform Detection:** In NowPlayingModal.tsx for Wavlake/LNBeats linking
+
+### **Testing & Build Status**
+- **Tests:** 15 passing ✅ (use `npm test` or similar)
+- **Build:** Successful production build ✅
+- **Deployment:** Auto-deploy on push to main ✅
+- **PWA:** Installable with proper manifest and service worker ✅
+
+### **Common Issues & Solutions (Quick Reference)**
+- **Double-click required:** Check loadingTrackId state in TrendingMusic.tsx
+- **Bottom player not visible:** Ensure fixed positioning with z-50 in PodcastPlayer.tsx
+- **Audio abort errors:** Verify proper audio.pause() and src clearing in useEffect
+- **Mobile zoom issues:** Check viewport meta tag has minimum-scale=1.0
+- **Platform links not working:** Verify UUID extraction regex patterns in NowPlayingModal.tsx
+- **V4V payments failing:** Check TLV metadata format matches Podcast Index 2.0 spec
+- **Loading states stuck:** Ensure setTimeout clears loadingTrackId after 1000ms
+
+### **Key Commands**
+- **Development:** `npm run dev`
+- **Build:** `npm run build` 
+- **Test:** `npm test`
+- **Push & Deploy:** `git add . && git commit -m "message" && git push`
+
+---
+
 ## 🎯 Project Overview
 **Podtardstr** - A Nostr-based music discovery application with Value4Value (V4V) Lightning payments integrated.
 
 **Last Updated**: July 14, 2025  
-**Version**: 1.02  
-**Status**: 🟢 Production Ready
+**Version**: 1.03  
+**Status**: �� Production Ready
 
 ---
 
@@ -133,6 +206,13 @@
 ---
 
 ## 🎯 Recent Achievements
+
+### **July 14, 2025 - Version 1.03**
+- ✅ **TLV Record Standardization**: Updated TLV metadata structure to match real-world Podcast Index 2.0 examples
+- ✅ **Enhanced TLV Fields**: Added missing fields: uuid, speed, url, episode_guid, app_version, amount
+- ✅ **Metadata Consistency**: All payment components now pass complete metadata including feedId and itemId
+- ✅ **Universal LNBeats Links**: All tracks now show "Find on LNBeats" buttons since every track is available on LNBeats.com
+- ✅ **Logout User Name Clearing**: User's boost name is automatically cleared when they log out of Nostr
 
 ### **July 14, 2025 - Version 1.02**
 - ✅ **LNBeats Integration**: Added detection and direct album linking for LNBeats platform

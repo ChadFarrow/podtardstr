@@ -30,6 +30,27 @@ export interface LightningProvider {
   keysend?: (args: { destination: string; amount: number; customRecords?: Record<string, string> }) => Promise<void>;
 }
 
+export interface TLVMetadata {
+  podcast: string;
+  feedID: number | string;
+  itemID?: number | string;
+  episode: string;
+  episode_guid: string;
+  ts: number;
+  action: 'stream' | 'boost';
+  speed: string;
+  app_name: string;
+  app_version?: string;
+  value_msat: number;
+  value_msat_total: number;
+  name?: string; // Lightning address of the sender
+  sender_name: string; // Human readable name of sender
+  message?: string;
+  uuid?: string;
+  url?: string;
+  amount?: number; // Optional amount in sats
+}
+
 /**
  * Validates a Lightning address format
  */
@@ -239,14 +260,19 @@ export async function processSinglePayment(
   recipient: PaymentRecipient,
   amount: number,
   metadata?: {
-    feedId?: string;
-    episodeId?: string;
+    feedId?: string | number;
+    itemId?: string | number;
+    episodeId?: string | number; // For backwards compatibility
     contentTitle?: string;
     totalAmount?: number;
     app?: string;
+    appVersion?: string;
     message?: string;
     senderName?: string;
     episodeGuid?: string;
+    feedUrl?: string;
+    speed?: string;
+    uuid?: string;
   }
 ): Promise<boolean> {
   try {
@@ -265,17 +291,22 @@ export async function processSinglePayment(
               '7629169': JSON.stringify({
                 podcast: metadata?.contentTitle || '',
                 feedID: metadata?.feedId || '',
-                itemID: metadata?.episodeId || '',
+                itemID: metadata?.itemId || metadata?.episodeId || '', // Use itemId if available, fall back to episodeId
                 episode: metadata?.contentTitle || '',
+                episode_guid: metadata?.episodeGuid || '',
                 ts: Math.floor(Date.now() / 1000),
                 action: 'boost',
+                speed: metadata?.speed || '1',
                 app_name: metadata?.app || 'Podtardstr',
+                app_version: metadata?.appVersion || '1.03',
                 value_msat: (amount || 0) * 1000,
                 value_msat_total: metadata?.totalAmount ? metadata.totalAmount * 1000 : (amount || 0) * 1000,
-                name: recipient.name || '',
-                message: metadata?.message || '',
+                uuid: metadata?.uuid || crypto.randomUUID(),
+                name: '', // This would be the sender's Lightning address (e.g., user@getalby.com)
                 sender_name: metadata?.senderName || 'random podtardstr',
-                episode_guid: metadata?.episodeGuid || ''
+                message: metadata?.message || '',
+                url: metadata?.feedUrl || '',
+                amount: amount // Amount in sats
               })
             }
           });
@@ -323,13 +354,18 @@ export async function processMultiplePayments(
   recipients: PaymentRecipient[],
   totalAmount: number,
   metadata?: {
-    feedId?: string;
-    episodeId?: string;
+    feedId?: string | number;
+    itemId?: string | number;
+    episodeId?: string | number; // For backwards compatibility
     contentTitle?: string;
     app?: string;
+    appVersion?: string;
     message?: string;
     senderName?: string;
     episodeGuid?: string;
+    feedUrl?: string;
+    speed?: string;
+    uuid?: string;
   }
 ): Promise<PaymentResult> {
   const paymentAmounts = calculatePaymentAmounts(recipients, totalAmount);
