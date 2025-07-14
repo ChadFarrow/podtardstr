@@ -108,10 +108,6 @@ const Index = () => {
               </div>
 
               <div>
-                <h3 className="text-sm font-medium text-muted-foreground mb-3">Relay</h3>
-              </div>
-
-              <div>
                 <UserNameInput />
               </div>
 

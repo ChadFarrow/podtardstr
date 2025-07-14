@@ -67,3 +67,11 @@ This project is hosted on **Vercel** (not GitHub Pages).
 ## 📄 License
 
 MIT License - see LICENSE file for details.
+
+## Versioning
+
+Before each push, run:
+
+    npm run bump-version
+
+This will automatically increment the version number in `src/components/VersionDisplay.tsx` by 0.01 (e.g., 1.01 → 1.02).
