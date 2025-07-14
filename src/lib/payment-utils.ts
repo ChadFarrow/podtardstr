@@ -275,7 +275,10 @@ export async function processSinglePayment(
                 
                 // Additional context (optional)
                 ...(metadata?.contentTitle && { contentTitle: metadata.contentTitle }),
-                ...(metadata?.message && { message: metadata.message })
+                ...(metadata?.message && { message: metadata.message }),
+                
+                // Sender information
+                sender: 'Chad Farrow'
               })
             }
           });

@@ -2,6 +2,9 @@ import { useEffect, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { ExternalLink } from 'lucide-react';
 
+// Version number - increment this for releases
+const APP_VERSION = '1.1';
+
 export function VersionDisplay() {
   const [commitHash, setCommitHash] = useState<string>('');
 
@@ -19,7 +22,10 @@ export function VersionDisplay() {
   const githubUrl = `https://github.com/ChadFarrow/podtardstr/commit/${commitHash}`;
 
   return (
-    <div className="mt-2">
+    <div className="mt-2 space-y-1">
+      <div className="text-xs text-muted-foreground">
+        Version {APP_VERSION}
+      </div>
       <a
         href={githubUrl}
         target="_blank"
