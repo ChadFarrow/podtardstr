@@ -34,16 +34,21 @@ function V4VPaymentButton({
   const splitCount = valueDestinations?.length || 0;
 
   return (
-    <div className="mt-2">
+    <div className="mt-2 space-y-1">
       <Button 
         size="sm" 
         variant="outline" 
         onClick={() => setBoostModalOpen(true)}
-        className="text-xs"
+        className="text-xs w-full"
       >
         <Zap className="h-3 w-3 mr-1" />
-        Boost {totalAmount} sats {splitCount > 0 && `(${splitCount} splits)`}
+        Boost {totalAmount} sats
       </Button>
+      {splitCount > 0 && (
+        <p className="text-xs text-center text-muted-foreground">
+          {splitCount} {splitCount === 1 ? 'recipient' : 'recipients'}
+        </p>
+      )}
       
       <BoostModal
         open={boostModalOpen}
