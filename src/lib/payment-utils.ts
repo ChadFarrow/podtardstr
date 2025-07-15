@@ -283,31 +283,39 @@ export async function processSinglePayment(
       // Try to use keysend if available
       if (provider.keysend) {
         try {
+          const currentTimestamp = Math.floor(Date.now() / 1000);
+          const currentDate = new Date();
+          console.log(`🕐 Timestamp Debug: ${currentTimestamp} (${currentDate.toISOString()})`);
+          
+          const tlvData = {
+            podcast: metadata?.contentTitle || '',
+            feedID: metadata?.feedId || '',
+            itemID: metadata?.itemId || metadata?.episodeId || '', // Use itemId if available, fall back to episodeId
+            episode: metadata?.contentTitle || '',
+            episode_guid: metadata?.episodeGuid || '',
+            ts: currentTimestamp, // Current Unix timestamp in seconds
+            action: 'boost',
+            speed: metadata?.speed || '1',
+            app_name: metadata?.app || 'Podtardstr',
+            app_version: metadata?.appVersion || '1.03',
+            value_msat: (amount || 0) * 1000,
+            value_msat_total: metadata?.totalAmount ? metadata.totalAmount * 1000 : (amount || 0) * 1000,
+            uuid: metadata?.uuid || crypto.randomUUID(),
+            name: '', // This would be the sender's Lightning address (e.g., user@getalby.com)
+            sender_name: metadata?.senderName || 'random podtardstr',
+            message: metadata?.message || '',
+            url: metadata?.feedUrl || '',
+            amount: amount // Amount in sats
+          };
+          
+          console.log('📤 TLV Data being sent:', tlvData);
+          
           await provider.keysend({
             destination: recipient.address,
             amount: amount, // Alby keysend expects sats, not msats
             customRecords: {
               // TLV record 7629169 for Podcast Index 2.0 standard
-              '7629169': JSON.stringify({
-                podcast: metadata?.contentTitle || '',
-                feedID: metadata?.feedId || '',
-                itemID: metadata?.itemId || metadata?.episodeId || '', // Use itemId if available, fall back to episodeId
-                episode: metadata?.contentTitle || '',
-                episode_guid: metadata?.episodeGuid || '',
-                ts: Math.floor(Date.now() / 1000),
-                action: 'boost',
-                speed: metadata?.speed || '1',
-                app_name: metadata?.app || 'Podtardstr',
-                app_version: metadata?.appVersion || '1.03',
-                value_msat: (amount || 0) * 1000,
-                value_msat_total: metadata?.totalAmount ? metadata.totalAmount * 1000 : (amount || 0) * 1000,
-                uuid: metadata?.uuid || crypto.randomUUID(),
-                name: '', // This would be the sender's Lightning address (e.g., user@getalby.com)
-                sender_name: metadata?.senderName || 'random podtardstr',
-                message: metadata?.message || '',
-                url: metadata?.feedUrl || '',
-                amount: amount // Amount in sats
-              })
+              '7629169': JSON.stringify(tlvData)
             }
           });
           console.log(`✅ Keysend payment successful to ${recipient.name}`);
