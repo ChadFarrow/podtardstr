@@ -11,6 +11,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useFeedParser, useChannelValueRecipients, useValueSupport, usePodcastIndexFeedData } from '@/hooks/useFeedParser';
 import { getLightningRecipients } from '@/lib/payment-utils';
 import { isValidFeedUrl } from '@/lib/feed-parser';
+import { formatEpisodeDescription } from '@/lib/utils';
 
 export function FeedValueParser() {
   const [feedUrl, setFeedUrl] = useState('');
@@ -135,7 +136,7 @@ export function FeedValueParser() {
                     <div className="space-y-2">
                       <p><strong>Title:</strong> {feed.title || 'Not specified'}</p>
                       <p><strong>Author:</strong> {feed.author || 'Not specified'}</p>
-                      <p><strong>Description:</strong> {feed.description ? feed.description.substring(0, 100) + (feed.description.length > 100 ? '...' : '') : 'Not specified'}</p>
+                      <p><strong>Description:</strong> {feed.description ? formatEpisodeDescription(feed.description, 100) : 'Not specified'}</p>
                       <p><strong>Link:</strong> {feed.link ? (
                         <a href={feed.link} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
                           {feed.link}
@@ -169,45 +170,48 @@ export function FeedValueParser() {
                 {feed.episodes && feed.episodes.length > 0 && (
                   <div>
                     <h4 className="font-semibold mb-3">Episodes ({feed.episodes.length})</h4>
-                    <div className="space-y-3 max-h-96 overflow-y-auto">
+                    <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
                       {feed.episodes.slice(0, 10).map((episode, index) => (
-                        <Card key={index} className="p-3">
-                          <div className="space-y-2">
-                            <div className="flex items-start justify-between gap-2">
-                              <h5 className="font-medium text-sm line-clamp-2">{episode.title}</h5>
+                        <Card key={index} className="p-4 hover:shadow-md transition-shadow">
+                          <div className="space-y-3">
+                            <div className="flex items-start justify-between gap-3">
+                              <h5 className="font-semibold text-sm leading-tight flex-1">{episode.title}</h5>
                               {episode.pubDate && (
-                                <span className="text-xs text-muted-foreground whitespace-nowrap">
+                                <span className="text-xs text-muted-foreground whitespace-nowrap bg-muted px-2 py-1 rounded">
                                   {new Date(episode.pubDate).toLocaleDateString()}
                                 </span>
                               )}
                             </div>
                             {episode.description && (
-                              <p className="text-xs text-muted-foreground line-clamp-2">
-                                {episode.description}
+                              <p className="text-sm text-muted-foreground leading-relaxed">
+                                {formatEpisodeDescription(episode.description, 200)}
                               </p>
                             )}
                             <div className="flex flex-wrap gap-2 text-xs">
                               {episode.link && (
                                 <a href={episode.link} target="_blank" rel="noopener noreferrer" 
-                                   className="text-blue-600 hover:underline">
+                                   className="text-blue-600 hover:underline bg-blue-50 px-2 py-1 rounded">
                                   Episode Link
                                 </a>
                               )}
                               {episode.enclosure?.url && (
                                 <a href={episode.enclosure.url} target="_blank" rel="noopener noreferrer" 
-                                   className="text-green-600 hover:underline">
+                                   className="text-green-600 hover:underline bg-green-50 px-2 py-1 rounded">
                                   Audio File
                                 </a>
                               )}
                               {episode.duration && (
-                                <span className="text-muted-foreground">
+                                <span className="text-muted-foreground bg-muted px-2 py-1 rounded">
                                   Duration: {episode.duration}
                                 </span>
                               )}
                             </div>
                             {episode.value && episode.value.recipients && episode.value.recipients.length > 0 && (
-                              <div className="text-xs">
-                                <span className="font-medium">Episode V4V Recipients:</span> {episode.value.recipients.map(r => r.name).join(', ')}
+                              <div className="text-xs bg-amber-50 p-2 rounded border-l-2 border-amber-200">
+                                <span className="font-medium text-amber-800">Episode V4V Recipients:</span>
+                                <div className="mt-1 text-amber-700">
+                                  {episode.value.recipients.map(r => r.name).join(', ')}
+                                </div>
                               </div>
                             )}
                           </div>

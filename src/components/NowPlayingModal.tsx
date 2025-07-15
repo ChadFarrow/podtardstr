@@ -180,8 +180,47 @@ export function NowPlayingModal({ open, onOpenChange }: NowPlayingModalProps) {
       }
     }
     
-    // For all other tracks, create a search URL to find them on LNBeats
-    const searchQuery = encodeURIComponent(`${currentPodcast.title} ${currentPodcast.author}`);
+    // For tracks with audio URLs, try to create the proper LNBeats album URL format
+    if (currentPodcast.url) {
+      try {
+        // Base64 encode the audio URL
+        const base64AudioUrl = btoa(currentPodcast.url);
+        
+        // Extract potential album ID from feed data (look for UUID patterns)
+        const uuidPattern = /([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/i;
+        
+        // Try to find UUID in various places
+        let albumId = null;
+        const searchFields = [
+          feedData.url,
+          feedData.originalUrl,
+          feedData.link,
+          feedData.description,
+          currentPodcast.id
+        ];
+        
+        for (const field of searchFields) {
+          if (field) {
+            const match = field.match(uuidPattern);
+            if (match) {
+              albumId = match[1];
+              break;
+            }
+          }
+        }
+        
+        if (albumId) {
+          const albumUrl = `https://lnbeats.com/album/${albumId}/${base64AudioUrl}`;
+          console.log('✅ Generated LNBeats album URL:', albumUrl);
+          return albumUrl;
+        }
+      } catch (error) {
+        console.warn('Failed to generate LNBeats album URL:', error);
+      }
+    }
+    
+    // Fallback to search URL using artist and track name
+    const searchQuery = encodeURIComponent(`${currentPodcast.author} ${currentPodcast.title}`);
     const searchUrl = `https://lnbeats.com/search?q=${searchQuery}`;
     console.log('✅ Generated LNBeats search URL:', searchUrl);
     return searchUrl;
