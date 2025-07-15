@@ -307,7 +307,7 @@ export function BoostModal({
 
           {/* Recipients info */}
           <div className="text-sm text-muted-foreground">
-            <p>Recipients: {recipients.map(r => r.name).join(', ')}</p>
+            <p>Recipients ({recipients.length} splits): {recipients.map(r => r.name).join(', ')}</p>
             <p>Amount: {totalAmount} sats</p>
           </div>
 
