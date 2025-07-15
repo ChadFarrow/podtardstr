@@ -28,6 +28,7 @@ export function PodcastPlayer() {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [showNowPlaying, setShowNowPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [hasUserInteracted, setHasUserInteracted] = useState(false);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -59,13 +60,21 @@ export function PodcastPlayer() {
 
   useEffect(() => {
     const audio = audioRef.current;
-    if (!audio || isLoading) return;
+    if (!audio) return;
 
     if (isPlaying) {
-      audio.play().catch((error) => {
-        console.error('Audio play error:', error);
-        setIsPlaying(false);
-      });
+      // Only try to play if the audio is ready or if we're not loading
+      if (audio.readyState >= 2 || !isLoading) {
+        audio.play().catch((error) => {
+          console.error('Audio play error:', error);
+          // If it's a user interaction error, we'll handle it on next click
+          if (error.name === 'NotAllowedError') {
+            console.log('Audio play blocked - waiting for user interaction');
+            return;
+          }
+          setIsPlaying(false);
+        });
+      }
     } else {
       audio.pause();
     }
@@ -98,6 +107,10 @@ export function PodcastPlayer() {
         });
       }
     };
+    const handleLoadedData = () => {
+      // Audio is ready to play
+      setIsLoading(false);
+    };
     const handleError = (e: Event) => {
       const target = e.target as HTMLAudioElement;
       const errorCode = target?.error?.code;
@@ -129,6 +142,7 @@ export function PodcastPlayer() {
 
     audio.addEventListener('loadstart', handleLoadStart);
     audio.addEventListener('canplay', handleCanPlay);
+    audio.addEventListener('loadeddata', handleLoadedData);
     audio.addEventListener('error', handleError);
 
     // Set the new audio source and load
@@ -138,6 +152,7 @@ export function PodcastPlayer() {
     return () => {
       audio.removeEventListener('loadstart', handleLoadStart);
       audio.removeEventListener('canplay', handleCanPlay);
+      audio.removeEventListener('loadeddata', handleLoadedData);
       audio.removeEventListener('error', handleError);
     };
   }, [currentPodcast, setCurrentTime, setDuration, isPlaying, setIsPlaying]);
@@ -150,6 +165,22 @@ export function PodcastPlayer() {
   }, [volume, isMuted]);
 
   const handlePlayPause = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    // Mark that user has interacted
+    setHasUserInteracted(true);
+
+    // If audio is not ready yet, wait for it to be ready before playing
+    if (audio.readyState < 2 && !isPlaying) {
+      const handleCanPlayOnce = () => {
+        audio.removeEventListener('canplay', handleCanPlayOnce);
+        setIsPlaying(true);
+      };
+      audio.addEventListener('canplay', handleCanPlayOnce);
+      return;
+    }
+
     setIsPlaying(!isPlaying);
   };
 
