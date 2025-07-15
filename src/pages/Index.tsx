@@ -3,7 +3,7 @@ import { PodcastPlayer } from '@/components/PodcastPlayer';
 // import { PodcastSearch } from '@/components/PodcastSearch';
 // import { PodcastDiscovery } from '@/components/PodcastDiscovery';
 // import { NostrPodcastFeed } from '@/components/NostrPodcastFeed';
-import { MusicDiscovery } from '@/components/MusicDiscovery';
+// import { MusicDiscovery } from '@/components/MusicDiscovery';
 import { TrendingMusic } from '@/components/TrendingMusic';
 import { FeedValueParser } from '@/components/FeedValueParser';
 import { PodcastValidator } from '@/components/PodcastValidator';
@@ -47,14 +47,14 @@ const Index = () => {
               <div>
                 <h3 className="text-sm font-medium text-muted-foreground mb-3">Navigation</h3>
                 <div className="space-y-2">
-                  <Button
+                  {/* <Button
                     variant={activeTab === 'music' ? 'secondary' : 'ghost'}
                     className="w-full justify-start text-sm"
                     onClick={() => setActiveTab('music')}
                   >
                     <Radio className="h-4 w-4 mr-2" />
                     Music
-                  </Button>
+                  </Button> */}
                   <Button
                     variant={activeTab === 'top100' ? 'secondary' : 'ghost'}
                     className="w-full justify-start text-sm"
@@ -126,7 +126,7 @@ const Index = () => {
               <SidebarTrigger className="h-8 w-8 sm:h-6 sm:w-6" />
               <div className="min-w-0 flex-1">
                 <h2 className="text-base sm:text-xl font-semibold truncate">
-                  {activeTab === 'music' && 'Music'}
+                  {/* {activeTab === 'music' && 'Music'} */}
                   {activeTab === 'top100' && 'Top 100 V4V tracks'}
                   {/* {activeTab === 'discover' && 'Discover'}
                   {activeTab === 'search' && 'Search'} */}
@@ -135,7 +135,7 @@ const Index = () => {
                   {activeTab === 'validator' && 'RSS Validator'}
                 </h2>
                 <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">
-                  {activeTab === 'music' && 'Search and discover music with Value4Value'}
+                  {/* {activeTab === 'music' && 'Search and discover music with Value4Value'} */}
                   {activeTab === 'top100' && 'The hottest Value4Value music tracks ranked by community boosts'}
                   {/* {activeTab === 'discover' && 'Trending music and recent releases'}
                   {activeTab === 'search' && 'Find music and tracks from Podcast Index'} */}
@@ -151,9 +151,9 @@ const Index = () => {
           <main className="flex-1 p-3 sm:p-6 overflow-auto pb-20">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
 
-              <TabsContent value="music" className="space-y-6">
+              {/* <TabsContent value="music" className="space-y-6">
                 <MusicDiscovery />
-              </TabsContent>
+              </TabsContent> */}
 
               <TabsContent value="top100" className="space-y-6">
                 <TrendingMusic />
