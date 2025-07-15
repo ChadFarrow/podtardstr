@@ -7,7 +7,8 @@
 ### **Current Status**
 - **Version:** 1.03 (auto-increments on commits)
 - **Status:** 🟢 Production Ready - All core features complete
-- **Live URL:** https://podtardstr.vercel.app
+- **Beta URL:** https://podtardstr.vercel.app (main branch - fast development)
+- **Stable URL:** https://app.podtards.com (stable branch - production)
 - **Repo:** https://github.com/ChadFarrow/podtardstr
 
 ### **Key Architecture & Tech Stack**
@@ -29,6 +30,7 @@
 ✅ **Mobile Optimized** - Fixed viewport, single-click play, loading states  
 
 ### **Recent Critical Changes (Reference for Context)**
+- **Deployment Structure:** Beta/stable deployment setup with separate URLs and branches
 - **TLV Metadata:** Now matches Podcast Index 2.0 spec exactly (podcast, feedID, itemID, episode, etc.)
 - **Audio Loading:** Fixed "fetching process aborted" with proper loading state management
 - **Bottom Player:** Changed from sticky to fixed positioning, always visible
@@ -208,6 +210,7 @@
 ## 🎯 Recent Achievements
 
 ### **July 14, 2025 - Version 1.03**
+- ✅ **Beta/Stable Deployment**: Set up separate deployment structure with main→beta and stable→production
 - ✅ **TLV Record Standardization**: Updated TLV metadata structure to match real-world Podcast Index 2.0 examples
 - ✅ **Enhanced TLV Fields**: Added missing fields: uuid, speed, url, episode_guid, app_version, amount
 - ✅ **Metadata Consistency**: All payment components now pass complete metadata including feedId and itemId
@@ -314,9 +317,10 @@
 
 ## 🔗 Quick Links
 
-- **Live App**: https://podtardstr.vercel.app
+- **Beta App**: https://podtardstr.vercel.app (main branch - fast development)
+- **Stable App**: https://app.podtards.com (stable branch - production)
 - **Repository**: https://github.com/ChadFarrow/podtardstr
-- **Documentation**: `README.md`, `APK_BUILD.md`
+- **Documentation**: `README.md`, `APK_BUILD.md`, `DEPLOYMENT.md`
 - **Known Issues**: `.cursorrules` (Known Issues section)
 - **Build Scripts**: `scripts/build-apk.sh`
 
