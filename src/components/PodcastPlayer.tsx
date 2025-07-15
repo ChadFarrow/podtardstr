@@ -62,8 +62,16 @@ export function PodcastPlayer() {
     const audio = audioRef.current;
     if (!audio) return;
 
+    console.log('Play effect triggered:', {
+      isPlaying,
+      readyState: audio.readyState,
+      isLoading,
+      hasUserInteracted
+    });
+
     if (isPlaying) {
       // Try to play regardless of loading state - let the browser handle it
+      console.log('Attempting to play audio');
       audio.play().catch((error) => {
         console.error('Audio play error:', error);
         // If it's a user interaction error, we'll handle it on next click
@@ -71,9 +79,11 @@ export function PodcastPlayer() {
           console.log('Audio play blocked - waiting for user interaction');
           return;
         }
+        console.log('Setting isPlaying to false due to error');
         setIsPlaying(false);
       });
     } else {
+      console.log('Pausing audio');
       audio.pause();
     }
   }, [isPlaying, setIsPlaying]);
@@ -169,7 +179,27 @@ export function PodcastPlayer() {
     // Mark that user has interacted
     setHasUserInteracted(true);
 
-    // Always toggle the playing state - let the browser handle readiness
+    console.log('Play button clicked:', {
+      isPlaying,
+      readyState: audio.readyState,
+      isLoading,
+      hasUserInteracted
+    });
+
+    // If we're trying to play and audio isn't ready, wait for it
+    if (!isPlaying && audio.readyState < 2) {
+      console.log('Audio not ready, waiting for canplay event');
+      const handleCanPlayOnce = () => {
+        audio.removeEventListener('canplay', handleCanPlayOnce);
+        console.log('Audio ready, setting isPlaying to true');
+        setIsPlaying(true);
+      };
+      audio.addEventListener('canplay', handleCanPlayOnce);
+      return;
+    }
+
+    // Otherwise toggle the state
+    console.log('Toggling isPlaying from', isPlaying, 'to', !isPlaying);
     setIsPlaying(!isPlaying);
   };
 
