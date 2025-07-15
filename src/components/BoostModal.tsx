@@ -6,6 +6,7 @@ import { Zap, X } from 'lucide-react';
 import { useLightningWallet } from '@/hooks/useLightningWallet';
 import { useValue4ValueData } from '@/hooks/useValueBlockFromRss';
 import { useUserName } from '@/hooks/useUserName';
+import confetti from 'canvas-confetti';
 import { 
   getLightningRecipients, 
   processMultiplePayments, 
@@ -87,6 +88,52 @@ export function BoostModal({
   const [message, setMessage] = useState('');
   const { getDisplayName } = useUserName();
 
+  // Confetti celebration function
+  const triggerConfetti = useCallback(() => {
+    // Create a burst of confetti from multiple angles
+    const count = 200;
+    const defaults = {
+      origin: { y: 0.7 },
+      colors: ['#FFD700', '#FFA500', '#FF6347', '#32CD32', '#1E90FF', '#DA70D6']
+    };
+
+    function fire(particleRatio: number, opts: confetti.Options) {
+      confetti({
+        ...defaults,
+        ...opts,
+        particleCount: Math.floor(count * particleRatio)
+      });
+    }
+
+    // Fire confetti in different directions for dramatic effect
+    fire(0.25, {
+      spread: 26,
+      startVelocity: 55,
+    });
+
+    fire(0.2, {
+      spread: 60,
+    });
+
+    fire(0.35, {
+      spread: 100,
+      decay: 0.91,
+      scalar: 0.8
+    });
+
+    fire(0.1, {
+      spread: 120,
+      startVelocity: 25,
+      decay: 0.92,
+      scalar: 1.2
+    });
+
+    fire(0.1, {
+      spread: 120,
+      startVelocity: 45,
+    });
+  }, []);
+
   // Use the Value4Value hook to get complete data
   const { 
     recipients: v4vRecipients, 
@@ -166,6 +213,9 @@ export function BoostModal({
         speed: '1',
       });
       
+      // Trigger confetti celebration on successful payment!
+      triggerConfetti();
+      
       // Close modal on success after a short delay
       setTimeout(() => {
         onOpenChange(false);
@@ -177,7 +227,7 @@ export function BoostModal({
       console.error('Boost payment error:', error);
       setStatus(error instanceof Error ? error.message : 'Payment failed or cancelled.');
     }
-  }, [hasRecipients, connectWallet, processPayment, recipients, totalAmount, setStatus, contentTitle, message, onOpenChange, getDisplayName]);
+  }, [hasRecipients, connectWallet, processPayment, recipients, totalAmount, setStatus, contentTitle, message, onOpenChange, getDisplayName, triggerConfetti]);
 
   const handleClose = () => {
     onOpenChange(false);
@@ -281,6 +331,18 @@ export function BoostModal({
           {/* Status message */}
           {status && (
             <p className="text-sm text-muted-foreground text-center">{status}</p>
+          )}
+
+          {/* Test confetti button - remove after testing */}
+          {process.env.NODE_ENV === 'development' && (
+            <Button 
+              onClick={triggerConfetti}
+              variant="outline"
+              size="sm"
+              className="mt-2"
+            >
+              🎉 Test Confetti
+            </Button>
           )}
         </div>
       </DialogContent>
