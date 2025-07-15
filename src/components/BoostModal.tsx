@@ -90,6 +90,8 @@ export function BoostModal({
 
   // Confetti celebration function
   const triggerConfetti = useCallback(() => {
+    console.log('🎉 Triggering confetti!');
+    
     // Create a burst of confetti from multiple angles
     const count = 200;
     const defaults = {
@@ -214,6 +216,7 @@ export function BoostModal({
       });
       
       // Trigger confetti celebration on successful payment!
+      console.log('💰 Payment successful! About to trigger confetti...');
       triggerConfetti();
       
       // Close modal on success after a short delay
@@ -333,17 +336,15 @@ export function BoostModal({
             <p className="text-sm text-muted-foreground text-center">{status}</p>
           )}
 
-          {/* Test confetti button - remove after testing */}
-          {process.env.NODE_ENV === 'development' && (
-            <Button 
-              onClick={triggerConfetti}
-              variant="outline"
-              size="sm"
-              className="mt-2"
-            >
-              🎉 Test Confetti
-            </Button>
-          )}
+          {/* Test confetti button - always visible for testing */}
+          <Button 
+            onClick={triggerConfetti}
+            variant="outline"
+            size="sm"
+            className="mt-2"
+          >
+            🎉 Test Confetti
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
