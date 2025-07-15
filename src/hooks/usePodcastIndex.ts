@@ -477,8 +477,8 @@ export function useTop100Music() {
         const top100Data: Top100MusicEntry[] = top100Response.items || [];
         
         // For feeds with feedIds, fetch their actual V4V data from Podcast Index API
-        // Limit to first 50 to avoid too many API calls
-        const topEntries = top100Data.slice(0, 50);
+        // Fetch for all entries to ensure complete V4V data
+        const topEntries = top100Data;
         const enhancedFeeds = await Promise.all(
           topEntries.map(async (entry) => {
             let valueData: PodcastIndexPodcast['value'] = undefined;
@@ -541,42 +541,7 @@ export function useTop100Music() {
           })
         );
 
-        // Add remaining entries without enhanced data
-        const remainingEntries = top100Data.slice(50).map(entry => ({
-          id: entry.feedId || entry.rank,
-          title: entry.title,
-          url: entry.feedUrl || '', 
-          originalUrl: '',
-          link: '',
-          description: `Rank #${entry.rank} on V4V Music Chart with ${entry.boosts} boosts`,
-          author: entry.author,
-          ownerName: '',
-          image: entry.image,
-          artwork: entry.image,
-          lastUpdateTime: 0,
-          lastCrawlTime: 0,
-          lastParseTime: 0,
-          lastGoodHttpStatusTime: 0,
-          lastHttpStatus: 200,
-          contentType: '',
-          itunesType: 'music',
-          generator: '',
-          language: 'en',
-          type: 0,
-          dead: 0,
-          crawlErrors: 0,
-          parseErrors: 0,
-          categories: { 'music': 'Music' },
-          locked: 0,
-          imageUrlHash: 0,
-          newestItemPubdate: 0,
-          episodeCount: 1,
-          feedGuid: entry.feedGuid,
-          // No V4V data for remaining entries (only show real V4V data)
-          value: undefined
-        } as PodcastIndexPodcast));
-
-        const allFeeds = [...enhancedFeeds, ...remainingEntries];
+        const allFeeds = enhancedFeeds;
         
         // Debug: Count how many feeds have V4V data
         const feedsWithV4V = allFeeds.filter(feed => (feed.value?.destinations?.length ?? 0) > 0);
