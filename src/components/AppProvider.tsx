@@ -13,9 +13,9 @@ interface AppProviderProps {
   presetRelays?: { name: string; url: string }[];
 }
 
-// Zod schema for AppConfig validation
+// Zod schema for AppConfig validation with migration
 const AppConfigSchema: z.ZodType<AppConfig, z.ZodTypeDef, unknown> = z.object({
-  theme: z.literal('dark'),
+  theme: z.enum(['dark', 'light', 'system']).transform(() => 'dark' as const), // Always convert to dark
   relayUrl: z.string().url(),
 });
 
@@ -34,8 +34,15 @@ export function AppProvider(props: AppProviderProps) {
     {
       serialize: JSON.stringify,
       deserialize: (value: string) => {
-        const parsed = JSON.parse(value);
-        return AppConfigSchema.parse(parsed);
+        try {
+          const parsed = JSON.parse(value);
+          return AppConfigSchema.parse(parsed);
+        } catch (error) {
+          console.warn('Failed to parse app config from localStorage, using defaults:', error);
+          // Clear corrupted localStorage and return default config
+          localStorage.removeItem(storageKey);
+          return defaultConfig;
+        }
       }
     }
   );
