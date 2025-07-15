@@ -35,6 +35,7 @@ function V4VPaymentButton({
   episodeId
 }: V4VPaymentButtonProps) {
   const [boostModalOpen, setBoostModalOpen] = useState(false);
+  const splitCount = valueDestinations?.length || 0;
 
   return (
     <div className="space-y-3">
@@ -45,7 +46,7 @@ function V4VPaymentButton({
         className="w-full"
       >
         <Zap className="h-4 w-4 mr-2" />
-        Boost {totalAmount} sats
+        Boost {totalAmount} sats {splitCount > 0 && `(${splitCount} splits)`}
       </Button>
       
       <BoostModal
