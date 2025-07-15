@@ -15,6 +15,7 @@ import {
   type PaymentRecipient,
   LightningProvider
 } from '@/lib/payment-utils';
+import { getAppVersion } from '@/lib/utils';
 
 interface BoostModalProps {
   open: boolean;
@@ -205,7 +206,7 @@ export function BoostModal({
         episodeId: episodeId,
         contentTitle,
         app: 'Podtardstr',
-        appVersion: '1.03',
+        appVersion: getAppVersion(),
         message,
         senderName: getDisplayName(),
         episodeGuid: episodeGuid,
