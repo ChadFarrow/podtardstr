@@ -9,6 +9,7 @@ import { usePodcastPlayer } from '@/hooks/usePodcastPlayer';
 import type { PodcastIndexPodcast, PodcastIndexEpisode } from '@/hooks/usePodcastIndex';
 import { BoostModal } from '@/components/BoostModal';
 import { type ValueDestination } from '@/lib/payment-utils';
+import { useValue4ValueData } from '@/hooks/useValueBlockFromRss';
 
 interface V4VPaymentButtonProps {
   valueDestinations?: ValueDestination[];
@@ -31,7 +32,17 @@ function V4VPaymentButton({
   episodeId
 }: V4VPaymentButtonProps) {
   const [boostModalOpen, setBoostModalOpen] = useState(false);
-  const splitCount = valueDestinations?.length || 0;
+  
+  // Use the same enhanced V4V data that the modal uses
+  const { 
+    recipients: v4vRecipients, 
+    hasValue: hasV4VData 
+  } = useValue4ValueData(feedUrl, episodeGuid, valueDestinations);
+  
+  // Calculate split count using enhanced data when available
+  const splitCount = hasV4VData && v4vRecipients.length > 0 
+    ? v4vRecipients.length 
+    : (valueDestinations?.length || 0);
 
   return (
     <div className="mt-2 space-y-1">
