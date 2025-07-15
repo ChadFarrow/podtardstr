@@ -44,9 +44,13 @@ function V4VPaymentButton({
         <Zap className="h-3 w-3 mr-1" />
         Boost {totalAmount} sats
       </Button>
-      {splitCount > 0 && (
+      {splitCount > 0 ? (
         <p className="text-xs text-center text-muted-foreground">
           {splitCount} {splitCount === 1 ? 'recipient' : 'recipients'}
+        </p>
+      ) : (
+        <p className="text-xs text-center text-muted-foreground">
+          No V4V data
         </p>
       )}
       
