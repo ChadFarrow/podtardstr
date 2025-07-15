@@ -15,7 +15,7 @@ interface AppProviderProps {
 
 // Zod schema for AppConfig validation
 const AppConfigSchema: z.ZodType<AppConfig, z.ZodTypeDef, unknown> = z.object({
-  theme: z.enum(['dark', 'light']),
+  theme: z.literal('dark'),
   relayUrl: z.string().url(),
 });
 
