@@ -6,6 +6,7 @@ export interface LightningWallet {
   sendPayment: (invoice: string) => Promise<void>;
   getBalance?: () => Promise<number>;
   signMessage?: (message: string) => Promise<string>;
+  keysend?: (args: { destination: string; amount: number; customRecords?: Record<string, string> }) => Promise<any>;
   provider?: 'bitcoin-connect' | 'getalby-web';
   user?: GetAlbyUser;
 }

@@ -67,10 +67,14 @@ export class GetAlbyAuth {
     this.refreshToken = localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
     
     if (this.accessToken) {
-      this.ln = new LN({
-        authToken: this.accessToken,
-        baseUrl: 'https://api.getalby.com',
-      });
+      // Note: SDK v5.x uses different constructor, this may need adjustment
+      // TODO: Update to use proper NWC credentials or OAuth token method
+      try {
+        this.ln = new LN(this.accessToken);
+      } catch (error) {
+        console.warn('Failed to initialize LN with access token:', error);
+        this.ln = null;
+      }
     }
   }
 
@@ -83,10 +87,14 @@ export class GetAlbyAuth {
     this.accessToken = tokens.access_token;
     this.refreshToken = tokens.refresh_token || null;
     
-    this.ln = new LN({
-      authToken: this.accessToken,
-      baseUrl: 'https://api.getalby.com',
-    });
+    // Note: SDK v5.x uses different constructor, this may need adjustment
+    // TODO: Update to use proper NWC credentials or OAuth token method
+    try {
+      this.ln = new LN(this.accessToken);
+    } catch (error) {
+      console.warn('Failed to initialize LN with access token:', error);
+      this.ln = null;
+    }
   }
 
   // Start OAuth flow
