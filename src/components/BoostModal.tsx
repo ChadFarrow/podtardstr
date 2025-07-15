@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Zap, X } from 'lucide-react';
 import { useLightningWallet } from '@/hooks/useLightningWallet';
+import GetAlbyLoginButton from '@/components/GetAlbyLoginButton';
 import { useValue4ValueData } from '@/hooks/useValueBlockFromRss';
 import { useUserName } from '@/hooks/useUserName';
 import confetti from 'canvas-confetti';
@@ -84,7 +85,7 @@ export function BoostModal({
   feedId,
   episodeId
 }: BoostModalProps) {
-  const { connectWallet, isConnecting } = useLightningWallet();
+  const { connectWallet, connectGetAlbyWeb, isConnecting, walletProvider, getalbyUser } = useLightningWallet();
   const { processPayment, isProcessing, status, setStatus } = usePaymentProcessor();
   const [message, setMessage] = useState('');
   const { getDisplayName } = useUserName();
@@ -251,6 +252,20 @@ export function BoostModal({
     }
   }, [hasRecipients, connectWallet, processPayment, recipients, totalAmount, setStatus, contentTitle, message, onOpenChange, getDisplayName, triggerConfetti]);
 
+  const handleGetAlbyLogin = useCallback(async (user: any) => {
+    try {
+      await connectGetAlbyWeb(user);
+      setStatus(`Connected to GetAlby as ${user.name || user.email}`);
+    } catch (error) {
+      console.error('GetAlby connection error:', error);
+      setStatus('Failed to connect to GetAlby');
+    }
+  }, [connectGetAlbyWeb]);
+
+  const handleGetAlbyError = useCallback((error: string) => {
+    setStatus(`GetAlby error: ${error}`);
+  }, []);
+
   const handleClose = () => {
     onOpenChange(false);
     setMessage('');
@@ -334,22 +349,65 @@ export function BoostModal({
             <p>Amount: {totalAmount} sats</p>
           </div>
 
-          {/* Boost button */}
-          <Button 
-            onClick={handleBoost}
-            disabled={isProcessing || isConnecting}
-            className="w-full"
-            size="lg"
-          >
-            {isProcessing || isConnecting ? (
-              'Processing...'
-            ) : (
-              <>
-                <Zap className="h-4 w-4 mr-2" />
-                Boost {totalAmount} sats
-              </>
-            )}
-          </Button>
+          {/* Wallet connection options */}
+          {!walletProvider && (
+            <div className="space-y-3">
+              <div className="text-sm text-muted-foreground text-center">
+                Connect your Lightning wallet to boost:
+              </div>
+              
+              {/* GetAlby Web Login Button */}
+              <GetAlbyLoginButton 
+                onLogin={handleGetAlbyLogin}
+                onError={handleGetAlbyError}
+              />
+              
+              {/* Bitcoin Connect Button */}
+              <Button 
+                onClick={handleBoost}
+                disabled={isProcessing || isConnecting}
+                className="w-full"
+                size="lg"
+                variant="outline"
+              >
+                {isProcessing || isConnecting ? (
+                  'Connecting...'
+                ) : (
+                  <>
+                    <Zap className="h-4 w-4 mr-2" />
+                    Other Lightning Wallets
+                  </>
+                )}
+              </Button>
+            </div>
+          )}
+
+          {/* Boost button (shown when wallet is connected) */}
+          {walletProvider && (
+            <div className="space-y-2">
+              {getalbyUser && (
+                <div className="text-sm text-muted-foreground text-center">
+                  Connected as {getalbyUser.name || getalbyUser.email}
+                </div>
+              )}
+              
+              <Button 
+                onClick={handleBoost}
+                disabled={isProcessing || isConnecting}
+                className="w-full"
+                size="lg"
+              >
+                {isProcessing || isConnecting ? (
+                  'Processing...'
+                ) : (
+                  <>
+                    <Zap className="h-4 w-4 mr-2" />
+                    Boost {totalAmount} sats
+                  </>
+                )}
+              </Button>
+            </div>
+          )}
           
           {/* Status message */}
           {status && (

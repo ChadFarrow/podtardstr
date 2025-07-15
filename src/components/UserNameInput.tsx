@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useUserName } from '@/hooks/useUserName';
@@ -8,6 +8,11 @@ export function UserNameInput() {
   const { userName, setUserName, getDisplayName } = useUserName();
   const [inputValue, setInputValue] = useState(userName);
   const [isEditing, setIsEditing] = useState(false);
+
+  // Sync inputValue with userName when it changes (e.g., from localStorage)
+  useEffect(() => {
+    setInputValue(userName);
+  }, [userName]);
 
   const handleSave = () => {
     setUserName(inputValue.trim());

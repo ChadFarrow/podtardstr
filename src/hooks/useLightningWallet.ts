@@ -1,23 +1,51 @@
 import { useState, useCallback } from 'react';
 import { requestProvider, launchModal } from '@getalby/bitcoin-connect';
+import { getalbyAuth, GetAlbyUser } from '@/lib/getalby-auth';
 
 export interface LightningWallet {
   sendPayment: (invoice: string) => Promise<void>;
   getBalance?: () => Promise<number>;
   signMessage?: (message: string) => Promise<string>;
+  provider?: 'bitcoin-connect' | 'getalby-web';
+  user?: GetAlbyUser;
 }
 
 export function useLightningWallet() {
   const [isConnecting, setIsConnecting] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [walletProvider, setWalletProvider] = useState<'bitcoin-connect' | 'getalby-web' | null>(null);
+  const [getalbyUser, setGetalbyUser] = useState<GetAlbyUser | null>(null);
 
   const connectWallet = useCallback(async (): Promise<LightningWallet | null> => {
     setIsConnecting(true);
     setError(null);
     
     try {
-      // Try to get existing provider
+      // Check if GetAlby web is already authenticated
+      if (getalbyAuth.isAuthenticated()) {
+        const userInfo = getalbyAuth.getStoredUserInfo();
+        if (userInfo) {
+          setIsConnected(true);
+          setWalletProvider('getalby-web');
+          setGetalbyUser(userInfo);
+          return {
+            sendPayment: async (invoice: string) => {
+              return await getalbyAuth.sendPayment(invoice);
+            },
+            getBalance: async () => {
+              return await getalbyAuth.getBalance();
+            },
+            keysend: async (args: { destination: string; amount: number; customRecords?: Record<string, string> }) => {
+              return await getalbyAuth.keysend(args.destination, args.amount, args.customRecords);
+            },
+            provider: 'getalby-web',
+            user: userInfo,
+          };
+        }
+      }
+      
+      // Try to get existing Bitcoin Connect provider
       let provider = await requestProvider();
       
       if (!provider) {
@@ -39,7 +67,11 @@ export function useLightningWallet() {
 
       if (provider) {
         setIsConnected(true);
-        return provider;
+        setWalletProvider('bitcoin-connect');
+        return {
+          ...provider,
+          provider: 'bitcoin-connect',
+        };
       } else {
         throw new Error('No Lightning wallet connected.');
       }
@@ -53,16 +85,46 @@ export function useLightningWallet() {
     }
   }, []);
 
+  const connectGetAlbyWeb = useCallback(async (user: GetAlbyUser): Promise<LightningWallet> => {
+    setIsConnected(true);
+    setWalletProvider('getalby-web');
+    setGetalbyUser(user);
+    
+    return {
+      sendPayment: async (invoice: string) => {
+        return await getalbyAuth.sendPayment(invoice);
+      },
+      getBalance: async () => {
+        return await getalbyAuth.getBalance();
+      },
+      keysend: async (args: { destination: string; amount: number; customRecords?: Record<string, string> }) => {
+        return await getalbyAuth.keysend(args.destination, args.amount, args.customRecords);
+      },
+      provider: 'getalby-web',
+      user,
+    };
+  }, []);
+
   const disconnectWallet = useCallback(() => {
     setIsConnected(false);
     setError(null);
-  }, []);
+    setWalletProvider(null);
+    setGetalbyUser(null);
+    
+    // Logout from GetAlby if it was the connected provider
+    if (walletProvider === 'getalby-web') {
+      getalbyAuth.logout();
+    }
+  }, [walletProvider]);
 
   return {
     connectWallet,
+    connectGetAlbyWeb,
     disconnectWallet,
     isConnecting,
     isConnected,
-    error
+    error,
+    walletProvider,
+    getalbyUser
   };
 } 

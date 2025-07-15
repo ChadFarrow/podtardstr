@@ -30,6 +30,7 @@ export interface PaymentResult {
 export interface LightningProvider {
   sendPayment: (invoice: string) => Promise<void>;
   keysend?: (args: { destination: string; amount: number; customRecords?: Record<string, string> }) => Promise<void>;
+  provider?: 'bitcoin-connect' | 'getalby-web';
 }
 
 export interface TLVMetadata {
