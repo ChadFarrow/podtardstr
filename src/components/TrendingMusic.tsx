@@ -50,7 +50,7 @@ function V4VPaymentButton({
         size="sm" 
         variant="outline" 
         onClick={() => setBoostModalOpen(true)}
-        className="text-xs w-full"
+        className="text-xs w-1/2"
       >
         <Zap className="h-3 w-3 mr-1" />
         Boost {totalAmount} sats
@@ -288,12 +288,12 @@ export function TrendingMusic() {
                   <Card key={`trending-${feed.id}-${index}`} className="hover:shadow-md transition-shadow">
                     <CardContent className="p-2 sm:p-3">
                       {/* Mobile: Vertical layout for 3 columns */}
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
-                        <div className="relative group h-20 w-full sm:h-12 sm:w-12 flex-shrink-0">
+                      <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-3 min-h-24">
+                        <div className="relative group h-24 w-full sm:h-full sm:w-24 flex-shrink-0">
                           <SecureImage 
                             src={feed.image || feed.artwork} 
                             alt={feed.title}
-                            className="h-20 w-full sm:h-12 sm:w-12 rounded object-cover"
+                            className="h-24 w-full sm:h-full sm:w-24 rounded object-cover"
                           />
                           <button
                             onPointerDown={(e) => {
