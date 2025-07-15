@@ -63,22 +63,20 @@ export function PodcastPlayer() {
     if (!audio) return;
 
     if (isPlaying) {
-      // Only try to play if the audio is ready or if we're not loading
-      if (audio.readyState >= 2 || !isLoading) {
-        audio.play().catch((error) => {
-          console.error('Audio play error:', error);
-          // If it's a user interaction error, we'll handle it on next click
-          if (error.name === 'NotAllowedError') {
-            console.log('Audio play blocked - waiting for user interaction');
-            return;
-          }
-          setIsPlaying(false);
-        });
-      }
+      // Try to play regardless of loading state - let the browser handle it
+      audio.play().catch((error) => {
+        console.error('Audio play error:', error);
+        // If it's a user interaction error, we'll handle it on next click
+        if (error.name === 'NotAllowedError') {
+          console.log('Audio play blocked - waiting for user interaction');
+          return;
+        }
+        setIsPlaying(false);
+      });
     } else {
       audio.pause();
     }
-  }, [isPlaying, isLoading, setIsPlaying]);
+  }, [isPlaying, setIsPlaying]);
 
   // Handle new track loading
   useEffect(() => {
@@ -171,16 +169,7 @@ export function PodcastPlayer() {
     // Mark that user has interacted
     setHasUserInteracted(true);
 
-    // If audio is not ready yet, wait for it to be ready before playing
-    if (audio.readyState < 2 && !isPlaying) {
-      const handleCanPlayOnce = () => {
-        audio.removeEventListener('canplay', handleCanPlayOnce);
-        setIsPlaying(true);
-      };
-      audio.addEventListener('canplay', handleCanPlayOnce);
-      return;
-    }
-
+    // Always toggle the playing state - let the browser handle readiness
     setIsPlaying(!isPlaying);
   };
 
