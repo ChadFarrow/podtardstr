@@ -45,17 +45,17 @@ function V4VPaymentButton({
     : (valueDestinations?.length || 0);
 
   return (
-    <div className="mt-3 space-y-2 flex flex-col items-center">
+    <div className="space-y-1.5 flex flex-col items-center">
       <Button 
         size="sm" 
         variant="outline" 
         onClick={() => setBoostModalOpen(true)}
-        className="text-xs w-full"
+        className="text-xs w-full h-8"
       >
         <Zap className="h-3 w-3 mr-1" />
         Boost {totalAmount} sats
       </Button>
-      <p className="text-xs text-center text-muted-foreground">
+      <p className="text-xs text-center text-muted-foreground leading-tight">
         {splitCount > 0 ? `${splitCount} ${splitCount === 1 ? 'recipient' : 'recipients'}` : 'No recipients'}
       </p>
       
@@ -283,24 +283,24 @@ export function TrendingMusic() {
               <div className="text-sm text-muted-foreground px-1">
                 Showing Top {trendingMusic.feeds.length} tracks from the Value4Value Music Chart
               </div>
-              <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              <div className="grid gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {trendingMusic.feeds.map((feed, index) => (
-                  <Card key={`trending-${feed.id}-${index}`} className="relative w-full max-w-80 mx-auto hover:shadow-xl hover:shadow-black/20 transition-all duration-300 hover:-translate-y-1">
-                    <CardContent className="p-6 flex flex-col items-center text-center space-y-4">
+                  <Card key={`trending-${feed.id}-${index}`} className="relative w-full max-w-70 mx-auto hover:shadow-xl hover:shadow-black/20 transition-all duration-300 hover:-translate-y-1">
+                    <CardContent className="p-5 flex flex-col items-center text-center space-y-3">
                       {/* Rank badge - top right corner */}
-                      <span className="absolute top-4 right-4 text-xs font-mono text-muted-foreground bg-background/80 backdrop-blur-sm px-2 py-1 rounded-full border">
+                      <span className="absolute top-3 right-3 text-xs font-mono text-muted-foreground bg-background/80 backdrop-blur-sm px-2 py-1 rounded-full border">
                         #{index + 1}
                       </span>
 
-                      {/* Hero Album Art - 120x120 with enhanced styling */}
+                      {/* Hero Album Art - 80x80 with enhanced styling */}
                       <div className="relative group">
-                        <div className="relative w-30 h-30 mx-auto">
+                        <div className="relative w-20 h-20 mx-auto">
                           <SecureImage 
                             src={feed.image || feed.artwork} 
                             alt={feed.title}
-                            className="w-30 h-30 rounded-3xl object-cover shadow-2xl group-hover:shadow-3xl transition-all duration-300"
+                            className="w-20 h-20 rounded-2xl object-cover shadow-lg group-hover:shadow-xl transition-all duration-300"
                             style={{
-                              boxShadow: '0 20px 40px rgba(0,0,0,0.3), 0 0 40px rgba(139,69,19,0.2)'
+                              boxShadow: '0 12px 24px rgba(0,0,0,0.25), 0 0 24px rgba(139,69,19,0.15)'
                             }}
                           />
                           <button
@@ -310,27 +310,27 @@ export function TrendingMusic() {
                               handlePlayPauseAlbum(feed);
                             }}
                             disabled={loadingTrackId === feed.id.toString()}
-                            className="absolute inset-0 bg-black/20 hover:bg-black/40 active:bg-black/50 rounded-3xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed backdrop-blur-sm"
+                            className="absolute inset-0 bg-black/20 hover:bg-black/40 active:bg-black/50 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed backdrop-blur-sm"
                             style={{ touchAction: 'manipulation' }}
                             aria-label={isCurrentlyPlaying(feed.id.toString(), feed.title) ? 'Pause' : 'Play'}
                           >
                             {loadingTrackId === feed.id.toString() ? (
-                              <div className="h-12 w-12 border-3 border-white border-t-transparent rounded-full animate-spin" />
+                              <div className="h-8 w-8 border-2 border-white border-t-transparent rounded-full animate-spin" />
                             ) : isCurrentlyPlaying(feed.id.toString(), feed.title) ? (
-                              <Pause className="h-12 w-12 text-white drop-shadow-2xl" />
+                              <Pause className="h-8 w-8 text-white drop-shadow-lg" />
                             ) : (
-                              <Play className="h-12 w-12 text-white drop-shadow-2xl ml-1" />
+                              <Play className="h-8 w-8 text-white drop-shadow-lg ml-0.5" />
                             )}
                           </button>
                         </div>
                       </div>
 
                       {/* Song Title - Primary text */}
-                      <div className="space-y-1 min-w-0 w-full">
+                      <div className="space-y-0.5 min-w-0 w-full">
                         <h3 className="font-bold text-sm leading-tight line-clamp-2 text-foreground">
                           {feed.title}
                         </h3>
-                        <p className="text-sm text-muted-foreground truncate">
+                        <p className="text-xs text-muted-foreground truncate">
                           {feed.author}
                         </p>
                       </div>

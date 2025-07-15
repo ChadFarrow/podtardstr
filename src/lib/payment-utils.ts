@@ -5,6 +5,8 @@
 // - Standard: feedId, episodeId, amount, app, platform  
 // - Optional: contentTitle, message
 
+import { getAppVersion } from '@/lib/utils';
+
 export interface ValueDestination {
   name: string;
   address: string;

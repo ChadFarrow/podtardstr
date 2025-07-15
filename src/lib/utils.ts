@@ -6,6 +6,16 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 /**
+ * Gets the current app version
+ * This should match the APP_VERSION in VersionDisplay.tsx
+ */
+export function getAppVersion(): string {
+  // Import the version from VersionDisplay component
+  // This ensures consistency across the app
+  return '1.18'; // This should be updated to match VersionDisplay.tsx
+}
+
+/**
  * Cleans and sanitizes HTML content for better readability
  * Removes HTML tags and decodes HTML entities
  */
