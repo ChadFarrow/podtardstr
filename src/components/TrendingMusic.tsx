@@ -45,17 +45,17 @@ function V4VPaymentButton({
     : (valueDestinations?.length || 0);
 
   return (
-    <div className="mt-2 space-y-1">
+    <div className="mt-3 space-y-2 flex flex-col items-center">
       <Button 
         size="sm" 
         variant="outline" 
         onClick={() => setBoostModalOpen(true)}
-        className="text-xs w-2/3"
+        className="text-xs w-full"
       >
         <Zap className="h-3 w-3 mr-1" />
         Boost {totalAmount} sats
       </Button>
-      <p className="text-xs text-left text-muted-foreground">
+      <p className="text-xs text-center text-muted-foreground">
         {splitCount > 0 ? `${splitCount} ${splitCount === 1 ? 'recipient' : 'recipients'}` : 'No recipients'}
       </p>
       
@@ -283,17 +283,25 @@ export function TrendingMusic() {
               <div className="text-sm text-muted-foreground px-1">
                 Showing Top {trendingMusic.feeds.length} tracks from the Value4Value Music Chart
               </div>
-              <div className="grid gap-4 grid-cols-3 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {trendingMusic.feeds.map((feed, index) => (
-                  <Card key={`trending-${feed.id}-${index}`} className="hover:shadow-md transition-shadow">
-                    <CardContent className="p-2 sm:p-3">
-                      {/* Mobile: Vertical layout for 3 columns */}
-                      <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-3 min-h-20">
-                        <div className="relative group h-20 w-full sm:h-full sm:w-20 flex-shrink-0">
+                  <Card key={`trending-${feed.id}-${index}`} className="relative w-full max-w-80 mx-auto hover:shadow-xl hover:shadow-black/20 transition-all duration-300 hover:-translate-y-1">
+                    <CardContent className="p-6 flex flex-col items-center text-center space-y-4">
+                      {/* Rank badge - top right corner */}
+                      <span className="absolute top-4 right-4 text-xs font-mono text-muted-foreground bg-background/80 backdrop-blur-sm px-2 py-1 rounded-full border">
+                        #{index + 1}
+                      </span>
+
+                      {/* Hero Album Art - 120x120 with enhanced styling */}
+                      <div className="relative group">
+                        <div className="relative w-30 h-30 mx-auto">
                           <SecureImage 
                             src={feed.image || feed.artwork} 
                             alt={feed.title}
-                            className="h-20 w-full sm:h-full sm:w-20 rounded object-cover"
+                            className="w-30 h-30 rounded-3xl object-cover shadow-2xl group-hover:shadow-3xl transition-all duration-300"
+                            style={{
+                              boxShadow: '0 20px 40px rgba(0,0,0,0.3), 0 0 40px rgba(139,69,19,0.2)'
+                            }}
                           />
                           <button
                             onPointerDown={(e) => {
@@ -302,47 +310,40 @@ export function TrendingMusic() {
                               handlePlayPauseAlbum(feed);
                             }}
                             disabled={loadingTrackId === feed.id.toString()}
-                            className="absolute inset-0 bg-black/30 hover:bg-black/60 active:bg-black/70 rounded flex items-center justify-center opacity-70 hover:opacity-100 active:opacity-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="absolute inset-0 bg-black/20 hover:bg-black/40 active:bg-black/50 rounded-3xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed backdrop-blur-sm"
                             style={{ touchAction: 'manipulation' }}
                             aria-label={isCurrentlyPlaying(feed.id.toString(), feed.title) ? 'Pause' : 'Play'}
                           >
                             {loadingTrackId === feed.id.toString() ? (
-                              <div className="h-6 w-6 sm:h-4 sm:w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                              <div className="h-12 w-12 border-3 border-white border-t-transparent rounded-full animate-spin" />
                             ) : isCurrentlyPlaying(feed.id.toString(), feed.title) ? (
-                              <Pause className="h-6 w-6 sm:h-4 sm:w-4 text-white drop-shadow-lg" />
+                              <Pause className="h-12 w-12 text-white drop-shadow-2xl" />
                             ) : (
-                              <Play className="h-6 w-6 sm:h-4 sm:w-4 text-white drop-shadow-lg" />
+                              <Play className="h-12 w-12 text-white drop-shadow-2xl ml-1" />
                             )}
                           </button>
-                          {/* Mobile rank badge - positioned on image */}
-                          <span className="absolute top-1 right-1 sm:hidden text-xs font-mono text-white bg-black/70 px-1.5 py-0.5 rounded">
-                            #{index + 1}
-                          </span>
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-start justify-between gap-2 sm:gap-1">
-                            <div className="flex-1 min-w-0">
-                              <h5 className="font-medium text-xs sm:text-sm truncate leading-tight">{feed.title}</h5>
-                              <p className="text-xs text-muted-foreground truncate">
-                                {feed.author}
-                              </p>
-                            </div>
-                            {/* Desktop rank badge */}
-                            <span className="hidden sm:block text-xs font-mono text-muted-foreground bg-muted px-1 py-0 rounded">
-                              #{index + 1}
-                            </span>
-                          </div>
-                          {/* V4V split payment for track */}
-                          <div className="mt-2">
-                            <V4VPaymentButton 
-                              valueDestinations={feed.value?.destinations} 
-                              feedUrl={feed.url}
-                              totalAmount={33} 
-                              contentTitle={feed.title}
-                              feedId={feed.id.toString()}
-                            />
-                          </div>
-                        </div>
+                      </div>
+
+                      {/* Song Title - Primary text */}
+                      <div className="space-y-1 min-w-0 w-full">
+                        <h3 className="font-bold text-sm leading-tight line-clamp-2 text-foreground">
+                          {feed.title}
+                        </h3>
+                        <p className="text-sm text-muted-foreground truncate">
+                          {feed.author}
+                        </p>
+                      </div>
+
+                      {/* Action buttons */}
+                      <div className="w-full">
+                        <V4VPaymentButton 
+                          valueDestinations={feed.value?.destinations} 
+                          feedUrl={feed.url}
+                          totalAmount={33} 
+                          contentTitle={feed.title}
+                          feedId={feed.id.toString()}
+                        />
                       </div>
                     </CardContent>
                   </Card>
