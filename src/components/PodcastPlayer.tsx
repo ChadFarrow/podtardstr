@@ -30,6 +30,16 @@ export function PodcastPlayer() {
   const [isLoading, setIsLoading] = useState(false);
   const [hasUserInteracted, setHasUserInteracted] = useState(false);
 
+  // Debug logging for component state
+  console.log('PodcastPlayer render:', {
+    hasCurrentPodcast: !!currentPodcast,
+    currentPodcastId: currentPodcast?.id,
+    currentPodcastTitle: currentPodcast?.title,
+    currentPodcastUrl: currentPodcast?.url,
+    isPlaying,
+    hasUserInteracted
+  });
+
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
