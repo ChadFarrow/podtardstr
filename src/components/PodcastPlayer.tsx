@@ -58,8 +58,23 @@ export function PodcastPlayer() {
     };
   }, [setCurrentTime, setDuration, playNext, autoPlay]);
 
-  // HARD-CODED FIX: Remove the play effect entirely - handle everything in handlePlayPause
-  // This prevents race conditions between the effect and the button click
+  // HARD-CODED FIX: Simplified play effect that only responds to state changes
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    if (isPlaying) {
+      // Only try to play if we haven't already started playing
+      if (audio.paused) {
+        audio.play().catch((error) => {
+          console.error('Play effect error:', error);
+          setIsPlaying(false);
+        });
+      }
+    } else {
+      audio.pause();
+    }
+  }, [isPlaying, setIsPlaying]);
 
   // Handle new track loading
   useEffect(() => {
@@ -152,26 +167,8 @@ export function PodcastPlayer() {
     // Mark that user has interacted
     setHasUserInteracted(true);
 
-    // HARD-CODED FIX: Always try to play immediately, regardless of state
-    if (!isPlaying) {
-      // Force play attempt - let browser handle any issues
-      audio.play().then(() => {
-        setIsPlaying(true);
-      }).catch((error) => {
-        console.error('Play failed:', error);
-        // If it's a user interaction error, try again on next click
-        if (error.name === 'NotAllowedError') {
-          // Don't change state, let user try again
-          return;
-        }
-        // For other errors, set to false
-        setIsPlaying(false);
-      });
-    } else {
-      // Pause immediately
-      audio.pause();
-      setIsPlaying(false);
-    }
+    // HARD-CODED FIX: Simply toggle the state, let the effect handle audio
+    setIsPlaying(!isPlaying);
   };
 
   const handleSeek = (value: number[]) => {
