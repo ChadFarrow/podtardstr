@@ -4,7 +4,7 @@ import { LN } from '@getalby/sdk';
 const GETALBY_CONFIG = {
   authUrl: 'https://getalby.com/oauth',
   tokenUrl: 'https://api.getalby.com/oauth/token',
-  clientId: import.meta.env.VITE_GETALBY_CLIENT_ID || 'your-client-id',
+  clientId: import.meta.env.VITE_GETALBY_CLIENT_ID || 'demo-client-id',
   redirectUri: import.meta.env.VITE_GETALBY_REDIRECT_URI || `${window.location.origin}/oauth/callback`,
   scopes: ['account:read', 'payments:send', 'balance:read', 'invoices:create'],
 };
