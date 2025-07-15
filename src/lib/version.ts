@@ -1,2 +1,2 @@
 // App version constant - update this for releases
-export const APP_VERSION = '1.32'; 
+export const APP_VERSION = '1.33'; 
