@@ -138,13 +138,13 @@ export function FeedValueParser() {
                       <p><strong>Author:</strong> {feed.author || 'Not specified'}</p>
                       <p><strong>Description:</strong> {feed.description ? formatEpisodeDescription(feed.description, 100) : 'Not specified'}</p>
                       <p><strong>Link:</strong> {feed.link ? (
-                        <a href={feed.link} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                        <a href={feed.link} target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:text-cyan-300 hover:underline">
                           {feed.link}
                         </a>
                       ) : 'Not specified'}</p>
                       <p><strong>Episodes:</strong> {feed.episodes.length}</p>
                       <p><strong>Image:</strong> {feed.image ? (
-                        <a href={feed.image} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                        <a href={feed.image} target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:text-cyan-300 hover:underline">
                           View Image
                         </a>
                       ) : 'Not specified'}</p>
@@ -156,7 +156,7 @@ export function FeedValueParser() {
                           href={submittedUrl} 
                           target="_blank" 
                           rel="noopener noreferrer"
-                          className="ml-1 text-blue-600 hover:underline inline-flex items-center gap-1"
+                          className="ml-1 text-cyan-400 hover:text-cyan-300 hover:underline inline-flex items-center gap-1"
                         >
                           {submittedUrl.length > 40 ? submittedUrl.substring(0, 40) + '...' : submittedUrl}
                           <ExternalLink className="h-3 w-3" />
@@ -190,13 +190,13 @@ export function FeedValueParser() {
                             <div className="flex flex-wrap gap-2 text-xs">
                               {episode.link && (
                                 <a href={episode.link} target="_blank" rel="noopener noreferrer" 
-                                   className="text-blue-600 hover:underline bg-blue-50 px-2 py-1 rounded">
+                                   className="text-cyan-400 hover:text-cyan-300 hover:underline bg-cyan-50 dark:bg-cyan-950/30 px-2 py-1 rounded">
                                   Episode Link
                                 </a>
                               )}
                               {episode.enclosure?.url && (
                                 <a href={episode.enclosure.url} target="_blank" rel="noopener noreferrer" 
-                                   className="text-green-600 hover:underline bg-green-50 px-2 py-1 rounded">
+                                   className="text-emerald-400 hover:text-emerald-300 hover:underline bg-emerald-50 dark:bg-emerald-950/30 px-2 py-1 rounded">
                                   Audio File
                                 </a>
                               )}
@@ -207,9 +207,9 @@ export function FeedValueParser() {
                               )}
                             </div>
                             {episode.value && episode.value.recipients && episode.value.recipients.length > 0 && (
-                              <div className="text-xs bg-amber-50 p-2 rounded border-l-2 border-amber-200">
-                                <span className="font-medium text-amber-800">Episode V4V Recipients:</span>
-                                <div className="mt-1 text-amber-700">
+                              <div className="text-xs bg-amber-50 dark:bg-amber-950/30 p-2 rounded border-l-2 border-amber-200 dark:border-amber-600">
+                                <span className="font-medium text-amber-800 dark:text-amber-200">Episode V4V Recipients:</span>
+                                <div className="mt-1 text-amber-700 dark:text-amber-300">
                                   {episode.value.recipients.map(r => r.name).join(', ')}
                                 </div>
                               </div>

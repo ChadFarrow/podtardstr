@@ -32,6 +32,7 @@ export interface PodcastIndexPodcast {
   imageUrlHash: number;
   newestItemPubdate: number;
   episodeCount: number;
+  feedGuid?: string;
   funding?: {
     url: string;
     message: string;
@@ -347,6 +348,7 @@ interface Top100MusicEntry {
   image: string;
   feedId?: number;
   feedUrl?: string;
+  feedGuid?: string;
   itemGuid?: string;
 }
 
@@ -532,6 +534,7 @@ export function useTop100Music() {
               imageUrlHash: 0,
               newestItemPubdate: 0,
               episodeCount: 1,
+              feedGuid: entry.feedGuid,
               // Use real V4V data only if available
               value: valueData
             } as PodcastIndexPodcast;
