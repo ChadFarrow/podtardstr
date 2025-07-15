@@ -299,7 +299,7 @@ export async function processSinglePayment(
             action: 'boost',
             speed: metadata?.speed || '1',
             app_name: metadata?.app || 'Podtardstr',
-            app_version: metadata?.appVersion || '1.03',
+            app_version: metadata?.appVersion || getAppVersion(),
             value_msat: (amount || 0) * 1000,
             value_msat_total: metadata?.totalAmount ? metadata.totalAmount * 1000 : (amount || 0) * 1000,
             uuid: metadata?.uuid || crypto.randomUUID(),

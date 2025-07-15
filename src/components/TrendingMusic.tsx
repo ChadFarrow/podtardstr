@@ -310,7 +310,7 @@ export function TrendingMusic() {
                               handlePlayPauseAlbum(feed);
                             }}
                             disabled={loadingTrackId === feed.id.toString()}
-                            className="absolute inset-0 bg-black/20 hover:bg-black/40 active:bg-black/50 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed backdrop-blur-sm"
+                            className="absolute inset-0 bg-black/30 hover:bg-black/50 active:bg-black/60 rounded-2xl flex items-center justify-center opacity-70 hover:opacity-100 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed backdrop-blur-sm"
                             style={{ touchAction: 'manipulation' }}
                             aria-label={isCurrentlyPlaying(feed.id.toString(), feed.title) ? 'Pause' : 'Play'}
                           >

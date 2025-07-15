@@ -1,9 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { ExternalLink } from 'lucide-react';
-
-// Version number - increment this for releases
-const APP_VERSION = '1.30';
+import { APP_VERSION } from '@/lib/version';
 
 export function VersionDisplay() {
   const [commitHash, setCommitHash] = useState<string>('');

@@ -1,5 +1,6 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
+import { APP_VERSION } from './version'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -10,9 +11,7 @@ export function cn(...inputs: ClassValue[]) {
  * This should match the APP_VERSION in VersionDisplay.tsx
  */
 export function getAppVersion(): string {
-  // Import the version from VersionDisplay component
-  // This ensures consistency across the app
-  return '1.18'; // This should be updated to match VersionDisplay.tsx
+  return APP_VERSION;
 }
 
 /**
