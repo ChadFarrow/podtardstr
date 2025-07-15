@@ -36,6 +36,7 @@ export function PodcastPlayer() {
 
     const updateTime = () => {
       const time = audio.currentTime;
+      console.log('Time update:', time, 'Duration:', audio.duration);
       setCurrentTime(time);
     };
     const updateDuration = () => {
@@ -63,15 +64,30 @@ export function PodcastPlayer() {
     const audio = audioRef.current;
     if (!audio) return;
 
+    console.log('Play effect triggered:', {
+      isPlaying,
+      audioPaused: audio.paused,
+      audioSrc: audio.src,
+      audioReadyState: audio.readyState,
+      audioCurrentTime: audio.currentTime,
+      audioDuration: audio.duration
+    });
+
     if (isPlaying) {
       // Only try to play if we haven't already started playing
       if (audio.paused) {
-        audio.play().catch((error) => {
+        console.log('Attempting to play audio');
+        audio.play().then(() => {
+          console.log('Audio play successful');
+        }).catch((error) => {
           console.error('Play effect error:', error);
           setIsPlaying(false);
         });
+      } else {
+        console.log('Audio already playing, skipping play() call');
       }
     } else {
+      console.log('Pausing audio');
       audio.pause();
     }
   }, [isPlaying, setIsPlaying]);
@@ -142,8 +158,10 @@ export function PodcastPlayer() {
     audio.addEventListener('error', handleError);
 
     // Set the new audio source and load
+    console.log('Setting audio source:', currentPodcast.url);
     audio.src = currentPodcast.url;
     audio.load();
+    console.log('Audio load() called');
 
     return () => {
       audio.removeEventListener('loadstart', handleLoadStart);
