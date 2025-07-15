@@ -58,35 +58,8 @@ export function PodcastPlayer() {
     };
   }, [setCurrentTime, setDuration, playNext, autoPlay]);
 
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    console.log('Play effect triggered:', {
-      isPlaying,
-      readyState: audio.readyState,
-      isLoading,
-      hasUserInteracted
-    });
-
-    if (isPlaying) {
-      // Try to play regardless of loading state - let the browser handle it
-      console.log('Attempting to play audio');
-      audio.play().catch((error) => {
-        console.error('Audio play error:', error);
-        // If it's a user interaction error, we'll handle it on next click
-        if (error.name === 'NotAllowedError') {
-          console.log('Audio play blocked - waiting for user interaction');
-          return;
-        }
-        console.log('Setting isPlaying to false due to error');
-        setIsPlaying(false);
-      });
-    } else {
-      console.log('Pausing audio');
-      audio.pause();
-    }
-  }, [isPlaying, setIsPlaying]);
+  // HARD-CODED FIX: Remove the play effect entirely - handle everything in handlePlayPause
+  // This prevents race conditions between the effect and the button click
 
   // Handle new track loading
   useEffect(() => {
@@ -107,11 +80,11 @@ export function PodcastPlayer() {
     const handleLoadStart = () => setIsLoading(true);
     const handleCanPlay = () => {
       setIsLoading(false);
-      // Auto-play if the player state indicates it should be playing
-      if (isPlaying) {
+      // HARD-CODED FIX: Only auto-play if user has interacted and state says playing
+      if (isPlaying && hasUserInteracted) {
         audio.play().catch((error) => {
           console.error('Auto-play error:', error);
-          setIsPlaying(false);
+          // Don't change state on auto-play errors
         });
       }
     };
@@ -179,28 +152,26 @@ export function PodcastPlayer() {
     // Mark that user has interacted
     setHasUserInteracted(true);
 
-    console.log('Play button clicked:', {
-      isPlaying,
-      readyState: audio.readyState,
-      isLoading,
-      hasUserInteracted
-    });
-
-    // If we're trying to play and audio isn't ready, wait for it
-    if (!isPlaying && audio.readyState < 2) {
-      console.log('Audio not ready, waiting for canplay event');
-      const handleCanPlayOnce = () => {
-        audio.removeEventListener('canplay', handleCanPlayOnce);
-        console.log('Audio ready, setting isPlaying to true');
+    // HARD-CODED FIX: Always try to play immediately, regardless of state
+    if (!isPlaying) {
+      // Force play attempt - let browser handle any issues
+      audio.play().then(() => {
         setIsPlaying(true);
-      };
-      audio.addEventListener('canplay', handleCanPlayOnce);
-      return;
+      }).catch((error) => {
+        console.error('Play failed:', error);
+        // If it's a user interaction error, try again on next click
+        if (error.name === 'NotAllowedError') {
+          // Don't change state, let user try again
+          return;
+        }
+        // For other errors, set to false
+        setIsPlaying(false);
+      });
+    } else {
+      // Pause immediately
+      audio.pause();
+      setIsPlaying(false);
     }
-
-    // Otherwise toggle the state
-    console.log('Toggling isPlaying from', isPlaying, 'to', !isPlaying);
-    setIsPlaying(!isPlaying);
   };
 
   const handleSeek = (value: number[]) => {
