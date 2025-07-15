@@ -2,11 +2,11 @@
 
 ---
 
-## 🔖 Quick Reference for Future Sessions (as of July 14, 2025)
+## 🔖 Quick Reference for Future Sessions (as of July 15, 2025)
 
 ### **Current Status**
-- **Version:** 1.03 (auto-increments on commits)
-- **Status:** 🟢 Production Ready - All core features complete
+- **Version:** 1.34 (auto-increments on commits)
+- **Status:** 🟢 Production Ready - All core features complete + Enhanced UI
 - **Beta URL:** https://podtardstr.vercel.app (main branch - fast development)
 - **Stable URL:** https://app.podtards.com (stable branch - production)
 - **Repo:** https://github.com/ChadFarrow/podtardstr
@@ -78,9 +78,9 @@
 ## 🎯 Project Overview
 **Podtardstr** - A Nostr-based music discovery application with Value4Value (V4V) Lightning payments integrated.
 
-**Last Updated**: July 14, 2025  
-**Version**: 1.03  
-**Status**: �� Production Ready
+**Last Updated**: July 15, 2025  
+**Version**: 1.34  
+**Status**: 🟢 Production Ready + Enhanced UI
 
 ---
 
@@ -111,6 +111,10 @@
 | **Message Support** | ✅ Complete | Optional messages in Lightning payment TLV metadata |
 | **Audio Loading Fixes** | ✅ Complete | Prevents conflicts and loading errors |
 | **Bottom Player Fixed** | ✅ Complete | Fixed positioning and always visible |
+| **Album-Art-Focused UI** | ✅ Complete | Card redesign with 80px album art as focal point |
+| **Split Count Display** | ✅ Complete | Recipient count visible on all boost buttons |
+| **LNBeats URL Fix** | ✅ Complete | Working album links using podcast GUID format |
+| **Enhanced Visual Hierarchy** | ✅ Complete | Proportional spacing and responsive grid layout |
 
 ### 🔄 **In Progress**
 | Feature | Status | Progress | Notes |
@@ -208,6 +212,15 @@
 ---
 
 ## 🎯 Recent Achievements
+
+### **July 15, 2025 - Version 1.34**
+- ✅ **Album-Art-Focused Card Redesign**: Complete UI overhaul with album art as primary focal point
+- ✅ **Split Count Display**: Added recipient count visibility on all boost buttons throughout app
+- ✅ **LNBeats URL Generation Fix**: Corrected link format using podcast GUID for working album links
+- ✅ **Enhanced Visual Hierarchy**: 80px album art, centered layout, proportional spacing
+- ✅ **Improved Interaction**: Fixed single-click play functionality, removed backdrop blur
+- ✅ **Grid Layout Enhancement**: Responsive 1-4 column grid with optimized card proportions
+- ✅ **TLV Metadata Debugging**: Added timestamp logging for boost payment troubleshooting
 
 ### **July 14, 2025 - Version 1.10**
 - ✅ **Logo Integration**: Replaced generic music icon with Podtardstr favicon logo in sidebar header
