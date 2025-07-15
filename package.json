@@ -12,6 +12,7 @@
     "test": "npm i && tsc -p tsconfig.app.json --noEmit && eslint && vitest run && vite build",
     "deploy": "npm run build && npx -y nostr-deploy-cli deploy --skip-setup",
     "deploy:stable": "./scripts/deploy-stable.sh",
+    "commit:beta": "./scripts/commit-beta.sh",
     "build:apk": "./scripts/build-apk.sh",
     "sync:android": "npx cap sync android",
     "open:android": "npx cap open android",
