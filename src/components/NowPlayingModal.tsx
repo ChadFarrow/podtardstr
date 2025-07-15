@@ -166,8 +166,29 @@ export function NowPlayingModal({ open, onOpenChange }: NowPlayingModalProps) {
     if (!isLNBeatsTrack || !currentPodcast || !feedData) return null;
     
     console.log('🎵 Generating LNBeats URL for:', currentPodcast.title, 'by', currentPodcast.author);
+    console.log('   Feed data:', { feedGuid: feedData.feedGuid, feedUrl: feedData.url });
     
-    // First try to extract album ID from feed URL if it's actually from LNBeats
+    // Use the podcast GUID (feedGuid) if available - this is the correct LNBeats format
+    if (feedData.feedGuid) {
+      // For episode-specific links, include the base64-encoded audio URL
+      if (currentPodcast.url) {
+        try {
+          const base64AudioUrl = btoa(currentPodcast.url);
+          const episodeUrl = `https://lnbeats.com/album/${feedData.feedGuid}/${base64AudioUrl}`;
+          console.log('✅ Generated LNBeats episode URL:', episodeUrl);
+          return episodeUrl;
+        } catch (error) {
+          console.warn('Failed to base64 encode audio URL:', error);
+        }
+      }
+      
+      // Fallback to album-only URL
+      const albumUrl = `https://lnbeats.com/album/${feedData.feedGuid}`;
+      console.log('✅ Generated LNBeats album URL:', albumUrl);
+      return albumUrl;
+    }
+    
+    // Legacy fallback: try to extract from feed URL if it's actually from LNBeats
     if (feedData.url?.toLowerCase().includes('lnbeats')) {
       const lnbeatsUrlPattern = /lnbeats.com.*?([a-f0-9-]{36})/i;
       const match = feedData.url?.match(lnbeatsUrlPattern);
@@ -175,54 +196,15 @@ export function NowPlayingModal({ open, onOpenChange }: NowPlayingModalProps) {
       if (match && match[1]) {
         const albumId = match[1];
         const albumUrl = `https://lnbeats.com/album/${albumId}`;
-        console.log('✅ Extracted LNBeats album ID:', albumId, '→', albumUrl);
+        console.log('✅ Extracted LNBeats album ID from URL:', albumId, '→', albumUrl);
         return albumUrl;
       }
     }
     
-    // For tracks with audio URLs, try to create the proper LNBeats album URL format
-    if (currentPodcast.url) {
-      try {
-        // Base64 encode the audio URL
-        const base64AudioUrl = btoa(currentPodcast.url);
-        
-        // Extract potential album ID from feed data (look for UUID patterns)
-        const uuidPattern = /([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/i;
-        
-        // Try to find UUID in various places
-        let albumId = null;
-        const searchFields = [
-          feedData.url,
-          feedData.originalUrl,
-          feedData.link,
-          feedData.description,
-          currentPodcast.id
-        ];
-        
-        for (const field of searchFields) {
-          if (field) {
-            const match = field.match(uuidPattern);
-            if (match) {
-              albumId = match[1];
-              break;
-            }
-          }
-        }
-        
-        if (albumId) {
-          const albumUrl = `https://lnbeats.com/album/${albumId}/${base64AudioUrl}`;
-          console.log('✅ Generated LNBeats album URL:', albumUrl);
-          return albumUrl;
-        }
-      } catch (error) {
-        console.warn('Failed to generate LNBeats album URL:', error);
-      }
-    }
-    
-    // Fallback to search URL using artist and track name
+    // Final fallback to search URL using artist and track name
     const searchQuery = encodeURIComponent(`${currentPodcast.author} ${currentPodcast.title}`);
     const searchUrl = `https://lnbeats.com/search?q=${searchQuery}`;
-    console.log('✅ Generated LNBeats search URL:', searchUrl);
+    console.log('⚠️ Using LNBeats search URL (no feedGuid):', searchUrl);
     return searchUrl;
   }, [isLNBeatsTrack, currentPodcast, feedData]);
 

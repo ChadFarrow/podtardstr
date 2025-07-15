@@ -571,6 +571,7 @@ export function useTop100Music() {
           imageUrlHash: 0,
           newestItemPubdate: 0,
           episodeCount: 1,
+          feedGuid: entry.feedGuid,
           // No V4V data for remaining entries (only show real V4V data)
           value: undefined
         } as PodcastIndexPodcast));
