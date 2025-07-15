@@ -23,7 +23,18 @@ export function useLightningWallet() {
       if (!provider) {
         // No provider connected, launch connection modal
         await launchModal();
+        
+        // Add a small delay to ensure the modal is fully rendered and focusable
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        // Try to get provider again after modal launch
         provider = await requestProvider();
+        
+        // If still no provider, wait a bit more and try again
+        if (!provider) {
+          await new Promise(resolve => setTimeout(resolve, 500));
+          provider = await requestProvider();
+        }
       }
 
       if (provider) {

@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -88,6 +88,21 @@ export function BoostModal({
   const { processPayment, isProcessing, status, setStatus } = usePaymentProcessor();
   const [message, setMessage] = useState('');
   const { getDisplayName } = useUserName();
+  const messageInputRef = useRef<HTMLInputElement>(null);
+
+  // Focus management for the modal
+  useEffect(() => {
+    if (open) {
+      // Small delay to ensure modal is fully rendered
+      const timer = setTimeout(() => {
+        if (messageInputRef.current) {
+          messageInputRef.current.focus();
+        }
+      }, 100);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [open]);
 
   // Confetti celebration function
   const triggerConfetti = useCallback(() => {
@@ -194,6 +209,12 @@ export function BoostModal({
 
     try {
       setStatus('Connecting to Lightning wallet...');
+      
+      // Blur any active element to prevent focus issues with Bitcoin Connect modal
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+      }
+      
       const provider = await connectWallet();
       
       if (!provider) {
@@ -292,6 +313,7 @@ export function BoostModal({
               Message (optional)
             </label>
             <Input
+              ref={messageInputRef}
               id="boost-message"
               type="text"
               placeholder="Add a message with your boost..."

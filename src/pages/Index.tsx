@@ -2,7 +2,7 @@ import { useSeoMeta } from '@unhead/react';
 import { PodcastPlayer } from '@/components/PodcastPlayer';
 // import { PodcastSearch } from '@/components/PodcastSearch';
 // import { PodcastDiscovery } from '@/components/PodcastDiscovery';
-import { NostrPodcastFeed } from '@/components/NostrPodcastFeed';
+// import { NostrPodcastFeed } from '@/components/NostrPodcastFeed';
 import { MusicDiscovery } from '@/components/MusicDiscovery';
 import { TrendingMusic } from '@/components/TrendingMusic';
 import { FeedValueParser } from '@/components/FeedValueParser';
@@ -79,14 +79,14 @@ const Index = () => {
                     <Search className="h-4 w-4 mr-2" />
                     Search
                   </Button> */}
-                  <Button
+                  {/* <Button
                     variant={activeTab === 'nostr' ? 'secondary' : 'ghost'}
                     className="w-full justify-start text-sm"
                     onClick={() => setActiveTab('nostr')}
                   >
                     <MessageSquare className="h-4 w-4 mr-2" />
                     Nostr Feed
-                  </Button>
+                  </Button> */}
                   <Button
                     variant={activeTab === 'feed-parser' ? 'secondary' : 'ghost'}
                     className="w-full justify-start text-sm"
@@ -130,7 +130,7 @@ const Index = () => {
                   {activeTab === 'top100' && 'Top 100 V4V tracks'}
                   {/* {activeTab === 'discover' && 'Discover'}
                   {activeTab === 'search' && 'Search'} */}
-                  {activeTab === 'nostr' && 'Nostr Feed'}
+                  {/* {activeTab === 'nostr' && 'Nostr Feed'} */}
                   {activeTab === 'feed-parser' && 'Feed Parser'}
                   {activeTab === 'validator' && 'RSS Validator'}
                 </h2>
@@ -139,7 +139,7 @@ const Index = () => {
                   {activeTab === 'top100' && 'The hottest Value4Value music tracks ranked by community boosts'}
                   {/* {activeTab === 'discover' && 'Trending music and recent releases'}
                   {activeTab === 'search' && 'Find music and tracks from Podcast Index'} */}
-                  {activeTab === 'nostr' && 'Music recommendations and discussions on Nostr'}
+                  {/* {activeTab === 'nostr' && 'Music recommendations and discussions on Nostr'} */}
                   {activeTab === 'feed-parser' && 'Parse RSS feeds for Podcast Namespace value recipients'}
                   {activeTab === 'validator' && 'Comprehensive podcast feed validation and compliance checking'}
                 </p>
@@ -167,9 +167,9 @@ const Index = () => {
                 <PodcastSearch />
               </TabsContent> */}
 
-              <TabsContent value="nostr" className="space-y-6">
+              {/* <TabsContent value="nostr" className="space-y-6">
                 <NostrPodcastFeed />
-              </TabsContent>
+              </TabsContent> */}
 
               <TabsContent value="feed-parser" className="space-y-6">
                 <FeedValueParser />
