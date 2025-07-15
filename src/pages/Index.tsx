@@ -12,9 +12,8 @@ import { UserNameInput } from '@/components/UserNameInput';
 import { Sidebar, SidebarContent, SidebarHeader, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Music, MessageSquare, Radio, Code, Star, Shield } from 'lucide-react';
+import { MessageSquare, Radio, Code, Star, Shield } from 'lucide-react';
 import { useState } from 'react';
-import { ThemeToggle } from '@/components/ThemeToggle';
 import { VersionDisplay } from '@/components/VersionDisplay';
 
 const Index = () => {
@@ -31,7 +30,7 @@ const Index = () => {
         <Sidebar className="border-r">
           <SidebarHeader className="p-6">
             <div className="flex items-center gap-2 mb-6">
-              <Music className="h-8 w-8 text-primary" />
+              <img src="/favicon-32x32.png" alt="Podtardstr Logo" className="h-8 w-8" />
               <div>
                 <h1 className="text-2xl font-bold">Podtardstr</h1>
                 <p className="text-xs text-muted-foreground">Music + Nostr + Value4Value</p>
@@ -147,9 +146,6 @@ const Index = () => {
               </div>
             </div>
 
-            <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
-              <ThemeToggle />
-            </div>
           </header>
 
           <main className="flex-1 p-3 sm:p-6 overflow-auto pb-20">
