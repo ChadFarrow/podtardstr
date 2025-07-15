@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/dialog.tsx';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs.tsx';
 import { useLoginActions } from '@/hooks/useLoginActions';
+import AmberLoginButton from './AmberLoginButton';
 
 interface LoginDialogProps {
   isOpen: boolean;
@@ -28,6 +29,9 @@ const LoginDialog: React.FC<LoginDialogProps> = ({ isOpen, onClose, onLogin, onS
   const [bunkerUri, setBunkerUri] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const login = useLoginActions();
+  
+  // Check if user is on Android for Amber support
+  const isAndroid = /Android/i.test(navigator.userAgent);
 
   const handleExtensionLogin = () => {
     setIsLoading(true);
@@ -105,6 +109,28 @@ const LoginDialog: React.FC<LoginDialogProps> = ({ isOpen, onClose, onLogin, onS
         </DialogHeader>
 
         <div className='px-6 py-8 space-y-6'>
+          {/* Show Amber login button prominently for Android users */}
+          {isAndroid && (
+            <div className="space-y-4">
+              <div className="text-center">
+                <p className="text-sm text-muted-foreground mb-3">
+                  Recommended for Android users:
+                </p>
+              </div>
+              <AmberLoginButton onLogin={onLogin} onClose={onClose} />
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background px-2 text-muted-foreground">
+                    Or choose another method
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+
           <Tabs defaultValue={'nostr' in window ? 'extension' : 'key'} className='w-full'>
             <TabsList className='grid grid-cols-3 mb-6'>
               <TabsTrigger value='extension'>Extension</TabsTrigger>
@@ -178,16 +204,24 @@ const LoginDialog: React.FC<LoginDialogProps> = ({ isOpen, onClose, onLogin, onS
                 <label htmlFor='bunkerUri' className='text-sm font-medium text-gray-700 dark:text-gray-400'>
                   Bunker URI
                 </label>
+                {isAndroid && (
+                  <p className='text-xs text-muted-foreground mb-2'>
+                    💡 Android users: Use the "Login with Amber" button above for easier setup
+                  </p>
+                )}
                 <Input
                   id='bunkerUri'
                   value={bunkerUri}
                   onChange={(e) => setBunkerUri(e.target.value)}
                   className='rounded-lg border-gray-300 dark:border-gray-700 focus-visible:ring-primary'
-                  placeholder='bunker://'
+                  placeholder='bunker://npub...@relay...'
                 />
                 {bunkerUri && !bunkerUri.startsWith('bunker://') && (
                   <p className='text-red-500 text-xs'>URI must start with bunker://</p>
                 )}
+                <p className='text-xs text-muted-foreground'>
+                  Works with Amber (Android), Nsec.app, or any NIP-46 signer
+                </p>
               </div>
 
               <Button
