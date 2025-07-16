@@ -207,9 +207,9 @@ export function FeedValueParser() {
                               )}
                             </div>
                             {episode.value && episode.value.recipients && episode.value.recipients.length > 0 && (
-                              <div className="text-xs bg-amber-50 dark:bg-amber-950/30 p-2 rounded border-l-2 border-amber-200 dark:border-amber-600">
-                                <span className="font-medium text-amber-800 dark:text-amber-200">Episode V4V Recipients:</span>
-                                <div className="mt-1 text-amber-700 dark:text-amber-300">
+                              <div className="text-xs bg-muted dark:bg-muted/30 p-2 rounded border-l-2 border-muted">
+                                <span className="font-medium text-foreground dark:text-foreground">Episode V4V Recipients:</span>
+                                <div className="mt-1 text-muted-foreground dark:text-muted-foreground">
                                   {episode.value.recipients.map(r => r.name).join(', ')}
                                 </div>
                               </div>

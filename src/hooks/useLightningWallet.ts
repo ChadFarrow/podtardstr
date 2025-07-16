@@ -6,7 +6,7 @@ export interface LightningWallet {
   sendPayment: (invoice: string) => Promise<void>;
   getBalance?: () => Promise<number>;
   signMessage?: (message: string) => Promise<string>;
-  keysend?: (args: { destination: string; amount: number; customRecords?: Record<string, string> }) => Promise<any>;
+  keysend?: (args: { destination: string; amount: number; customRecords?: Record<string, string> }) => Promise<unknown>;
   provider?: 'bitcoin-connect' | 'getalby-web';
   user?: GetAlbyUser;
 }
@@ -32,7 +32,7 @@ export function useLightningWallet() {
           setGetalbyUser(userInfo);
           return {
             sendPayment: async (invoice: string) => {
-              return await getalbyAuth.sendPayment(invoice);
+              await getalbyAuth.sendPayment(invoice);
             },
             getBalance: async () => {
               return await getalbyAuth.getBalance();
@@ -93,7 +93,7 @@ export function useLightningWallet() {
     
     return {
       sendPayment: async (invoice: string) => {
-        return await getalbyAuth.sendPayment(invoice);
+        await getalbyAuth.sendPayment(invoice);
       },
       getBalance: async () => {
         return await getalbyAuth.getBalance();

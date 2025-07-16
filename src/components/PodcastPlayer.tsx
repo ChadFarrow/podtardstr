@@ -27,7 +27,7 @@ export function PodcastPlayer() {
   } = usePodcastPlayer();
   const audioRef = useRef<HTMLAudioElement>(null);
   const [showNowPlaying, setShowNowPlaying] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+
   const [hasUserInteracted, setHasUserInteracted] = useState(false);
   const [loadedPodcastId, setLoadedPodcastId] = useState<string | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -152,7 +152,6 @@ export function PodcastPlayer() {
     // Reset time when a new track is loaded
     setCurrentTime(0);
     setDuration(0);
-    setIsLoading(true);
 
     // MINIMAL APPROACH: Just set the source, don't force any loading
     // Let audio.play() handle the loading when it's actually needed
@@ -161,9 +160,8 @@ export function PodcastPlayer() {
     
     // Track which podcast is now loaded
     setLoadedPodcastId(currentPodcast.id);
-    setIsLoading(false);
 
-  }, [currentPodcast?.id, currentPodcast?.url, setCurrentTime, setDuration, loadedPodcastId]);
+  }, [currentPodcast?.id, currentPodcast?.url, setCurrentTime, setDuration, loadedPodcastId, currentPodcast]);
 
   useEffect(() => {
     const audio = audioRef.current;

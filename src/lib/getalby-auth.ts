@@ -212,7 +212,7 @@ export class GetAlbyAuth {
   }
 
   // Send payment using GetAlby API
-  async sendPayment(invoice: string): Promise<any> {
+  async sendPayment(invoice: string): Promise<unknown> {
     if (!this.accessToken) {
       throw new Error('Not authenticated with GetAlby');
     }
@@ -240,7 +240,7 @@ export class GetAlbyAuth {
   }
 
   // Pay lightning address using GetAlby API
-  async payLightningAddress(address: string, amount: number, comment?: string): Promise<any> {
+  async payLightningAddress(address: string, amount: number, comment?: string): Promise<unknown> {
     if (!this.accessToken) {
       throw new Error('Not authenticated with GetAlby');
     }
@@ -272,7 +272,7 @@ export class GetAlbyAuth {
   }
 
   // Keysend payment using GetAlby API
-  async keysend(destination: string, amount: number, customRecords?: Record<string, string>): Promise<any> {
+  async keysend(destination: string, amount: number, customRecords?: Record<string, string>): Promise<unknown> {
     if (!this.accessToken) {
       throw new Error('Not authenticated with GetAlby');
     }

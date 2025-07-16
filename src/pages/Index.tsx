@@ -12,7 +12,7 @@ import { UserNameInput } from '@/components/UserNameInput';
 import { Sidebar, SidebarContent, SidebarHeader, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { MessageSquare, Radio, Code, Star, Shield } from 'lucide-react';
+import { Code, Star, Shield } from 'lucide-react';
 import { useState } from 'react';
 import { VersionDisplay } from '@/components/VersionDisplay';
 

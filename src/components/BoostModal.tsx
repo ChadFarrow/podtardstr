@@ -8,6 +8,7 @@ import GetAlbyLoginButton from '@/components/GetAlbyLoginButton';
 import { useValue4ValueData } from '@/hooks/useValueBlockFromRss';
 import { useUserName } from '@/hooks/useUserName';
 import confetti from 'canvas-confetti';
+import { GetAlbyUser } from '@/lib/getalby-auth';
 import { 
   getLightningRecipients, 
   processMultiplePayments, 
@@ -250,9 +251,9 @@ export function BoostModal({
       console.error('Boost payment error:', error);
       setStatus(error instanceof Error ? error.message : 'Payment failed or cancelled.');
     }
-  }, [hasRecipients, connectWallet, processPayment, recipients, totalAmount, setStatus, contentTitle, message, onOpenChange, getDisplayName, triggerConfetti]);
+  }, [hasRecipients, connectWallet, processPayment, recipients, totalAmount, setStatus, contentTitle, message, onOpenChange, getDisplayName, triggerConfetti, episodeGuid, feedUrl, feedId, episodeId]);
 
-  const handleGetAlbyLogin = useCallback(async (user: any) => {
+  const handleGetAlbyLogin = useCallback(async (user: GetAlbyUser) => {
     try {
       await connectGetAlbyWeb(user);
       setStatus(`Connected to GetAlby as ${user.name || user.email}`);

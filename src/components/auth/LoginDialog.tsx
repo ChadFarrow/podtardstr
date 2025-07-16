@@ -14,7 +14,6 @@ import {
 } from '@/components/ui/dialog.tsx';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs.tsx';
 import { useLoginActions } from '@/hooks/useLoginActions';
-import AmberLoginButton from './AmberLoginButton';
 
 interface LoginDialogProps {
   isOpen: boolean;
@@ -117,7 +116,6 @@ const LoginDialog: React.FC<LoginDialogProps> = ({ isOpen, onClose, onLogin, onS
                   Recommended for Android users:
                 </p>
               </div>
-              <AmberLoginButton onLogin={onLogin} onClose={onClose} />
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
                   <span className="w-full border-t" />
