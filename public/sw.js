@@ -1,9 +1,9 @@
 // Service Worker for Podtardstr PWA
 // Provides offline support and caching for better mobile experience
 
-const CACHE_NAME = 'podtardstr-v5';
-const STATIC_CACHE_NAME = 'podtardstr-static-v5';
-const DYNAMIC_CACHE_NAME = 'podtardstr-dynamic-v5';
+const CACHE_NAME = 'podtardstr-v6';
+const STATIC_CACHE_NAME = 'podtardstr-static-v6';
+const DYNAMIC_CACHE_NAME = 'podtardstr-dynamic-v6';
 
 // Files to cache for offline functionality
 const STATIC_ASSETS = [
@@ -74,6 +74,14 @@ self.addEventListener('fetch', (event) => {
   
   // Handle different types of requests
   if (event.request.method === 'GET') {
+    // Main HTML files - always network first to get latest version
+    if (event.request.url.endsWith('/') || 
+        event.request.url.endsWith('.html') ||
+        event.request.url.includes('/index.html')) {
+      event.respondWith(networkFirstStrategy(event.request));
+      return;
+    }
+    
     // JavaScript bundles - always network first for updates
     if (event.request.url.includes('/assets/') && 
         (event.request.url.includes('.js') || event.request.url.includes('.css'))) {
@@ -81,8 +89,11 @@ self.addEventListener('fetch', (event) => {
       return;
     }
     
-    // Static assets - cache first strategy
-    if (STATIC_ASSETS.some(asset => event.request.url.endsWith(asset))) {
+    // Static assets like manifest, icons - cache first strategy
+    if (event.request.url.includes('/manifest.webmanifest') ||
+        event.request.url.includes('/favicon') ||
+        event.request.url.includes('/icon-') ||
+        event.request.url.includes('/apple-touch-icon')) {
       event.respondWith(cacheFirstStrategy(event.request));
       return;
     }
@@ -143,7 +154,15 @@ async function cacheFirstStrategy(request) {
 // Network first strategy - good for dynamic content
 async function networkFirstStrategy(request) {
   try {
-    const networkResponse = await fetch(request);
+    // Add timeout to prevent hanging
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+    
+    const networkResponse = await fetch(request, {
+      signal: controller.signal
+    });
+    
+    clearTimeout(timeoutId);
     
     // Cache successful responses
     if (networkResponse.ok && request.method === 'GET') {
@@ -151,7 +170,8 @@ async function networkFirstStrategy(request) {
       const responseClone = networkResponse.clone();
       
       // Don't cache very large responses
-      if (responseClone.headers.get('content-length') < 5000000) { // 5MB limit
+      const contentLength = responseClone.headers.get('content-length');
+      if (!contentLength || parseInt(contentLength) < 5000000) { // 5MB limit
         cache.put(request, responseClone);
       }
     }

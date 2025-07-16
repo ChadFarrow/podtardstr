@@ -47,11 +47,11 @@ if ('serviceWorker' in navigator) {
               // Dispatch update event
               window.dispatchEvent(new CustomEvent('sw-update-available'));
               
-              // Auto-refresh after 2 seconds to get latest version
+              // Auto-refresh after 500ms to get latest version
               setTimeout(() => {
                 console.log('♻️ Auto-refreshing for service worker update');
                 window.location.reload();
-              }, 2000);
+              }, 500);
             }
           });
         }
