@@ -30,6 +30,7 @@ export function PodcastPlayer() {
   const [isLoading, setIsLoading] = useState(false);
   const [hasUserInteracted, setHasUserInteracted] = useState(false);
   const [loadedPodcastId, setLoadedPodcastId] = useState<string | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   // Debug logging for component state
   console.log('PodcastPlayer render:', {
@@ -95,16 +96,14 @@ export function PodcastPlayer() {
       // Only try to play if we haven't already started playing
       if (audio.paused) {
         console.log('Attempting to play audio');
-        // If audio needs loading, load it first, then play
-        if (audio.readyState === 0) {
-          console.log('Audio not loaded yet, loading first');
-          audio.load();
-        }
         audio.play().then(() => {
           console.log('Audio play successful');
         }).catch((error) => {
           console.error('Play effect error:', error);
-          setIsPlaying(false);
+          // Only set playing to false if it's not an abort error
+          if (!error.message.includes('aborted')) {
+            setIsPlaying(false);
+          }
         });
       } else {
         console.log('Audio already playing, skipping play() call');
@@ -115,7 +114,7 @@ export function PodcastPlayer() {
     }
   }, [isPlaying, setIsPlaying, hasUserInteracted]);
 
-  // Handle new track loading - FIXED: Use podcast ID comparison for reliable track switching
+  // Handle new track loading - COMPLETELY SIMPLIFIED: Let audio.play() handle loading
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
@@ -142,75 +141,28 @@ export function PodcastPlayer() {
       url: currentPodcast.url
     });
 
+    // Abort any previous loading
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    
+    // Create new abort controller for this load
+    abortControllerRef.current = new AbortController();
+
     // Reset time when a new track is loaded
     setCurrentTime(0);
     setDuration(0);
     setIsLoading(true);
 
-    // Add error handling for media loading
-    const handleLoadStart = () => {
-      console.log('Audio load started');
-      setIsLoading(true);
-    };
-    
-    const handleCanPlay = () => {
-      console.log('Audio can play');
-      setIsLoading(false);
-    };
-    
-    const handleLoadedData = () => {
-      console.log('Audio data loaded');
-      setIsLoading(false);
-    };
-    
-    const handleError = (e: Event) => {
-      const target = e.target as HTMLAudioElement;
-      const errorCode = target?.error?.code;
-      const errorMessage = target?.error?.message;
-      
-      console.warn('Audio loading error:', {
-        url: target?.src,
-        error: target?.error,
-        errorCode,
-        errorMessage,
-        networkState: target?.networkState,
-        readyState: target?.readyState
-      });
-      
-      // Handle CORS and network errors gracefully
-      if (errorCode === 2 || errorMessage?.includes('CORS') || errorMessage?.includes('network')) {
-        console.warn('Skipping track due to CORS/network restriction:', target?.src);
-        // Auto-skip to next track if autoPlay is enabled
-        if (autoPlay) {
-          setTimeout(() => {
-            playNext();
-          }, 1000);
-        }
-      }
-      
-      setIsLoading(false);
-      setIsPlaying(false);
-    };
-
-    audio.addEventListener('loadstart', handleLoadStart);
-    audio.addEventListener('canplay', handleCanPlay);
-    audio.addEventListener('loadeddata', handleLoadedData);
-    audio.addEventListener('error', handleError);
-
-    // GENTLE APPROACH: Set source without forcing immediate load
-    // This prevents the "fetching process was aborted" error
-    console.log('Setting audio src (without load):', currentPodcast.url);
+    // MINIMAL APPROACH: Just set the source, don't force any loading
+    // Let audio.play() handle the loading when it's actually needed
+    console.log('Setting audio src:', currentPodcast.url);
     audio.src = currentPodcast.url;
     
     // Track which podcast is now loaded
     setLoadedPodcastId(currentPodcast.id);
+    setIsLoading(false);
 
-    return () => {
-      audio.removeEventListener('loadstart', handleLoadStart);
-      audio.removeEventListener('canplay', handleCanPlay);
-      audio.removeEventListener('loadeddata', handleLoadedData);
-      audio.removeEventListener('error', handleError);
-    };
   }, [currentPodcast?.id, currentPodcast?.url, setCurrentTime, setDuration, loadedPodcastId]);
 
   useEffect(() => {
