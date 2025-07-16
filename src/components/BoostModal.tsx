@@ -389,11 +389,12 @@ export function BoostModal({
           {/* Boost button (shown when wallet is connected) */}
           {walletProvider && (
             <div className="space-y-2">
-              {getalbyUser && (
+              {/* Temporarily disabled GetAlby user display */}
+              {/* getalbyUser && (
                 <div className="text-sm text-muted-foreground text-center">
                   Connected as {getalbyUser.name || getalbyUser.email}
                 </div>
-              )}
+              ) */}
               
               <Button 
                 onClick={handleBoost}
