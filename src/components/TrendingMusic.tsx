@@ -394,7 +394,7 @@ export function TrendingMusic() {
                             className="absolute inset-0 bg-black/30 hover:bg-black/50 active:bg-black/60 rounded-2xl flex items-center justify-center opacity-70 hover:opacity-100 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                             style={{ 
                               touchAction: 'manipulation', 
-                              zIndex: 999,
+                              zIndex: 10,
                               pointerEvents: 'auto',
                               cursor: 'pointer'
                             }}
