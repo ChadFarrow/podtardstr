@@ -26,7 +26,14 @@ export default function GetAlbyLoginButton({ onLogin, onError }: GetAlbyLoginBut
       }, 1000);
     } catch (error) {
       console.error('GetAlby login error:', error);
-      onError(error instanceof Error ? error.message : 'Login failed');
+      const errorMessage = error instanceof Error ? error.message : 'Login failed';
+      
+      // If OAuth is not configured, show helpful message
+      if (errorMessage.includes('not configured')) {
+        onError('GetAlby OAuth is not yet configured. Please contact support to enable Lightning payments.');
+      } else {
+        onError(errorMessage);
+      }
       setIsLoading(false);
     }
   };
