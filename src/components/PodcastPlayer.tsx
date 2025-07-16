@@ -60,10 +60,23 @@ export function PodcastPlayer() {
     audio.addEventListener('loadedmetadata', updateDuration);
     // Auto-play next track when ended, if enabled
     const handleEnded = () => {
-      console.log('Track ended, autoPlay enabled:', autoPlay);
+      console.log('🎵 Track ended, autoPlay enabled:', autoPlay);
       if (autoPlay) {
-        console.log('Attempting to play next track');
+        console.log('🎵 Calling playNext() for autoplay');
         playNext();
+        
+        // Additional attempt: Try to play immediately after playNext
+        setTimeout(() => {
+          const audioElement = audioRef.current;
+          if (audioElement && audioElement.paused) {
+            console.log('🎵 Audio still paused after playNext, attempting direct play');
+            audioElement.play().catch(error => {
+              console.log('🎵 Direct autoplay failed:', error.name, error.message);
+            });
+          }
+        }, 100);
+      } else {
+        console.log('🎵 Autoplay disabled, not playing next track');
       }
     };
     audio.addEventListener('ended', handleEnded);
@@ -167,11 +180,14 @@ export function PodcastPlayer() {
 
     // MINIMAL APPROACH: Just set the source, don't force any loading
     // Let audio.play() handle the loading when it's actually needed
-    console.log('Setting audio src:', currentPodcast.url);
+    console.log('🎵 Setting audio src:', currentPodcast.url);
     audio.src = currentPodcast.url;
     
     // Track which podcast is now loaded
     setLoadedPodcastId(currentPodcast.id);
+    
+    // If this track change was triggered by autoplay, log it
+    console.log('🎵 Track loaded for autoplay. isPlaying state:', isPlaying);
 
   }, [currentPodcast?.id, currentPodcast?.url, setCurrentTime, setDuration, loadedPodcastId, currentPodcast]);
 
@@ -331,9 +347,16 @@ export function PodcastPlayer() {
 
           {/* Auto-Play Toggle */}
           <div className="hidden sm:flex items-center gap-2">
-            <Switch id="autoplay-switch" checked={autoPlay} onCheckedChange={setAutoPlay} />
+            <Switch 
+              id="autoplay-switch" 
+              checked={autoPlay} 
+              onCheckedChange={(checked) => {
+                console.log('🎵 Autoplay toggle changed to:', checked);
+                setAutoPlay(checked);
+              }} 
+            />
             <label htmlFor="autoplay-switch" className="text-xs text-muted-foreground select-none cursor-pointer">
-              Auto-Play
+              Auto-Play {autoPlay ? '✓' : '✗'}
             </label>
           </div>
           

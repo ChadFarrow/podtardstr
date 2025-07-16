@@ -142,11 +142,18 @@ export const usePodcastPlayer = create<PodcastPlayerState>()(
         
         if (nextIndex < state.queue.length) {
           const nextPodcast = state.queue[nextIndex];
+          console.log('playNext called:', {
+            autoPlay: state.autoPlay,
+            nextTrack: nextPodcast.title,
+            willPlay: state.autoPlay
+          });
           set({
             currentPodcast: nextPodcast,
             currentIndex: nextIndex,
             isPlaying: state.autoPlay,
           });
+        } else {
+          console.log('playNext: No more tracks in queue');
         }
       },
 
