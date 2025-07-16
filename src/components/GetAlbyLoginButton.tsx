@@ -14,10 +14,10 @@ export default function GetAlbyLoginButton({ onLogin, onError }: GetAlbyLoginBut
   const handleLogin = async () => {
     setIsLoading(true);
     try {
-      // Check if already authenticated with direct access token
+      // Check if user is already authenticated
       if (getalbyAuth.isAuthenticated()) {
-        console.log('GetAlby already authenticated with direct access token');
-        // Get user info directly
+        console.log('User already authenticated with GetAlby');
+        // Get user info from their authenticated session
         const userInfo = await getalbyAuth.getUserInfo();
         if (userInfo) {
           onLogin(userInfo);
@@ -28,7 +28,7 @@ export default function GetAlbyLoginButton({ onLogin, onError }: GetAlbyLoginBut
         return;
       }
       
-      // Try OAuth flow if not using direct access token
+      // Start OAuth flow for user to login with their GetAlby account
       await getalbyAuth.startOAuthFlow();
       
       // Check if we're authenticated after OAuth flow
@@ -43,21 +43,8 @@ export default function GetAlbyLoginButton({ onLogin, onError }: GetAlbyLoginBut
       console.error('GetAlby login error:', error);
       const errorMessage = error instanceof Error ? error.message : 'Login failed';
       
-      // Handle different error scenarios
-      if (errorMessage.includes('already configured with a direct access token')) {
-        // This means we have a direct token, try to get user info
-        try {
-          const userInfo = await getalbyAuth.getUserInfo();
-          if (userInfo) {
-            onLogin(userInfo);
-          } else {
-            onError('GetAlby is configured but failed to get user information');
-          }
-        } catch (userError) {
-          onError('GetAlby authentication failed');
-        }
-      } else if (errorMessage.includes('not configured')) {
-        onError('GetAlby OAuth is not yet configured. Please contact support to enable Lightning payments.');
+      if (errorMessage.includes('not configured')) {
+        onError('GetAlby OAuth is not configured. Please contact support to enable user login.');
       } else {
         onError(errorMessage);
       }

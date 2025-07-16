@@ -68,20 +68,16 @@ export class GetAlbyAuth {
   }
 
   private loadTokensFromStorage(): void {
-    // Check for direct access token from environment first
-    if (GETALBY_CONFIG.accessToken) {
-      this.accessToken = GETALBY_CONFIG.accessToken;
-      console.log('Using direct access token from environment');
-    } else {
-      // Fall back to stored OAuth tokens
-      this.accessToken = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
-    }
+    // For user payments, we should NOT use the app's direct access token
+    // Each user needs to authenticate with their own GetAlby account
+    // Only use stored OAuth tokens from user login
+    this.accessToken = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
     
     if (this.accessToken) {
       try {
-        // Initialize OAuth client with access token
+        // Initialize OAuth client with user's access token
         this.oauthClient = new oauth.Client(this.accessToken);
-        console.log('✅ GetAlby OAuth client initialized successfully');
+        console.log('✅ GetAlby OAuth client initialized with user token');
       } catch (error) {
         console.warn('Failed to initialize OAuth client with access token:', error);
         this.oauthClient = null;
@@ -108,14 +104,9 @@ export class GetAlbyAuth {
 
   // Start OAuth flow
   async startOAuthFlow(): Promise<void> {
-    // If direct access token is available, skip OAuth flow
-    if (GETALBY_CONFIG.accessToken) {
-      throw new Error('GetAlby is already configured with a direct access token. OAuth flow is not needed.');
-    }
-    
     // Validate OAuth configuration
     if (!GETALBY_CONFIG.clientId) {
-      throw new Error('GetAlby OAuth is not configured. Please set VITE_GETALBY_CLIENT_ID or VITE_GETALBY_ACCESS_TOKEN in environment variables.');
+      throw new Error('GetAlby OAuth is not configured. Please set VITE_GETALBY_CLIENT_ID in environment variables to enable user login.');
     }
     
     const codeVerifier = generateCodeVerifier();
