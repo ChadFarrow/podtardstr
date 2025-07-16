@@ -29,6 +29,7 @@ export function PodcastPlayer() {
   const [showNowPlaying, setShowNowPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [hasUserInteracted, setHasUserInteracted] = useState(false);
+  const [loadedPodcastId, setLoadedPodcastId] = useState<string | null>(null);
 
   // Debug logging for component state
   console.log('PodcastPlayer render:', {
@@ -109,18 +110,32 @@ export function PodcastPlayer() {
     }
   }, [isPlaying, setIsPlaying, hasUserInteracted]);
 
-  // Handle new track loading - FIXED: Remove isPlaying dependency to prevent reload loop
+  // Handle new track loading - FIXED: Use podcast ID comparison for reliable track switching
   useEffect(() => {
     const audio = audioRef.current;
-    if (!audio || !currentPodcast) return;
-
-    // Only reload if the URL actually changed
-    if (audio.src === currentPodcast.url) {
-      console.log('Audio source unchanged, skipping reload');
+    if (!audio) return;
+    
+    // Reset loaded podcast ID if no current podcast
+    if (!currentPodcast) {
+      setLoadedPodcastId(null);
       return;
     }
 
-    console.log('Loading new audio source:', currentPodcast.url);
+    // Check if this is actually a different track by comparing podcast IDs
+    if (loadedPodcastId === currentPodcast.id) {
+      console.log('Same podcast already loaded, skipping reload:', {
+        podcastId: currentPodcast.id,
+        title: currentPodcast.title
+      });
+      return;
+    }
+
+    console.log('Loading new track:', {
+      oldPodcastId: loadedPodcastId,
+      newPodcastId: currentPodcast.id,
+      title: currentPodcast.title,
+      url: currentPodcast.url
+    });
 
     // Gently stop current audio without aborting
     if (!audio.paused) {
@@ -185,6 +200,9 @@ export function PodcastPlayer() {
     // Set the new audio source and load
     audio.src = currentPodcast.url;
     audio.load();
+    
+    // Track which podcast is now loaded
+    setLoadedPodcastId(currentPodcast.id);
 
     return () => {
       audio.removeEventListener('loadstart', handleLoadStart);
@@ -192,7 +210,7 @@ export function PodcastPlayer() {
       audio.removeEventListener('loadeddata', handleLoadedData);
       audio.removeEventListener('error', handleError);
     };
-  }, [currentPodcast?.url, setCurrentTime, setDuration]);
+  }, [currentPodcast?.id, currentPodcast?.url, setCurrentTime, setDuration, loadedPodcastId]);
 
   useEffect(() => {
     const audio = audioRef.current;
