@@ -5,8 +5,8 @@
 ## 🔖 Quick Reference for Future Sessions (as of July 15, 2025)
 
 ### **Current Status**
-- **Version:** 1.66 (auto-increments on commits)
-- **Status:** 🟢 Production Ready - All core features complete + Album Play Button Fixed
+- **Version:** 1.81 (auto-increments on commits)
+- **Status:** 🟢 Production Ready - All core features complete + Single Branch Deployment
 - **Production URL:** https://app.podtards.com (main branch - production)
 - **Preview URL:** https://podtardstr.vercel.app (main branch - preview)
 - **Repo:** https://github.com/ChadFarrow/podtardstr
@@ -30,6 +30,7 @@
 ✅ **Mobile Optimized** - Fixed viewport, single-click play, loading states  
 
 ### **Recent Critical Changes (Reference for Context)**
+- **Vercel Environment Configuration:** Production environment updated to track main branch (January 2025)
 - **Single Branch Deployment:** Simplified to main branch only, both sites deploy from same source (January 2025)
 - **Amber Integration Removal:** Removed all Amber-related code and components (January 2025)
 - **Album Play Button Fix:** Complete fix for non-working play buttons on album art (July 15, 2025)
@@ -87,9 +88,9 @@
 ## 🎯 Project Overview
 **Podtardstr** - A Nostr-based music discovery application with Value4Value (V4V) Lightning payments integrated.
 
-**Last Updated**: July 15, 2025  
-**Version**: 1.34  
-**Status**: 🟢 Production Ready + Enhanced UI
+**Last Updated**: January 2025  
+**Version**: 1.81  
+**Status**: 🟢 Production Ready + Single Branch Deployment
 
 ---
 

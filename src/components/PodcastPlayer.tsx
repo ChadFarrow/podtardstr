@@ -60,7 +60,11 @@ export function PodcastPlayer() {
     audio.addEventListener('loadedmetadata', updateDuration);
     // Auto-play next track when ended, if enabled
     const handleEnded = () => {
-      if (autoPlay) playNext();
+      console.log('Track ended, autoPlay enabled:', autoPlay);
+      if (autoPlay) {
+        console.log('Attempting to play next track');
+        playNext();
+      }
     };
     audio.addEventListener('ended', handleEnded);
 
@@ -71,7 +75,7 @@ export function PodcastPlayer() {
     };
   }, [setCurrentTime, setDuration, playNext, autoPlay]);
 
-  // FIXED: Simplified play effect that handles user interaction properly
+  // Enhanced play effect with autoplay support and user interaction tracking
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
@@ -100,8 +104,16 @@ export function PodcastPlayer() {
           console.log('Audio play successful');
         }).catch((error) => {
           console.error('Play effect error:', error);
-          // Only set playing to false if it's not an abort error
-          if (!error.message.includes('aborted')) {
+          
+          // Handle autoplay restrictions more gracefully
+          if (error.name === 'NotAllowedError') {
+            console.log('Autoplay blocked by browser - user interaction required');
+            // Don't set isPlaying to false immediately for autoplay blocks
+            // This allows the UI to show the track is "ready to play"
+            if (hasUserInteracted) {
+              setIsPlaying(false);
+            }
+          } else if (!error.message.includes('aborted')) {
             setIsPlaying(false);
           }
         });
@@ -176,6 +188,11 @@ export function PodcastPlayer() {
 
     // Mark that user has interacted
     setHasUserInteracted(true);
+
+    // If autoplay was blocked and user clicks play, try to resume autoplay capability
+    if (!isPlaying && audio.paused) {
+      console.log('User manually starting playback - this may enable future autoplay');
+    }
 
     // HARD-CODED FIX: Simply toggle the state, let the effect handle audio
     setIsPlaying(!isPlaying);

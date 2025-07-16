@@ -145,7 +145,7 @@ export const usePodcastPlayer = create<PodcastPlayerState>()(
           set({
             currentPodcast: nextPodcast,
             currentIndex: nextIndex,
-            isPlaying: true,
+            isPlaying: state.autoPlay,
           });
         }
       },

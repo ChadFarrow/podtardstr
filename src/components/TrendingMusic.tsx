@@ -174,6 +174,16 @@ export function TrendingMusic() {
         
         // Play the first episode with a valid audio URL
         playPodcast(podcastToPlay);
+        
+        // Immediately try to play audio to satisfy browser autoplay policy
+        // This must happen in the user interaction context
+        const audio = document.querySelector('audio');
+        if (audio) {
+          audio.src = podcastToPlay.url;
+          audio.play().catch(error => {
+            console.log('Autoplay prevented by browser:', error);
+          });
+        }
       } else {
         console.warn('No playable episodes found in album:', podcast.title);
       }
