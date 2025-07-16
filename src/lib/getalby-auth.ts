@@ -7,6 +7,8 @@ const GETALBY_CONFIG = {
   clientId: import.meta.env.VITE_GETALBY_CLIENT_ID,
   redirectUri: import.meta.env.VITE_GETALBY_REDIRECT_URI || `${window.location.origin}/oauth/callback`,
   scopes: ['account:read', 'payments:send', 'balance:read', 'invoices:create'],
+  // Direct access token (alternative to OAuth flow)
+  accessToken: import.meta.env.VITE_GETALBY_ACCESS_TOKEN,
 };
 
 // PKCE utilities
@@ -59,8 +61,6 @@ export interface GetAlbyTokens {
 
 export class GetAlbyAuth {
   private accessToken: string | null = null;
-  private refreshToken: string | null = null;
-  private ln: LN | null = null;
   private oauthClient: oauth.Client | null = null;
 
   constructor() {
@@ -68,19 +68,23 @@ export class GetAlbyAuth {
   }
 
   private loadTokensFromStorage(): void {
-    this.accessToken = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
-    this.refreshToken = localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
+    // Check for direct access token from environment first
+    if (GETALBY_CONFIG.accessToken) {
+      this.accessToken = GETALBY_CONFIG.accessToken;
+      console.log('Using direct access token from environment');
+    } else {
+      // Fall back to stored OAuth tokens
+      this.accessToken = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
+    }
     
     if (this.accessToken) {
       try {
         // Initialize OAuth client with access token
         this.oauthClient = new oauth.Client(this.accessToken);
-        // For LN operations, we'll use the OAuth client directly
-        this.ln = null; // We'll use oauthClient instead
+        console.log('✅ GetAlby OAuth client initialized successfully');
       } catch (error) {
         console.warn('Failed to initialize OAuth client with access token:', error);
         this.oauthClient = null;
-        this.ln = null;
       }
     }
   }
@@ -92,25 +96,26 @@ export class GetAlbyAuth {
     }
     
     this.accessToken = tokens.access_token;
-    this.refreshToken = tokens.refresh_token || null;
     
     try {
       // Initialize OAuth client with access token
       this.oauthClient = new oauth.Client(this.accessToken);
-      // For LN operations, we'll use the OAuth client directly
-      this.ln = null; // We'll use oauthClient instead
     } catch (error) {
       console.warn('Failed to initialize OAuth client with access token:', error);
       this.oauthClient = null;
-      this.ln = null;
     }
   }
 
   // Start OAuth flow
   async startOAuthFlow(): Promise<void> {
+    // If direct access token is available, skip OAuth flow
+    if (GETALBY_CONFIG.accessToken) {
+      throw new Error('GetAlby is already configured with a direct access token. OAuth flow is not needed.');
+    }
+    
     // Validate OAuth configuration
     if (!GETALBY_CONFIG.clientId) {
-      throw new Error('GetAlby OAuth is not configured. Please set VITE_GETALBY_CLIENT_ID in environment variables.');
+      throw new Error('GetAlby OAuth is not configured. Please set VITE_GETALBY_CLIENT_ID or VITE_GETALBY_ACCESS_TOKEN in environment variables.');
     }
     
     const codeVerifier = generateCodeVerifier();
@@ -312,8 +317,6 @@ export class GetAlbyAuth {
     localStorage.removeItem(STORAGE_KEYS.CODE_VERIFIER);
     
     this.accessToken = null;
-    this.refreshToken = null;
-    this.ln = null;
     this.oauthClient = null;
   }
 }
