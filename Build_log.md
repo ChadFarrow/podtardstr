@@ -5,10 +5,10 @@
 ## 🔖 Quick Reference for Future Sessions (as of July 15, 2025)
 
 ### **Current Status**
-- **Version:** 1.65 (auto-increments on commits)
+- **Version:** 1.66 (auto-increments on commits)
 - **Status:** 🟢 Production Ready - All core features complete + Album Play Button Fixed
-- **Production URL:** https://app.podtards.com (stable branch - production)
-- **Preview URL:** https://podtardstr.vercel.app (main branch - preview deployments)
+- **Production URL:** https://app.podtards.com (main branch - production)
+- **Preview URL:** https://podtardstr.vercel.app (main branch - preview)
 - **Repo:** https://github.com/ChadFarrow/podtardstr
 
 ### **Key Architecture & Tech Stack**
@@ -30,12 +30,13 @@
 ✅ **Mobile Optimized** - Fixed viewport, single-click play, loading states  
 
 ### **Recent Critical Changes (Reference for Context)**
+- **Single Branch Deployment:** Simplified to main branch only, both sites deploy from same source (January 2025)
+- **Amber Integration Removal:** Removed all Amber-related code and components (January 2025)
 - **Album Play Button Fix:** Complete fix for non-working play buttons on album art (July 15, 2025)
 - **Audio Fetch Abort Fix:** Eliminated "fetching process was aborted" errors with simplified loading approach  
 - **Event Handler Fix:** Changed from onClick to onMouseDown for reliable button interaction
 - **Z-Index Fix:** Resolved play buttons showing through bottom audio player bar
 - **Track Switching Fix:** Podcast ID comparison for reliable track switching between albums
-- **Deployment Structure:** Production deploys from stable branch, previews from main branch
 - **TLV Metadata:** Now matches Podcast Index 2.0 spec exactly (podcast, feedID, itemID, episode, etc.)
 - **Bottom Player:** Changed from sticky to fixed positioning, always visible
 - **Platform Detection:** Wavlake & LNBeats integration with UUID extraction from feed URLs
