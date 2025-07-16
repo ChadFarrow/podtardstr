@@ -1,4 +1,4 @@
-import { LN } from '@getalby/sdk';
+import { LN, oauth } from '@getalby/sdk';
 
 // GetAlby OAuth configuration
 const GETALBY_CONFIG = {
@@ -39,11 +39,15 @@ const STORAGE_KEYS = {
 };
 
 export interface GetAlbyUser {
-  id: string;
+  identifier: string;
   email: string;
-  lightning_address: string;
+  lightning_address?: string;
   name?: string;
   avatar?: string;
+  keysend_custom_key?: string;
+  keysend_custom_value?: string;
+  keysend_pubkey?: string;
+  nostr_pubkey?: string;
 }
 
 export interface GetAlbyTokens {
@@ -57,6 +61,7 @@ export class GetAlbyAuth {
   private accessToken: string | null = null;
   private refreshToken: string | null = null;
   private ln: LN | null = null;
+  private oauthClient: oauth.Client | null = null;
 
   constructor() {
     this.loadTokensFromStorage();
@@ -67,12 +72,14 @@ export class GetAlbyAuth {
     this.refreshToken = localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
     
     if (this.accessToken) {
-      // Note: SDK v5.x uses different constructor, this may need adjustment
-      // TODO: Update to use proper NWC credentials or OAuth token method
       try {
-        this.ln = new LN(this.accessToken);
+        // Initialize OAuth client with access token
+        this.oauthClient = new oauth.Client(this.accessToken);
+        // For LN operations, we'll use the OAuth client directly
+        this.ln = null; // We'll use oauthClient instead
       } catch (error) {
-        console.warn('Failed to initialize LN with access token:', error);
+        console.warn('Failed to initialize OAuth client with access token:', error);
+        this.oauthClient = null;
         this.ln = null;
       }
     }
@@ -87,12 +94,14 @@ export class GetAlbyAuth {
     this.accessToken = tokens.access_token;
     this.refreshToken = tokens.refresh_token || null;
     
-    // Note: SDK v5.x uses different constructor, this may need adjustment
-    // TODO: Update to use proper NWC credentials or OAuth token method
     try {
-      this.ln = new LN(this.accessToken);
+      // Initialize OAuth client with access token
+      this.oauthClient = new oauth.Client(this.accessToken);
+      // For LN operations, we'll use the OAuth client directly
+      this.ln = null; // We'll use oauthClient instead
     } catch (error) {
-      console.warn('Failed to initialize LN with access token:', error);
+      console.warn('Failed to initialize OAuth client with access token:', error);
+      this.oauthClient = null;
       this.ln = null;
     }
   }
@@ -178,22 +187,13 @@ export class GetAlbyAuth {
     return userInfo;
   }
 
-  // Get user info
+  // Get user info using GetAlby OAuth client
   async getUserInfo(): Promise<GetAlbyUser | null> {
-    if (!this.accessToken) return null;
+    if (!this.oauthClient) return null;
     
     try {
-      const response = await fetch('https://api.getalby.com/user', {
-        headers: {
-          'Authorization': `Bearer ${this.accessToken}`,
-        },
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to get user info');
-      }
-      
-      return await response.json();
+      const response = await this.oauthClient.accountInformation();
+      return response;
     } catch (error) {
       console.error('Error getting user info:', error);
       return null;
@@ -202,7 +202,7 @@ export class GetAlbyAuth {
 
   // Check if user is authenticated
   isAuthenticated(): boolean {
-    return !!this.accessToken;
+    return !!this.oauthClient;
   }
 
   // Get stored user info
@@ -211,119 +211,85 @@ export class GetAlbyAuth {
     return userInfo ? JSON.parse(userInfo) : null;
   }
 
-  // Send payment using GetAlby API
+  // Send payment using GetAlby OAuth client
   async sendPayment(invoice: string): Promise<unknown> {
-    if (!this.accessToken) {
+    if (!this.oauthClient) {
       throw new Error('Not authenticated with GetAlby');
     }
     
     try {
-      const response = await fetch('https://api.getalby.com/payments/bolt11', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${this.accessToken}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ invoice }),
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Payment failed');
-      }
-      
-      return await response.json();
+      return await this.oauthClient.sendPayment({ invoice });
     } catch (error) {
       console.error('Payment error:', error);
       throw error;
     }
   }
 
-  // Pay lightning address using GetAlby API
+  // Pay lightning address using GetAlby OAuth client
   async payLightningAddress(address: string, amount: number, comment?: string): Promise<unknown> {
-    if (!this.accessToken) {
+    if (!this.oauthClient) {
       throw new Error('Not authenticated with GetAlby');
     }
     
     try {
-      const response = await fetch('https://api.getalby.com/payments/lightning-address', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${this.accessToken}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          destination: address, 
-          amount: amount * 1000, // Convert sats to millisats
-          comment 
-        }),
+      // For lightning address payments, we need to use keysend
+      return await this.oauthClient.keysend({ 
+        destination: address, 
+        amount: amount * 1000, // Convert sats to millisats
+        memo: comment 
       });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Payment failed');
-      }
-      
-      return await response.json();
     } catch (error) {
       console.error('Lightning address payment error:', error);
       throw error;
     }
   }
 
-  // Keysend payment using GetAlby API
+  // Keysend payment using GetAlby OAuth client
   async keysend(destination: string, amount: number, customRecords?: Record<string, string>): Promise<unknown> {
-    if (!this.accessToken) {
+    if (!this.oauthClient) {
       throw new Error('Not authenticated with GetAlby');
     }
     
     try {
-      const response = await fetch('https://api.getalby.com/payments/keysend', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${this.accessToken}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          destination, 
-          amount: amount * 1000, // Convert sats to millisats
-          customRecords 
-        }),
+      return await this.oauthClient.keysend({ 
+        destination, 
+        amount: amount * 1000, // Convert sats to millisats
+        customRecords 
       });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Keysend payment failed');
-      }
-      
-      return await response.json();
     } catch (error) {
       console.error('Keysend payment error:', error);
       throw error;
     }
   }
 
-  // Get balance
+  // Get balance using GetAlby OAuth client
   async getBalance(): Promise<number> {
-    if (!this.accessToken) {
+    if (!this.oauthClient) {
       throw new Error('Not authenticated with GetAlby');
     }
     
     try {
-      const response = await fetch('https://api.getalby.com/balance', {
-        headers: {
-          'Authorization': `Bearer ${this.accessToken}`,
-        },
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to get balance');
-      }
-      
-      const data = await response.json();
+      const data = await this.oauthClient.accountBalance();
       return data.balance;
     } catch (error) {
       console.error('Error getting balance:', error);
+      throw error;
+    }
+  }
+
+  // Create invoice using GetAlby OAuth client
+  async createInvoice(amount: number, description?: string): Promise<unknown> {
+    if (!this.oauthClient) {
+      throw new Error('Not authenticated with GetAlby');
+    }
+    
+    try {
+      return await this.oauthClient.createInvoice({ 
+        amount: amount * 1000, // Convert sats to millisats
+        description: description || ''
+      });
+    } catch (error) {
+      console.error('Error creating invoice:', error);
       throw error;
     }
   }
@@ -338,6 +304,7 @@ export class GetAlbyAuth {
     this.accessToken = null;
     this.refreshToken = null;
     this.ln = null;
+    this.oauthClient = null;
   }
 }
 
