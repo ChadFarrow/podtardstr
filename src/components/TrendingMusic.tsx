@@ -80,6 +80,14 @@ export function TrendingMusic() {
   const [isLoadingPlayAll, setIsLoadingPlayAll] = useState(false);
   const [loadingTrackId, setLoadingTrackId] = useState<string | null>(null);
 
+  // Debug: Log when component renders
+  console.log('🔴 TrendingMusic component rendered with:', {
+    trendingMusicCount: trendingMusic?.feeds?.length || 0,
+    isLoading: trendingLoading,
+    currentPodcast: currentPodcast?.id,
+    isPlaying
+  });
+
   const handlePlayPauseAlbum = useCallback(async (podcast: PodcastIndexPodcast) => {
     const podcastId = podcast.id.toString();
     
@@ -320,8 +328,27 @@ export function TrendingMusic() {
               </div>
               <div className="grid gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {trendingMusic.feeds.map((feed, index) => (
-                  <Card key={`trending-${feed.id}-${index}`} className="relative w-full max-w-70 mx-auto hover:shadow-xl hover:shadow-black/20 transition-all duration-300 hover:-translate-y-1">
-                    <CardContent className="p-5 flex flex-col items-center text-center space-y-3">
+                  <Card 
+                    key={`trending-${feed.id}-${index}`} 
+                    className="relative w-full max-w-70 mx-auto hover:shadow-xl hover:shadow-black/20 transition-all duration-300 hover:-translate-y-1"
+                    onClick={(e) => {
+                      console.log('🔵 CARD CLICKED:', {
+                        feedId: feed.id,
+                        target: e.target,
+                        currentTarget: e.currentTarget
+                      });
+                    }}
+                  >
+                    <CardContent 
+                      className="p-5 flex flex-col items-center text-center space-y-3"
+                      onClick={(e) => {
+                        console.log('🟡 CARD CONTENT CLICKED:', {
+                          feedId: feed.id,
+                          target: e.target,
+                          currentTarget: e.currentTarget
+                        });
+                      }}
+                    >
                       {/* Rank badge - top right corner */}
                       <span className="absolute top-3 right-3 text-xs font-mono text-muted-foreground bg-background/80 backdrop-blur-sm px-2 py-1 rounded-full border">
                         #{index + 1}
@@ -333,21 +360,46 @@ export function TrendingMusic() {
                           <SecureImage 
                             src={feed.image || feed.artwork} 
                             alt={feed.title}
-                            className="w-20 h-20 rounded-2xl object-cover shadow-lg group-hover:shadow-xl transition-all duration-300"
+                            className="w-20 h-20 rounded-2xl object-cover shadow-lg group-hover:shadow-xl transition-all duration-300 pointer-events-none"
                             style={{
                               boxShadow: '0 12px 24px rgba(0,0,0,0.25), 0 0 24px rgba(139,69,19,0.15)'
                             }}
                           />
                           <button
-                            onClick={(e) => {
+                            onMouseDown={(e) => {
+                              console.log('🔴 PLAY BUTTON MOUSE DOWN - EXECUTING PLAY:', {
+                                feedId: feed.id,
+                                feedTitle: feed.title,
+                                eventType: e.type,
+                                target: e.target,
+                                currentTarget: e.currentTarget
+                              });
                               e.preventDefault();
                               e.stopPropagation();
                               handlePlayPauseAlbum(feed);
                             }}
+                            onTouchStart={(e) => {
+                              console.log('🔴 PLAY BUTTON TOUCH START - EXECUTING PLAY:', feed.id);
+                              e.preventDefault();
+                              e.stopPropagation();
+                              handlePlayPauseAlbum(feed);
+                            }}
+                            onClick={(e) => {
+                              console.log('🔴 PLAY BUTTON CLICKED (backup):', feed.id);
+                              // Keep as backup but don't execute play to avoid double-execution
+                              e.preventDefault();
+                              e.stopPropagation();
+                            }}
                             disabled={loadingTrackId === feed.id.toString()}
                             className="absolute inset-0 bg-black/30 hover:bg-black/50 active:bg-black/60 rounded-2xl flex items-center justify-center opacity-70 hover:opacity-100 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                            style={{ touchAction: 'manipulation' }}
+                            style={{ 
+                              touchAction: 'manipulation', 
+                              zIndex: 999,
+                              pointerEvents: 'auto',
+                              cursor: 'pointer'
+                            }}
                             aria-label={isCurrentlyPlaying(feed.id.toString(), feed.title) ? 'Pause' : 'Play'}
+                            data-testid={`play-button-${feed.id}`}
                           >
                             {loadingTrackId === feed.id.toString() ? (
                               <div className="h-8 w-8 border-2 border-white border-t-transparent rounded-full animate-spin" />
