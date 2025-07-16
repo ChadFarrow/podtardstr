@@ -4,7 +4,7 @@ import { LN, oauth } from '@getalby/sdk';
 const GETALBY_CONFIG = {
   authUrl: 'https://getalby.com/oauth',
   tokenUrl: 'https://api.getalby.com/oauth/token',
-  clientId: import.meta.env.VITE_GETALBY_CLIENT_ID || 'demo-client-id',
+  clientId: import.meta.env.VITE_GETALBY_CLIENT_ID,
   redirectUri: import.meta.env.VITE_GETALBY_REDIRECT_URI || `${window.location.origin}/oauth/callback`,
   scopes: ['account:read', 'payments:send', 'balance:read', 'invoices:create'],
 };
@@ -108,6 +108,11 @@ export class GetAlbyAuth {
 
   // Start OAuth flow
   async startOAuthFlow(): Promise<void> {
+    // Validate OAuth configuration
+    if (!GETALBY_CONFIG.clientId) {
+      throw new Error('GetAlby OAuth is not configured. Please set VITE_GETALBY_CLIENT_ID in environment variables.');
+    }
+    
     const codeVerifier = generateCodeVerifier();
     const codeChallenge = await generateCodeChallenge(codeVerifier);
     
@@ -149,6 +154,11 @@ export class GetAlbyAuth {
 
   // Handle OAuth callback
   async handleOAuthCallback(code: string): Promise<GetAlbyUser | null> {
+    // Validate OAuth configuration
+    if (!GETALBY_CONFIG.clientId) {
+      throw new Error('GetAlby OAuth is not configured. Please set VITE_GETALBY_CLIENT_ID in environment variables.');
+    }
+    
     const codeVerifier = localStorage.getItem(STORAGE_KEYS.CODE_VERIFIER);
     if (!codeVerifier) {
       throw new Error('No code verifier found');
@@ -192,7 +202,7 @@ export class GetAlbyAuth {
     if (!this.oauthClient) return null;
     
     try {
-      const response = await this.oauthClient.accountInformation();
+      const response = await this.oauthClient.accountInformation({});
       return response;
     } catch (error) {
       console.error('Error getting user info:', error);
@@ -269,7 +279,7 @@ export class GetAlbyAuth {
     }
     
     try {
-      const data = await this.oauthClient.accountBalance();
+      const data = await this.oauthClient.accountBalance({});
       return data.balance;
     } catch (error) {
       console.error('Error getting balance:', error);
