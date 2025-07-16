@@ -256,19 +256,30 @@ export function TrendingMusic() {
       // Wait for all episode fetches to complete
       await Promise.allSettled(episodePromises);
       
-      // Filter out failed episodes but maintain order
-      const validEpisodes = orderedEpisodes.filter((episode): episode is NonNullable<typeof episode> => episode !== null);
+      // Add episodes to queue in their original order, preserving rank gaps
+      console.log('🎼 Final ordered episodes array:', orderedEpisodes.map((ep, idx) => 
+        ep ? `#${idx + 1}: ${ep.title}` : `#${idx + 1}: [FAILED]`
+      ));
       
-      // Add episodes to queue in order
-      validEpisodes.forEach(episode => {
-        addToQueue(episode);
+      orderedEpisodes.forEach((episode, index) => {
+        if (episode) {
+          console.log(`📋 Adding to queue: #${episode.rank} - ${episode.title}`);
+          addToQueue(episode);
+        } else {
+          console.log(`⚠️ Skipping failed episode at position #${index + 1}`);
+        }
       });
       
+      // Get the first valid episode for playing
+      const firstValidEpisode = orderedEpisodes.find(ep => ep !== null);
+      
       // Play the first valid episode
-      if (validEpisodes.length > 0) {
-        playPodcast(validEpisodes[0]);
+      if (firstValidEpisode) {
+        console.log(`🎵 Starting playback with: #${firstValidEpisode.rank} - ${firstValidEpisode.title}`);
+        playPodcast(firstValidEpisode);
       }
       
+      const validEpisodes = orderedEpisodes.filter(ep => ep !== null);
       const skippedCount = trendingMusic.feeds.length - validEpisodes.length;
       console.log(`🎼 Queued ${validEpisodes.length} tracks from Top 100 V4V chart${skippedCount > 0 ? ` (${skippedCount} tracks skipped due to fetch errors)` : ''}`);
       
