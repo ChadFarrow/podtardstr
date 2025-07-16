@@ -14,9 +14,24 @@ export default function GetAlbyLoginButton({ onLogin, onError }: GetAlbyLoginBut
   const handleLogin = async () => {
     setIsLoading(true);
     try {
+      // Check if already authenticated with direct access token
+      if (getalbyAuth.isAuthenticated()) {
+        console.log('GetAlby already authenticated with direct access token');
+        // Get user info directly
+        const userInfo = await getalbyAuth.getUserInfo();
+        if (userInfo) {
+          onLogin(userInfo);
+        } else {
+          onError('Failed to get user information');
+        }
+        setIsLoading(false);
+        return;
+      }
+      
+      // Try OAuth flow if not using direct access token
       await getalbyAuth.startOAuthFlow();
       
-      // Check if we're already authenticated (in case popup closed quickly)
+      // Check if we're authenticated after OAuth flow
       setTimeout(() => {
         const userInfo = getalbyAuth.getStoredUserInfo();
         if (userInfo) {
@@ -28,8 +43,20 @@ export default function GetAlbyLoginButton({ onLogin, onError }: GetAlbyLoginBut
       console.error('GetAlby login error:', error);
       const errorMessage = error instanceof Error ? error.message : 'Login failed';
       
-      // If OAuth is not configured, show helpful message
-      if (errorMessage.includes('not configured')) {
+      // Handle different error scenarios
+      if (errorMessage.includes('already configured with a direct access token')) {
+        // This means we have a direct token, try to get user info
+        try {
+          const userInfo = await getalbyAuth.getUserInfo();
+          if (userInfo) {
+            onLogin(userInfo);
+          } else {
+            onError('GetAlby is configured but failed to get user information');
+          }
+        } catch (userError) {
+          onError('GetAlby authentication failed');
+        }
+      } else if (errorMessage.includes('not configured')) {
         onError('GetAlby OAuth is not yet configured. Please contact support to enable Lightning payments.');
       } else {
         onError(errorMessage);
