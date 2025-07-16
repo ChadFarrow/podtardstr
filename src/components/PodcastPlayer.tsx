@@ -95,6 +95,11 @@ export function PodcastPlayer() {
       // Only try to play if we haven't already started playing
       if (audio.paused) {
         console.log('Attempting to play audio');
+        // If audio needs loading, load it first, then play
+        if (audio.readyState === 0) {
+          console.log('Audio not loaded yet, loading first');
+          audio.load();
+        }
         audio.play().then(() => {
           console.log('Audio play successful');
         }).catch((error) => {
@@ -136,11 +141,6 @@ export function PodcastPlayer() {
       title: currentPodcast.title,
       url: currentPodcast.url
     });
-
-    // Gently stop current audio without aborting
-    if (!audio.paused) {
-      audio.pause();
-    }
 
     // Reset time when a new track is loaded
     setCurrentTime(0);
@@ -197,9 +197,10 @@ export function PodcastPlayer() {
     audio.addEventListener('loadeddata', handleLoadedData);
     audio.addEventListener('error', handleError);
 
-    // Set the new audio source and load
+    // GENTLE APPROACH: Set source without forcing immediate load
+    // This prevents the "fetching process was aborted" error
+    console.log('Setting audio src (without load):', currentPodcast.url);
     audio.src = currentPodcast.url;
-    audio.load();
     
     // Track which podcast is now loaded
     setLoadedPodcastId(currentPodcast.id);
