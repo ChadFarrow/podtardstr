@@ -4,11 +4,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Zap, X } from 'lucide-react';
 import { useLightningWallet } from '@/hooks/useLightningWallet';
-import GetAlbyLoginButton from '@/components/GetAlbyLoginButton';
+// Temporarily disabled: import GetAlbyLoginButton from '@/components/GetAlbyLoginButton';
 import { useValue4ValueData } from '@/hooks/useValueBlockFromRss';
 import { useUserName } from '@/hooks/useUserName';
 import confetti from 'canvas-confetti';
-import { GetAlbyUser } from '@/lib/getalby-auth';
+// Temporarily disabled: import { GetAlbyUser } from '@/lib/getalby-auth';
 import { 
   getLightningRecipients, 
   processMultiplePayments, 
@@ -86,7 +86,7 @@ export function BoostModal({
   feedId,
   episodeId
 }: BoostModalProps) {
-  const { connectWallet, connectGetAlbyWeb, isConnecting, walletProvider, getalbyUser } = useLightningWallet();
+  const { connectWallet, /* connectGetAlbyWeb, */ isConnecting, walletProvider, /* getalbyUser */ } = useLightningWallet();
   const { processPayment, isProcessing, status, setStatus } = usePaymentProcessor();
   const [message, setMessage] = useState('');
   const { getDisplayName } = useUserName();
@@ -253,6 +253,8 @@ export function BoostModal({
     }
   }, [hasRecipients, connectWallet, processPayment, recipients, totalAmount, setStatus, contentTitle, message, onOpenChange, getDisplayName, triggerConfetti, episodeGuid, feedUrl, feedId, episodeId]);
 
+  // Temporarily disabled GetAlby handlers due to OAuth server issues
+  /*
   const handleGetAlbyLogin = useCallback(async (user: GetAlbyUser) => {
     try {
       await connectGetAlbyWeb(user);
@@ -266,6 +268,7 @@ export function BoostModal({
   const handleGetAlbyError = useCallback((error: string) => {
     setStatus(`GetAlby error: ${error}`);
   }, []);
+  */
 
   const handleClose = () => {
     onOpenChange(false);
@@ -357,11 +360,11 @@ export function BoostModal({
                 Connect your Lightning wallet to boost:
               </div>
               
-              {/* GetAlby Web Login Button */}
-              <GetAlbyLoginButton 
+              {/* GetAlby OAuth temporarily disabled due to server issues */}
+              {/* <GetAlbyLoginButton 
                 onLogin={handleGetAlbyLogin}
                 onError={handleGetAlbyError}
-              />
+              /> */}
               
               {/* Bitcoin Connect Button */}
               <Button 
