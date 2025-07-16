@@ -366,8 +366,8 @@ export function TrendingMusic() {
                             }}
                           />
                           <button
-                            onClick={(e) => {
-                              console.log('🔴 PLAY BUTTON CLICKED:', {
+                            onMouseDown={(e) => {
+                              console.log('🔴 PLAY BUTTON MOUSE DOWN - EXECUTING PLAY:', {
                                 feedId: feed.id,
                                 feedTitle: feed.title,
                                 eventType: e.type,
@@ -378,11 +378,17 @@ export function TrendingMusic() {
                               e.stopPropagation();
                               handlePlayPauseAlbum(feed);
                             }}
-                            onMouseDown={(e) => {
-                              console.log('🔴 PLAY BUTTON MOUSE DOWN:', feed.id);
-                            }}
                             onTouchStart={(e) => {
-                              console.log('🔴 PLAY BUTTON TOUCH START:', feed.id);
+                              console.log('🔴 PLAY BUTTON TOUCH START - EXECUTING PLAY:', feed.id);
+                              e.preventDefault();
+                              e.stopPropagation();
+                              handlePlayPauseAlbum(feed);
+                            }}
+                            onClick={(e) => {
+                              console.log('🔴 PLAY BUTTON CLICKED (backup):', feed.id);
+                              // Keep as backup but don't execute play to avoid double-execution
+                              e.preventDefault();
+                              e.stopPropagation();
                             }}
                             disabled={loadingTrackId === feed.id.toString()}
                             className="absolute inset-0 bg-black/30 hover:bg-black/50 active:bg-black/60 rounded-2xl flex items-center justify-center opacity-70 hover:opacity-100 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
