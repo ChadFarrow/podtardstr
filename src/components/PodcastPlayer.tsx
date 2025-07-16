@@ -69,7 +69,7 @@ export function PodcastPlayer() {
     };
   }, [setCurrentTime, setDuration, playNext, autoPlay]);
 
-  // HARD-CODED FIX: Simplified play effect that only responds to state changes
+  // FIXED: Simplified play effect that handles user interaction properly
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
@@ -80,10 +80,17 @@ export function PodcastPlayer() {
       audioSrc: audio.src,
       audioReadyState: audio.readyState,
       audioCurrentTime: audio.currentTime,
-      audioDuration: audio.duration
+      audioDuration: audio.duration,
+      hasUserInteracted
     });
 
     if (isPlaying) {
+      // Mark user interaction when play is triggered from album buttons
+      if (!hasUserInteracted) {
+        console.log('Marking user interaction from play state');
+        setHasUserInteracted(true);
+      }
+      
       // Only try to play if we haven't already started playing
       if (audio.paused) {
         console.log('Attempting to play audio');
@@ -100,17 +107,25 @@ export function PodcastPlayer() {
       console.log('Pausing audio');
       audio.pause();
     }
-  }, [isPlaying, setIsPlaying]);
+  }, [isPlaying, setIsPlaying, hasUserInteracted]);
 
-  // Handle new track loading
+  // Handle new track loading - FIXED: Remove isPlaying dependency to prevent reload loop
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio || !currentPodcast) return;
 
-    // Abort any existing loading to prevent conflicts
-    audio.pause();
-    audio.removeAttribute('src');
-    audio.load();
+    // Only reload if the URL actually changed
+    if (audio.src === currentPodcast.url) {
+      console.log('Audio source unchanged, skipping reload');
+      return;
+    }
+
+    console.log('Loading new audio source:', currentPodcast.url);
+
+    // Gently stop current audio without aborting
+    if (!audio.paused) {
+      audio.pause();
+    }
 
     // Reset time when a new track is loaded
     setCurrentTime(0);
@@ -118,21 +133,21 @@ export function PodcastPlayer() {
     setIsLoading(true);
 
     // Add error handling for media loading
-    const handleLoadStart = () => setIsLoading(true);
+    const handleLoadStart = () => {
+      console.log('Audio load started');
+      setIsLoading(true);
+    };
+    
     const handleCanPlay = () => {
+      console.log('Audio can play');
       setIsLoading(false);
-      // HARD-CODED FIX: Only auto-play if user has interacted and state says playing
-      if (isPlaying && hasUserInteracted) {
-        audio.play().catch((error) => {
-          console.error('Auto-play error:', error);
-          // Don't change state on auto-play errors
-        });
-      }
     };
+    
     const handleLoadedData = () => {
-      // Audio is ready to play
+      console.log('Audio data loaded');
       setIsLoading(false);
     };
+    
     const handleError = (e: Event) => {
       const target = e.target as HTMLAudioElement;
       const errorCode = target?.error?.code;
@@ -168,10 +183,8 @@ export function PodcastPlayer() {
     audio.addEventListener('error', handleError);
 
     // Set the new audio source and load
-    console.log('Setting audio source:', currentPodcast.url);
     audio.src = currentPodcast.url;
     audio.load();
-    console.log('Audio load() called');
 
     return () => {
       audio.removeEventListener('loadstart', handleLoadStart);
@@ -179,7 +192,7 @@ export function PodcastPlayer() {
       audio.removeEventListener('loadeddata', handleLoadedData);
       audio.removeEventListener('error', handleError);
     };
-  }, [currentPodcast, setCurrentTime, setDuration, isPlaying, setIsPlaying]);
+  }, [currentPodcast?.url, setCurrentTime, setDuration]);
 
   useEffect(() => {
     const audio = audioRef.current;
