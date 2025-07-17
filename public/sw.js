@@ -1,9 +1,9 @@
 // Service Worker for Podtardstr PWA
 // Provides offline support and caching for better mobile experience
 
-const CACHE_NAME = 'podtardstr-v6';
-const STATIC_CACHE_NAME = 'podtardstr-static-v6';
-const DYNAMIC_CACHE_NAME = 'podtardstr-dynamic-v6';
+const CACHE_NAME = 'podtardstr-v7';
+const STATIC_CACHE_NAME = 'podtardstr-static-v7';
+const DYNAMIC_CACHE_NAME = 'podtardstr-dynamic-v7';
 
 // Files to cache for offline functionality
 const STATIC_ASSETS = [
@@ -32,8 +32,8 @@ self.addEventListener('install', (event) => {
     })
   );
   
-  // Force the service worker to become active immediately
-  self.skipWaiting();
+  // Don't force immediate activation to prevent refresh loops
+  // self.skipWaiting();
 });
 
 // Activate event - clean up old caches
@@ -53,8 +53,8 @@ self.addEventListener('activate', (event) => {
     })
   );
   
-  // Take control of all pages immediately
-  self.clients.claim();
+  // Don't take control immediately to prevent refresh loops
+  // self.clients.claim();
 });
 
 // Fetch event - serve cached content when offline

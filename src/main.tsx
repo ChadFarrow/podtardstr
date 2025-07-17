@@ -35,20 +35,20 @@ if ('serviceWorker' in navigator) {
       
       console.log('✅ Service Worker registered successfully:', registration.scope);
       
-      // Handle service worker updates
+      // Handle service worker updates - less aggressive approach
       registration.addEventListener('updatefound', () => {
         const newWorker = registration.installing;
         if (newWorker) {
           newWorker.addEventListener('statechange', () => {
             if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-              // New content is available, but don't auto-refresh
-              console.log('🔄 New app version available. Manual refresh needed.');
+              // New content is available, but don't auto-refresh or force activation
+              console.log('🔄 New app version available. Will activate on next visit.');
               
-              // Dispatch update event for UI to handle
+              // Dispatch update event for UI to handle if needed
               window.dispatchEvent(new CustomEvent('sw-update-available'));
               
-              // Don't auto-refresh - let users refresh manually to prevent loops
-              console.log('💡 Refresh page to get latest version');
+              // Don't suggest immediate refresh to prevent loops
+              console.log('💡 New version will be available on next app launch');
             }
           });
         }
