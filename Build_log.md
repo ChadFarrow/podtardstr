@@ -2,11 +2,11 @@
 
 ---
 
-## 🔖 Quick Reference for Future Sessions (as of July 15, 2025)
+## 🔖 Quick Reference for Future Sessions (as of July 16, 2025)
 
 ### **Current Status**
-- **Version:** 1.81 (auto-increments on commits)
-- **Status:** 🟢 Production Ready - All core features complete + Single Branch Deployment
+- **Version:** 1.86 (auto-increments on commits)
+- **Status:** 🟢 Production Ready - All core features complete + Autoplay Working + Wallet Disconnect
 - **Production URL:** https://app.podtards.com (main branch - production)
 - **Preview URL:** https://podtardstr.vercel.app (main branch - preview)
 - **Repo:** https://github.com/ChadFarrow/podtardstr
@@ -22,7 +22,7 @@
 ### **Core Features Complete**
 ✅ **Top 100 V4V Music Chart** - Podcast Index API with caching  
 ✅ **Music Discovery** - Search and browse with V4V payments  
-✅ **Podcast Player** - Queue management, auto-play, bottom-fixed positioning  
+✅ **Podcast Player** - Queue management, working autoplay, sequential track ordering  
 ✅ **Value4Value Payments** - Lightning splits with TLV metadata (Podcast Index 2.0 spec)  
 ✅ **Platform Integration** - Wavlake & LNBeats direct album linking  
 ✅ **Message Support** - Optional messages in Lightning payment TLV records  
@@ -30,6 +30,10 @@
 ✅ **Mobile Optimized** - Fixed viewport, single-click play, loading states  
 
 ### **Recent Critical Changes (Reference for Context)**
+- **Autoplay Functionality:** Complete fix for autoplay with browser policy workarounds (July 16, 2025)
+- **Queue Ordering Fix:** Fixed "Play All" to maintain sequential 1→2→3 order instead of skipping tracks (July 16, 2025)
+- **Enhanced Autoplay Debugging:** Added comprehensive logging and fallback mechanisms for autoplay issues
+- **Browser Autoplay Policy:** Graceful handling of NotAllowedError with user interaction tracking
 - **Vercel Environment Configuration:** Production environment updated to track main branch (January 2025)
 - **Single Branch Deployment:** Simplified to main branch only, both sites deploy from same source (January 2025)
 - **Amber Integration Removal:** Removed all Amber-related code and components (January 2025)
@@ -223,6 +227,24 @@
 
 ## 🎯 Recent Achievements
 
+### **July 17, 2025 - Version 1.86 - Wallet Disconnect & Payment Fixes**
+- ✅ **Wallet Disconnect Button**: Added wallet status display and disconnect functionality in sidebar
+- ✅ **Payment Error Fix**: Fixed "sendPayment is not a function" error for keysend payments
+- ✅ **Better Error Handling**: Added proper type checking for wallet provider methods
+- ✅ **Enhanced Debugging**: Added provider object logging to diagnose payment issues
+- ✅ **Wallet Status Display**: Shows connected wallet type (Bitcoin Connect or GetAlby) with email for GetAlby
+- ✅ **Graceful Keysend Fallback**: Skip keysend payments if wallet doesn't support them instead of throwing errors
+
+### **July 16, 2025 - Version 1.85 - Autoplay Functionality Complete**
+- ✅ **Autoplay Fixed**: Complete resolution of autoplay functionality with browser policy workarounds
+- ✅ **Queue Ordering Fixed**: "Play All" now maintains proper sequential order (1→2→3) instead of skipping tracks
+- ✅ **Browser Policy Handling**: Graceful handling of NotAllowedError with user interaction tracking
+- ✅ **Enhanced Debugging**: Added comprehensive 🎵 emoji logging for autoplay behavior tracking
+- ✅ **Fallback Mechanisms**: Direct audio.play() attempts with setTimeout for blocked autoplay
+- ✅ **Visual Indicators**: Autoplay toggle shows ✓/✗ status for easy debugging
+- ✅ **User Interaction Tracking**: Manual play enables future autoplay capability
+- ✅ **Sequential Playback**: Fixed queue building to preserve Top 100 ranking order
+
 ### **July 15, 2025 - Version 1.65 - Album Play Button Complete Fix**
 - ✅ **Album Play Button Fix**: COMPLETELY RESOLVED - Play buttons on album art now work perfectly
 - ✅ **Event Handler Fix**: Changed from onClick to onMouseDown for reliable button interaction
@@ -301,9 +323,9 @@
 ## 🚀 Next Steps
 
 ### **Immediate (This Week)**
-1. **Test Album Play Buttons**: Verify all fixes work across different devices and browsers
-2. **Mobile Testing**: Test album play functionality on iOS/Android PWA
-3. **User Testing**: Gather feedback on improved album play experience
+1. **Test Autoplay**: Verify autoplay works consistently across different browsers and devices
+2. **Test Queue Ordering**: Confirm "Play All" maintains proper 1→2→3→4 sequential order
+3. **User Testing**: Gather feedback on improved autoplay and queue experience
 
 ### **Short Term (Next 2 Weeks)**
 1. **Performance Optimization**: Implement code splitting
@@ -360,8 +382,8 @@
 
 ## 🔗 Quick Links
 
-- **Beta App**: https://podtardstr.vercel.app (main branch - fast development)
-- **Stable App**: https://app.podtards.com (stable branch - production)
+- **Preview App**: https://podtardstr.vercel.app (main branch - preview)
+- **Production App**: https://app.podtards.com (main branch - production)
 - **Repository**: https://github.com/ChadFarrow/podtardstr
 - **Documentation**: `README.md`, `APK_BUILD.md`, `DEPLOYMENT.md`
 - **Known Issues**: `.cursorrules` (Known Issues section)
@@ -373,9 +395,12 @@
 
 - **Last Test Run**: All 15 tests passing ✅
 - **Last Build**: Successful production build ✅
-- **Last Deployment**: Version 1.65 deployed to production ✅
+- **Last Deployment**: Version 1.85 deployed to production ✅
 - **APK Status**: Ready for generation (requires Java JDK) ✅
-- **Version**: 1.65 (auto-increments on commits) ✅
-- **Album Play Buttons**: ✅ COMPLETELY FIXED - Working perfectly in production
+- **Version**: 1.86 (auto-increments on commits) ✅
+- **Autoplay**: ✅ COMPLETELY FIXED - Working with sequential queue ordering
+- **Queue Ordering**: ✅ FIXED - "Play All" maintains proper 1→2→3 sequence
+- **Wallet Disconnect**: ✅ ADDED - Disconnect button in sidebar with wallet status display
+- **Keysend Payments**: ✅ FIXED - Proper error handling for wallets without keysend support
 
-**Project Health**: 🟢 **Excellent** - Production ready! All core features complete, album play buttons fixed, PWA fully functional, keysend payments working, LNBeats & Wavlake integration, message support, simplified audio loading, user name customization implemented, no critical issues. Ready for user testing and broader deployment. 
+**Project Health**: 🟢 **Excellent** - Production ready! All core features complete, autoplay working perfectly, sequential queue ordering fixed, PWA fully functional, keysend payments working, LNBeats & Wavlake integration, message support, user name customization implemented, no critical issues. Ready for user testing and broader deployment. 

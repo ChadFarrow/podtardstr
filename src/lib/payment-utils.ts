@@ -279,12 +279,20 @@ export async function processSinglePayment(
   }
 ): Promise<boolean> {
   try {
+    // Log provider details for debugging
+    console.log('Provider object:', {
+      hasKeysend: !!provider.keysend,
+      hasSendPayment: !!provider.sendPayment,
+      providerType: provider.provider,
+      methods: Object.keys(provider).filter(key => typeof (provider as any)[key] === 'function')
+    });
+    
     // Handle keysend payments (node type)
     if (recipient.type === 'node' || recipient.type === 'keysend') {
       console.log(`⚡ Attempting keysend payment to ${recipient.name} (${recipient.address})`);
       
       // Try to use keysend if available
-      if (provider.keysend) {
+      if (provider.keysend && typeof provider.keysend === 'function') {
         try {
           const currentTimestamp = Math.floor(Date.now() / 1000);
           const currentDate = new Date();
@@ -329,15 +337,19 @@ export async function processSinglePayment(
       }
       
       // Fallback: Try to use WebLN's sendPayment with a special keysend request
-      try {
-        // Some wallets support keysend through a special format
-        // Note: keysend: URL scheme expects sats, not msats
-        const keysendRequest = `keysend:${recipient.address}?amount=${amount}`;
-        await provider.sendPayment(keysendRequest);
-        console.log(`✅ Keysend payment successful to ${recipient.name} (via sendPayment fallback)`);
-        return true;
-      } catch (fallbackError) {
-        console.warn(`❌ Keysend fallback failed for ${recipient.name}:`, fallbackError);
+      if (provider.sendPayment && typeof provider.sendPayment === 'function') {
+        try {
+          // Some wallets support keysend through a special format
+          // Note: keysend: URL scheme expects sats, not msats
+          const keysendRequest = `keysend:${recipient.address}?amount=${amount}`;
+          await provider.sendPayment(keysendRequest);
+          console.log(`✅ Keysend payment successful to ${recipient.name} (via sendPayment fallback)`);
+          return true;
+        } catch (fallbackError) {
+          console.warn(`❌ Keysend fallback failed for ${recipient.name}:`, fallbackError);
+        }
+      } else {
+        console.warn(`⚠️ Wallet provider doesn't have sendPayment method for keysend fallback`);
       }
       
       // Final fallback: Skip keysend payments gracefully

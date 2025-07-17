@@ -9,6 +9,7 @@ import { FeedValueParser } from '@/components/FeedValueParser';
 import { PodcastValidator } from '@/components/PodcastValidator';
 import { LoginArea } from '@/components/auth/LoginArea';
 import { UserNameInput } from '@/components/UserNameInput';
+import { WalletStatus } from '@/components/WalletStatus';
 import { Sidebar, SidebarContent, SidebarHeader, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -108,6 +109,10 @@ const Index = () => {
 
               <div>
                 <UserNameInput />
+              </div>
+
+              <div>
+                <WalletStatus />
               </div>
 
               <div className="pt-4 border-t">
