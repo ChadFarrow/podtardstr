@@ -21,6 +21,7 @@ window.addEventListener('message', (event) => {
 
 // Initialize Bitcoin Connect for Lightning payments - skip on mobile to prevent refresh issues
 const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+console.log('Mobile detection:', { isMobile, userAgent: navigator.userAgent });
 if (!isMobile) {
   // Dynamic import to prevent module loading on mobile
   import('@getalby/bitcoin-connect').then(({ init }) => {
@@ -35,8 +36,8 @@ if (!isMobile) {
   console.log('📱 Bitcoin Connect disabled on mobile (temporary workaround)');
 }
 
-// Register Service Worker for PWA functionality - skip on mobile for now
-if ('serviceWorker' in navigator && !isMobile) {
+// Register Service Worker for PWA functionality
+if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
       const registration = await navigator.serviceWorker.register('/sw.js', {
