@@ -69,6 +69,12 @@ function usePaymentProcessor() {
         recipients, 
         totalAmount,
         (progress, currentIndex, total) => {
+          console.log('📊 Payment progress update:', {
+            currentIndex,
+            total,
+            progress: progress.map(p => ({ name: p.recipientName, status: p.status, error: p.error }))
+          });
+          
           setPaymentProgress(progress);
           setCurrentPaymentIndex(currentIndex);
           
@@ -498,29 +504,36 @@ export function BoostModal({
                 />
               </div>
               <div className="space-y-1">
-                {paymentProgress.map((progress, index) => (
-                  <div key={index} className="flex items-center justify-between text-xs">
-                    <span className="truncate flex-1">{progress.recipientName}</span>
-                    <span className="text-muted-foreground mx-2">{progress.amount} sats</span>
-                    <span className="flex items-center">
-                      {progress.status === 'pending' && (
-                        <span className="text-gray-400">⏳</span>
-                      )}
-                      {progress.status === 'processing' && (
-                        <span className="text-blue-500 animate-pulse">⚡</span>
-                      )}
-                      {progress.status === 'success' && (
-                        <span className="text-green-500">✅</span>
-                      )}
-                      {progress.status === 'failed' && (
-                        <span className="text-red-500" title={progress.error}>❌</span>
-                      )}
-                      {progress.status === 'skipped' && (
-                        <span className="text-yellow-500" title={progress.error}>⚠️</span>
-                      )}
-                    </span>
-                  </div>
-                ))}
+                {paymentProgress.map((progress, index) => {
+                  // Debug log for each rendered item
+                  console.log(`🎨 Rendering payment ${index}: ${progress.recipientName} - ${progress.status}`);
+                  
+                  return (
+                    <div key={index} className="flex items-center justify-between text-xs">
+                      <span className="truncate flex-1">{progress.recipientName}</span>
+                      <span className="text-muted-foreground mx-2">{progress.amount} sats</span>
+                      <span className="flex items-center">
+                        {progress.status === 'pending' && (
+                          <span className="text-gray-400">⏳</span>
+                        )}
+                        {progress.status === 'processing' && (
+                          <span className="text-blue-500 animate-pulse">⚡</span>
+                        )}
+                        {progress.status === 'success' && (
+                          <span className="text-green-500">✅</span>
+                        )}
+                        {progress.status === 'failed' && (
+                          <span className="text-red-500" title={progress.error}>❌</span>
+                        )}
+                        {progress.status === 'skipped' && (
+                          <span className="text-yellow-500" title={progress.error}>⚠️</span>
+                        )}
+                        {/* Debug indicator */}
+                        <span className="ml-1 text-xs text-gray-300">({progress.status})</span>
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}

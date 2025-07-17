@@ -468,6 +468,7 @@ export async function processMultiplePaymentsWithProgress(
       if (success) {
         successCount++;
         progressItems[i].status = 'success';
+        console.log(`✅ Payment progress: ${recipient.name} - SUCCESS`);
       } else {
         // Categorize the error type
         if (recipient.type === 'node' || recipient.type === 'keysend') {
@@ -475,11 +476,13 @@ export async function processMultiplePaymentsWithProgress(
           errors.push(error);
           progressItems[i].status = 'skipped';
           progressItems[i].error = 'Wallet does not support keysend payments';
+          console.log(`⚠️ Payment progress: ${recipient.name} - SKIPPED`);
         } else {
           const error = `Failed to pay ${amount} sats to ${recipient.name}`;
           errors.push(error);
           progressItems[i].status = 'failed';
           progressItems[i].error = 'Payment failed';
+          console.log(`❌ Payment progress: ${recipient.name} - FAILED`);
         }
       }
     } catch (error) {
@@ -487,6 +490,7 @@ export async function processMultiplePaymentsWithProgress(
       errors.push(`Error paying ${amount} sats to ${recipient.name}: ${errorMessage}`);
       progressItems[i].status = 'failed';
       progressItems[i].error = errorMessage;
+      console.log(`❌ Payment progress: ${recipient.name} - FAILED (exception):`, errorMessage);
     }
     
     // Update progress after each payment
