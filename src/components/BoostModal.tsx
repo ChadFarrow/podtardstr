@@ -115,7 +115,7 @@ export function BoostModal({
   feedId,
   episodeId
 }: BoostModalProps) {
-  const { connectWallet, /* connectGetAlbyWeb, */ isConnecting, walletProvider, /* getalbyUser */ } = useLightningWallet();
+  const { connectWallet, /* connectGetAlbyWeb, */ isConnecting, walletProvider, /* getalbyUser */ cancelConnection } = useLightningWallet();
   const { processPayment, isProcessing, status, setStatus, paymentProgress, currentPaymentIndex } = usePaymentProcessor();
   const [message, setMessage] = useState('');
   const { getDisplayName } = useUserName();
@@ -308,7 +308,14 @@ export function BoostModal({
       
     } catch (error) {
       console.error('Boost payment error:', error);
-      setStatus(error instanceof Error ? error.message : 'Payment failed or cancelled.');
+      const errorMessage = error instanceof Error ? error.message : 'Payment failed or cancelled.';
+      
+      // Handle user cancellation more gracefully
+      if (errorMessage.includes('cancelled') || errorMessage.includes('cancel') || errorMessage.includes('timeout')) {
+        setStatus('Wallet connection cancelled. Try again to connect a Lightning wallet.');
+      } else {
+        setStatus(errorMessage);
+      }
     }
   }, [hasRecipients, connectWallet, processPayment, recipients, totalAmount, setStatus, contentTitle, message, onOpenChange, getDisplayName, triggerConfetti, episodeGuid, feedUrl, feedId, episodeId]);
 
@@ -419,6 +426,11 @@ export function BoostModal({
                 Connect your Lightning wallet to boost:
               </div>
               
+              {/* Mobile-friendly instructions */}
+              <div className="text-xs text-muted-foreground text-center bg-muted p-2 rounded">
+                📱 On mobile: A Bitcoin Connect popup will appear. You can close it if you don't want to connect.
+              </div>
+              
               {/* GetAlby OAuth temporarily disabled due to server issues */}
               {/* <GetAlbyLoginButton 
                 onLogin={handleGetAlbyLogin}
@@ -445,6 +457,37 @@ export function BoostModal({
                   </>
                 )}
               </Button>
+              
+              {/* Cancel button when connecting */}
+              {isConnecting && (
+                <Button 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    cancelConnection();
+                    onOpenChange(false);
+                  }}
+                  className="w-full"
+                  size="lg"
+                  variant="ghost"
+                >
+                  Cancel
+                </Button>
+              )}
+              
+              {/* Skip boost option for users who don't want to connect */}
+              {!isConnecting && (
+                <Button 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onOpenChange(false);
+                  }}
+                  className="w-full"
+                  size="sm"
+                  variant="ghost"
+                >
+                  Skip Boost
+                </Button>
+              )}
             </div>
           )}
 

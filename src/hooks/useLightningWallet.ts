@@ -183,9 +183,9 @@ export function useLightningWallet() {
       setError(errorMessage);
       console.error('Lightning wallet connection error:', err);
       
-      // Don't throw for timeout errors, just return null
-      if (errorMessage.includes('timeout')) {
-        console.log('Connection timeout, user may try again');
+      // Don't throw for timeout errors or user cancellation, just return null
+      if (errorMessage.includes('timeout') || errorMessage.includes('cancel') || errorMessage.includes('user')) {
+        console.log('Connection cancelled or timeout, user may try again');
         return null;
       }
       
@@ -240,11 +240,19 @@ export function useLightningWallet() {
     console.log('Connection state reset');
   }, []);
 
+  const cancelConnection = useCallback(() => {
+    setIsConnecting(false);
+    setConnectionAttemptInProgress(false);
+    setError('Connection cancelled by user');
+    console.log('Connection cancelled by user');
+  }, []);
+
   return {
     connectWallet,
     connectGetAlbyWeb,
     disconnectWallet,
     resetConnectionState,
+    cancelConnection,
     isConnecting,
     isConnected,
     error,
