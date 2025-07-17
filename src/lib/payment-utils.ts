@@ -354,8 +354,10 @@ export async function processSinglePayment(
           // Note: keysend: URL scheme expects sats, not msats
           const keysendRequest = `keysend:${recipient.address}?amount=${amount}`;
           await provider.sendPayment(keysendRequest);
-          console.log(`✅ Keysend payment successful to ${recipient.name} (via sendPayment fallback)`);
-          return true;
+          console.log(`⚠️ Keysend payment sent via fallback to ${recipient.name} (original keysend failed)`);
+          // Return false because the original keysend failed, even though fallback worked
+          // This matches what the wallet shows as "Failed" in the transaction log
+          return false;
         } catch (fallbackError) {
           console.warn(`❌ Keysend fallback failed for ${recipient.name}:`, fallbackError);
         }
@@ -468,21 +470,18 @@ export async function processMultiplePaymentsWithProgress(
       if (success) {
         successCount++;
         progressItems[i].status = 'success';
-        console.log(`✅ Payment progress: ${recipient.name} - SUCCESS`);
       } else {
         // Categorize the error type
         if (recipient.type === 'node' || recipient.type === 'keysend') {
-          const error = `Skipped keysend payment to ${recipient.name} (${amount} sats)`;
+          const error = `Keysend payment failed for ${recipient.name} (${amount} sats)`;
           errors.push(error);
-          progressItems[i].status = 'skipped';
-          progressItems[i].error = 'Wallet does not support keysend payments';
-          console.log(`⚠️ Payment progress: ${recipient.name} - SKIPPED`);
+          progressItems[i].status = 'failed';
+          progressItems[i].error = 'Keysend payment failed (may have succeeded via fallback)';
         } else {
           const error = `Failed to pay ${amount} sats to ${recipient.name}`;
           errors.push(error);
           progressItems[i].status = 'failed';
           progressItems[i].error = 'Payment failed';
-          console.log(`❌ Payment progress: ${recipient.name} - FAILED`);
         }
       }
     } catch (error) {
@@ -490,7 +489,6 @@ export async function processMultiplePaymentsWithProgress(
       errors.push(`Error paying ${amount} sats to ${recipient.name}: ${errorMessage}`);
       progressItems[i].status = 'failed';
       progressItems[i].error = errorMessage;
-      console.log(`❌ Payment progress: ${recipient.name} - FAILED (exception):`, errorMessage);
     }
     
     // Update progress after each payment
