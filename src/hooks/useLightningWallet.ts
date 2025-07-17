@@ -37,6 +37,12 @@ export function useLightningWallet() {
       try {
         const provider = await requestProvider();
         if (provider) {
+          console.log('Existing Bitcoin Connect provider found:', {
+            provider,
+            type: typeof provider,
+            keys: Object.keys(provider),
+            hasSendPayment: 'sendPayment' in provider
+          });
           setIsConnected(true);
           setWalletProvider('bitcoin-connect');
         }
@@ -111,13 +117,37 @@ export function useLightningWallet() {
       }
 
       if (provider) {
+        console.log('Bitcoin Connect provider obtained:', {
+          provider,
+          type: typeof provider,
+          keys: Object.keys(provider),
+          hasWebln: 'webln' in provider,
+          hasSendPayment: 'sendPayment' in provider,
+          hasKeysend: 'keysend' in provider,
+          proto: Object.getPrototypeOf(provider)
+        });
+        
         setIsConnected(true);
         setWalletProvider('bitcoin-connect');
         emitWalletEvent('CONNECTED');
-        return {
-          ...provider,
+        
+        // Ensure methods are properly exposed
+        const wallet: LightningWallet = {
+          sendPayment: provider.sendPayment ? provider.sendPayment.bind(provider) : undefined,
+          getBalance: provider.getBalance ? provider.getBalance.bind(provider) : undefined,
+          signMessage: provider.signMessage ? provider.signMessage.bind(provider) : undefined,
+          keysend: provider.keysend ? provider.keysend.bind(provider) : undefined,
           provider: 'bitcoin-connect',
         };
+        
+        console.log('Wallet object created:', {
+          hasSendPayment: !!wallet.sendPayment,
+          hasKeysend: !!wallet.keysend,
+          hasGetBalance: !!wallet.getBalance,
+          hasSignMessage: !!wallet.signMessage
+        });
+        
+        return wallet;
       } else {
         throw new Error('No Lightning wallet connected.');
       }
