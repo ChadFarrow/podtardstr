@@ -1,6 +1,7 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { requestProvider, launchModal } from '@getalby/bitcoin-connect';
 import { getalbyAuth, GetAlbyUser } from '@/lib/getalby-auth';
+import { emitWalletEvent, onWalletEvent } from '@/lib/wallet-events';
 
 export interface LightningWallet {
   sendPayment: (invoice: string) => Promise<void>;
@@ -18,6 +19,48 @@ export function useLightningWallet() {
   const [walletProvider, setWalletProvider] = useState<'bitcoin-connect' | 'getalby-web' | null>(null);
   const [getalbyUser, setGetalbyUser] = useState<GetAlbyUser | null>(null);
 
+  // Check for existing wallet connection on mount
+  useEffect(() => {
+    const checkExistingConnection = async () => {
+      // Check GetAlby authentication
+      if (getalbyAuth.isAuthenticated()) {
+        const userInfo = getalbyAuth.getStoredUserInfo();
+        if (userInfo) {
+          setIsConnected(true);
+          setWalletProvider('getalby-web');
+          setGetalbyUser(userInfo);
+          return;
+        }
+      }
+
+      // Check Bitcoin Connect provider
+      try {
+        const provider = await requestProvider();
+        if (provider) {
+          setIsConnected(true);
+          setWalletProvider('bitcoin-connect');
+        }
+      } catch (err) {
+        // No provider connected, which is fine
+      }
+    };
+
+    checkExistingConnection();
+
+    // Listen for wallet events from other components
+    const unsubscribeConnected = onWalletEvent('CONNECTED', checkExistingConnection);
+    const unsubscribeDisconnected = onWalletEvent('DISCONNECTED', () => {
+      setIsConnected(false);
+      setWalletProvider(null);
+      setGetalbyUser(null);
+    });
+
+    return () => {
+      unsubscribeConnected();
+      unsubscribeDisconnected();
+    };
+  }, []);
+
   const connectWallet = useCallback(async (): Promise<LightningWallet | null> => {
     setIsConnecting(true);
     setError(null);
@@ -30,6 +73,7 @@ export function useLightningWallet() {
           setIsConnected(true);
           setWalletProvider('getalby-web');
           setGetalbyUser(userInfo);
+          emitWalletEvent('CONNECTED');
           return {
             sendPayment: async (invoice: string) => {
               await getalbyAuth.sendPayment(invoice);
@@ -69,6 +113,7 @@ export function useLightningWallet() {
       if (provider) {
         setIsConnected(true);
         setWalletProvider('bitcoin-connect');
+        emitWalletEvent('CONNECTED');
         return {
           ...provider,
           provider: 'bitcoin-connect',
@@ -90,6 +135,7 @@ export function useLightningWallet() {
     setIsConnected(true);
     setWalletProvider('getalby-web');
     setGetalbyUser(user);
+    emitWalletEvent('CONNECTED');
     
     return {
       sendPayment: async (invoice: string) => {
@@ -116,6 +162,9 @@ export function useLightningWallet() {
     if (walletProvider === 'getalby-web') {
       getalbyAuth.logout();
     }
+    
+    // Emit disconnect event for other components
+    emitWalletEvent('DISCONNECTED');
   }, [walletProvider]);
 
   return {
