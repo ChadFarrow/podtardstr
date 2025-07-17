@@ -14,7 +14,15 @@ import {
 } from '@/components/ui/alert-dialog';
 
 export function WalletStatus() {
-  const { isConnected, walletProvider, disconnectWallet, getalbyUser } = useLightningWallet();
+  const { 
+    isConnected, 
+    walletProvider, 
+    disconnectWallet, 
+    getalbyUser, 
+    isConnecting, 
+    connectionAttemptInProgress, 
+    resetConnectionState 
+  } = useLightningWallet();
   const [showDisconnectDialog, setShowDisconnectDialog] = useState(false);
   const [isDisconnecting, setIsDisconnecting] = useState(false);
 
@@ -27,6 +35,35 @@ export function WalletStatus() {
       setIsDisconnecting(false);
     }
   };
+
+  // Show debug info if connection is stuck
+  if (isConnecting || connectionAttemptInProgress) {
+    return (
+      <div className="space-y-3">
+        <h3 className="text-sm font-medium text-muted-foreground">Wallet Status</h3>
+        
+        <div className="space-y-2">
+          <div className="flex items-center gap-2 text-sm">
+            <Loader2 className="h-4 w-4 animate-spin text-yellow-500" />
+            <span className="text-foreground">Connecting...</span>
+          </div>
+          
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={resetConnectionState}
+            className="w-full text-xs"
+          >
+            Reset Connection
+          </Button>
+        </div>
+        
+        <p className="text-xs text-muted-foreground">
+          If stuck, try the reset button
+        </p>
+      </div>
+    );
+  }
 
   if (!isConnected) {
     return null;
