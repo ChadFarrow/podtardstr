@@ -111,10 +111,8 @@ const API_KEY = import.meta.env.VITE_PODCAST_INDEX_API_KEY || 'UXKCGDSYGY6UIQNRN
 const API_SECRET = import.meta.env.VITE_PODCAST_INDEX_API_SECRET || 'yzJtuQGBpfZp^t5V4vB^5PYg#H8&EX^kLx8EhZuP';
 
 // Note: API credentials are configured via environment variables
-// Use proxy in development to avoid CORS issues
-const BASE_URL = import.meta.env.DEV 
-  ? '/api/podcastindex' 
-  : 'https://api.podcastindex.org/api/1.0';
+// Always use proxy to avoid CORS issues (both dev and production)
+const BASE_URL = '/api/podcastindex';
 
 function generateAuthHeaders() {
   const apiHeaderTime = Math.floor(Date.now() / 1000);
@@ -130,7 +128,14 @@ function generateAuthHeaders() {
 }
 
 export async function podcastIndexFetch<T>(endpoint: string, params: Record<string, string> = {}): Promise<PodcastIndexResponse<T>> {
-  const url = new URL(`${BASE_URL}${endpoint}`);
+  // Remove leading slash from endpoint if present
+  const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint;
+  
+  // Build the proxy URL with path parameter
+  const url = new URL(BASE_URL, window.location.origin);
+  url.searchParams.append('path', cleanEndpoint);
+  
+  // Add other parameters
   Object.entries(params).forEach(([key, value]) => {
     url.searchParams.append(key, value);
   });
@@ -138,8 +143,8 @@ export async function podcastIndexFetch<T>(endpoint: string, params: Record<stri
   const response = await fetch(url.toString(), {
     method: 'GET',
     headers: {
-      ...generateAuthHeaders(),
-      // Removed Content-Type to avoid CORS preflight issues for GET requests
+      // No need for auth headers since the proxy handles authentication
+      'Content-Type': 'application/json',
     },
   });
 
