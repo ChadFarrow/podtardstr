@@ -5,8 +5,8 @@
 ## 🔖 Quick Reference for Future Sessions (as of July 16, 2025)
 
 ### **Current Status**
-- **Version:** 1.86 (auto-increments on commits)
-- **Status:** 🟢 Production Ready - All core features complete + Autoplay Working + Wallet Disconnect
+- **Version:** 1.108 (auto-increments on commits)
+- **Status:** 🟢 Production Ready - All core features complete + Mobile Bitcoin Connect Disabled
 - **Production URL:** https://app.podtards.com (main branch - production)
 - **Preview URL:** https://podtardstr.vercel.app (main branch - preview)
 - **Repo:** https://github.com/ChadFarrow/podtardstr
@@ -30,10 +30,12 @@
 ✅ **Mobile Optimized** - Fixed viewport, single-click play, loading states  
 
 ### **Recent Critical Changes (Reference for Context)**
+- **Mobile Bitcoin Connect Disabled:** Temporary workaround to prevent refresh loops on mobile (July 17, 2025)
+- **Service Worker Refresh Fix:** Removed aggressive activation and auto-refresh causing mobile issues (July 17, 2025)
+- **Mobile Payment UX:** Clear messaging about Lightning payments being desktop-only temporarily (July 17, 2025)
+- **Payment Progress Tracking:** Real-time visual progress for boost payments with status indicators (July 17, 2025)
 - **Autoplay Functionality:** Complete fix for autoplay with browser policy workarounds (July 16, 2025)
 - **Queue Ordering Fix:** Fixed "Play All" to maintain sequential 1→2→3 order instead of skipping tracks (July 16, 2025)
-- **Enhanced Autoplay Debugging:** Added comprehensive logging and fallback mechanisms for autoplay issues
-- **Browser Autoplay Policy:** Graceful handling of NotAllowedError with user interaction tracking
 - **Vercel Environment Configuration:** Production environment updated to track main branch (January 2025)
 - **Single Branch Deployment:** Simplified to main branch only, both sites deploy from same source (January 2025)
 - **Amber Integration Removal:** Removed all Amber-related code and components (January 2025)
@@ -227,6 +229,16 @@
 
 ## 🎯 Recent Achievements
 
+### **July 17, 2025 - Version 1.108 - Mobile Refresh Loop Fix**
+- ✅ **Mobile Bitcoin Connect Disabled**: Temporary workaround to prevent refresh loops on mobile devices
+- ✅ **Service Worker Refresh Fix**: Removed aggressive skipWaiting() and clients.claim() causing mobile issues
+- ✅ **Mobile Payment UX**: Clear messaging about Lightning payments being desktop-only temporarily
+- ✅ **Payment Progress Tracking**: Real-time visual progress for boost payments with status indicators
+- ✅ **Failed Payment Status**: Fixed green checkmarks showing for failed payments, now shows red X
+- ✅ **API Key Security**: Removed console logs exposing Podcast Index API key in browser
+- ✅ **Modal Scroll Lock**: Fixed page zoom/movement when boost modal opens
+- ✅ **Mobile Modal UX**: Added cancel and skip options for Bitcoin Connect modal on mobile
+
 ### **July 17, 2025 - Version 1.86 - Wallet Disconnect & Payment Fixes**
 - ✅ **Wallet Disconnect Button**: Added wallet status display and disconnect functionality in sidebar
 - ✅ **Payment Error Fix**: Fixed "sendPayment is not a function" error for keysend payments
@@ -397,10 +409,12 @@
 - **Last Build**: Successful production build ✅
 - **Last Deployment**: Version 1.85 deployed to production ✅
 - **APK Status**: Ready for generation (requires Java JDK) ✅
-- **Version**: 1.86 (auto-increments on commits) ✅
+- **Version**: 1.108 (auto-increments on commits) ✅
+- **Mobile Refresh Loop**: ✅ FIXED - Bitcoin Connect disabled on mobile, service worker less aggressive
+- **Payment Progress**: ✅ ADDED - Real-time visual progress tracking for boost payments
+- **API Key Security**: ✅ FIXED - Removed console logs exposing Podcast Index API key
+- **Mobile UX**: ✅ IMPROVED - Clear messaging about desktop-only Lightning payments
 - **Autoplay**: ✅ COMPLETELY FIXED - Working with sequential queue ordering
 - **Queue Ordering**: ✅ FIXED - "Play All" maintains proper 1→2→3 sequence
-- **Wallet Disconnect**: ✅ ADDED - Disconnect button in sidebar with wallet status display
-- **Keysend Payments**: ✅ FIXED - Proper error handling for wallets without keysend support
 
-**Project Health**: 🟢 **Excellent** - Production ready! All core features complete, autoplay working perfectly, sequential queue ordering fixed, PWA fully functional, keysend payments working, LNBeats & Wavlake integration, message support, user name customization implemented, no critical issues. Ready for user testing and broader deployment. 
+**Project Health**: 🟢 **Excellent** - Production ready! All core features complete, mobile refresh loop fixed, payment progress tracking added, API key security resolved, Lightning payments working on desktop, Bitcoin Connect temporarily disabled on mobile as workaround, autoplay working perfectly, sequential queue ordering fixed, PWA fully functional, LNBeats & Wavlake integration, message support, user name customization implemented. Ready for user testing and broader deployment. 
