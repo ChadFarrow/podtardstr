@@ -106,12 +106,11 @@ interface PodcastIndexResponse<T> {
 }
 
 // API credentials from environment variables or fallback to demo credentials
+// Note: Fallback credentials are public demo keys from Podcast Index documentation
 const API_KEY = import.meta.env.VITE_PODCAST_INDEX_API_KEY || 'UXKCGDSYGY6UIQNRNPJ7';
 const API_SECRET = import.meta.env.VITE_PODCAST_INDEX_API_SECRET || 'yzJtuQGBpfZp^t5V4vB^5PYg#H8&EX^kLx8EhZuP';
 
-// Debug: Log which credentials are being used
-console.log('Podcast Index API Key:', API_KEY ? `${API_KEY.substring(0, 8)}...` : 'Not set');
-console.log('Using demo credentials:', !import.meta.env.VITE_PODCAST_INDEX_API_KEY);
+// Note: API credentials are configured via environment variables
 // Use proxy in development to avoid CORS issues
 const BASE_URL = import.meta.env.DEV 
   ? '/api/podcastindex' 

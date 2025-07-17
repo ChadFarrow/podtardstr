@@ -42,7 +42,14 @@ function V4VPaymentButton({
       <Button 
         size="lg" 
         variant="outline" 
-        onClick={() => setBoostModalOpen(true)}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          // Small delay to prevent any scroll jumping
+          setTimeout(() => {
+            setBoostModalOpen(true);
+          }, 0);
+        }}
         className="w-full"
       >
         <Zap className="h-4 w-4 mr-2" />

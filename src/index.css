@@ -138,4 +138,27 @@
       font-size: 16px !important;
     }
   }
+
+  /* Prevent zoom on button tap (iOS) */
+  button {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    touch-action: manipulation;
+  }
+
+  /* Prevent modal animations that cause page movement */
+  [data-radix-dialog-content] {
+    transform: none !important;
+    animation: none !important;
+  }
+
+  /* Ensure modal overlay doesn't cause movement */
+  [data-radix-dialog-overlay] {
+    animation: none !important;
+  }
 }

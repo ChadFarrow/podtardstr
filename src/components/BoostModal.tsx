@@ -92,17 +92,45 @@ export function BoostModal({
   const { getDisplayName } = useUserName();
   const messageInputRef = useRef<HTMLInputElement>(null);
 
-  // Focus management for the modal
+  // Focus management for the modal - disabled to prevent zoom issues
   useEffect(() => {
     if (open) {
-      // Small delay to ensure modal is fully rendered
-      const timer = setTimeout(() => {
-        if (messageInputRef.current) {
-          messageInputRef.current.focus();
-        }
-      }, 100);
+      // Don't auto-focus on mobile to prevent zoom issues
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      if (!isMobile) {
+        const timer = setTimeout(() => {
+          if (messageInputRef.current) {
+            messageInputRef.current.focus();
+          }
+        }, 100);
+        
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [open]);
+
+  // Prevent body scroll and viewport shifts when modal opens
+  useEffect(() => {
+    if (open) {
+      // Save current scroll position
+      const scrollY = window.scrollY;
       
-      return () => clearTimeout(timer);
+      // Prevent body scroll
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = '100%';
+      document.body.style.overflowY = 'scroll'; // Prevent scrollbar jump
+      
+      return () => {
+        // Restore body scroll
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.width = '';
+        document.body.style.overflowY = '';
+        
+        // Restore scroll position
+        window.scrollTo(0, scrollY);
+      };
     }
   }, [open]);
 
@@ -213,7 +241,9 @@ export function BoostModal({
       setStatus('Connecting to Lightning wallet...');
       
       // Blur any active element to prevent focus issues with Bitcoin Connect modal
-      if (document.activeElement instanceof HTMLElement) {
+      // Only blur if not on mobile to prevent zoom issues
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      if (!isMobile && document.activeElement instanceof HTMLElement) {
         document.activeElement.blur();
       }
       
@@ -279,7 +309,7 @@ export function BoostModal({
   if (v4vLoading) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md" style={{ transform: 'none' }}>
           <DialogHeader>
             <DialogTitle>Loading V4V Data...</DialogTitle>
           </DialogHeader>
@@ -296,7 +326,7 @@ export function BoostModal({
   if (!hasRecipients) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md" style={{ transform: 'none' }}>
           <DialogHeader>
             <DialogTitle>No Payment Recipients</DialogTitle>
           </DialogHeader>
@@ -315,7 +345,7 @@ export function BoostModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md" style={{ transform: 'none' }}>
         <DialogHeader>
           <div className="flex items-center justify-between">
             <DialogTitle>Boost {contentTitle}</DialogTitle>
@@ -368,7 +398,10 @@ export function BoostModal({
               
               {/* Bitcoin Connect Button */}
               <Button 
-                onClick={handleBoost}
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleBoost();
+                }}
                 disabled={isProcessing || isConnecting}
                 className="w-full"
                 size="lg"
@@ -397,7 +430,10 @@ export function BoostModal({
               ) */}
               
               <Button 
-                onClick={handleBoost}
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleBoost();
+                }}
                 disabled={isProcessing || isConnecting}
                 className="w-full"
                 size="lg"
