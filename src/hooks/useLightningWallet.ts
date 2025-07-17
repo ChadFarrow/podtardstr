@@ -1,6 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
 // Bitcoin Connect imports - dynamic to prevent mobile issues
-import { getalbyAuth, GetAlbyUser } from '@/lib/getalby-auth';
 import { emitWalletEvent, onWalletEvent } from '@/lib/wallet-events';
 
 export interface LightningWallet {
@@ -8,32 +7,20 @@ export interface LightningWallet {
   getBalance?: () => Promise<number>;
   signMessage?: (message: string) => Promise<string>;
   keysend?: (args: { destination: string; amount: number; customRecords?: Record<string, string> }) => Promise<unknown>;
-  provider?: 'bitcoin-connect' | 'getalby-web';
-  user?: GetAlbyUser;
+  provider?: 'bitcoin-connect';
 }
 
 export function useLightningWallet() {
   const [isConnecting, setIsConnecting] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [walletProvider, setWalletProvider] = useState<'bitcoin-connect' | 'getalby-web' | null>(null);
-  const [getalbyUser, setGetalbyUser] = useState<GetAlbyUser | null>(null);
+  const [walletProvider, setWalletProvider] = useState<'bitcoin-connect' | null>(null);
   const [connectionAttemptInProgress, setConnectionAttemptInProgress] = useState(false);
+  const [connectionCancelRef, setConnectionCancelRef] = useState<{ cancel: () => void } | null>(null);
 
   // Check for existing wallet connection on mount
   useEffect(() => {
     const checkExistingConnection = async () => {
-      // Check GetAlby authentication
-      if (getalbyAuth.isAuthenticated()) {
-        const userInfo = getalbyAuth.getStoredUserInfo();
-        if (userInfo) {
-          setIsConnected(true);
-          setWalletProvider('getalby-web');
-          setGetalbyUser(userInfo);
-          return;
-        }
-      }
-
       // Check Bitcoin Connect provider - only on desktop
       const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
       if (!isMobile) {
@@ -50,7 +37,7 @@ export function useLightningWallet() {
             setIsConnected(true);
             setWalletProvider('bitcoin-connect');
           }
-        } catch (err) {
+        } catch {
           // No provider connected, which is fine
         }
       }
@@ -63,7 +50,6 @@ export function useLightningWallet() {
     const unsubscribeDisconnected = onWalletEvent('DISCONNECTED', () => {
       setIsConnected(false);
       setWalletProvider(null);
-      setGetalbyUser(null);
     });
 
     return () => {
@@ -92,32 +78,8 @@ export function useLightningWallet() {
     setError(null);
     
     try {
-      // Check if GetAlby web is already authenticated
-      if (getalbyAuth.isAuthenticated()) {
-        const userInfo = getalbyAuth.getStoredUserInfo();
-        if (userInfo) {
-          setIsConnected(true);
-          setWalletProvider('getalby-web');
-          setGetalbyUser(userInfo);
-          emitWalletEvent('CONNECTED');
-          return {
-            sendPayment: async (invoice: string) => {
-              await getalbyAuth.sendPayment(invoice);
-            },
-            getBalance: async () => {
-              return await getalbyAuth.getBalance();
-            },
-            keysend: async (args: { destination: string; amount: number; customRecords?: Record<string, string> }) => {
-              return await getalbyAuth.keysend(args.destination, args.amount, args.customRecords);
-            },
-            provider: 'getalby-web',
-            user: userInfo,
-          };
-        }
-      }
-      
       // Try to get existing Bitcoin Connect provider with timeout - use dynamic import
-      const { requestProvider, launchModal } = await import('@getalby/bitcoin-connect');
+      const { requestProvider, launchModal, onConnected } = await import('@getalby/bitcoin-connect');
       
       let provider = await Promise.race([
         requestProvider(),
@@ -127,30 +89,43 @@ export function useLightningWallet() {
       if (!provider) {
         console.log('No existing provider, launching Bitcoin Connect modal...');
         
-        // Launch connection modal with timeout
-        await Promise.race([
-          launchModal(),
-          new Promise((_, reject) => setTimeout(() => reject(new Error('Modal launch timeout')), 10000))
-        ]);
-        
-        // Add a small delay to ensure the modal is fully rendered and focusable
-        await new Promise(resolve => setTimeout(resolve, 200));
-        
-        // Try to get provider again after modal launch with timeout
-        provider = await Promise.race([
-          requestProvider(),
-          new Promise((_, reject) => setTimeout(() => reject(new Error('Provider request after modal timeout')), 5000))
-        ]);
-        
-        // If still no provider, wait a bit more and try again
-        if (!provider) {
-          console.log('Provider still not available, waiting longer...');
-          await new Promise(resolve => setTimeout(resolve, 1000));
-          provider = await Promise.race([
-            requestProvider(),
-            new Promise((_, reject) => setTimeout(() => reject(new Error('Final provider request timeout')), 3000))
-          ]);
-        }
+        // Use Promise to wait for actual connection
+        provider = await new Promise((resolve, reject) => {
+          const timeout = setTimeout(() => {
+            reject(new Error('Connection timeout after 30 seconds'));
+          }, 30000);
+          
+          let unsubscribe: (() => void) | null = null;
+          
+          // Store cancel function
+          const cancelRef = {
+            cancel: () => {
+              console.log('Connection cancelled by user');
+              clearTimeout(timeout);
+              if (unsubscribe) unsubscribe();
+              reject(new Error('Connection cancelled by user'));
+            }
+          };
+          setConnectionCancelRef(cancelRef);
+          
+          // Listen for connection event
+          unsubscribe = onConnected((connectedProvider) => {
+            console.log('Bitcoin Connect onConnected event fired:', connectedProvider);
+            clearTimeout(timeout);
+            setConnectionCancelRef(null);
+            if (unsubscribe) unsubscribe();
+            resolve(connectedProvider);
+          });
+          
+          // Launch the modal
+          launchModal().catch((err) => {
+            console.error('Failed to launch Bitcoin Connect modal:', err);
+            clearTimeout(timeout);
+            setConnectionCancelRef(null);
+            if (unsubscribe) unsubscribe();
+            reject(err);
+          });
+        });
       }
 
       if (provider) {
@@ -207,45 +182,19 @@ export function useLightningWallet() {
     } finally {
       setIsConnecting(false);
       setConnectionAttemptInProgress(false);
+      setConnectionCancelRef(null);
     }
   }, [connectionAttemptInProgress]);
-
-  const connectGetAlbyWeb = useCallback(async (user: GetAlbyUser): Promise<LightningWallet> => {
-    setIsConnected(true);
-    setWalletProvider('getalby-web');
-    setGetalbyUser(user);
-    emitWalletEvent('CONNECTED');
-    
-    return {
-      sendPayment: async (invoice: string) => {
-        await getalbyAuth.sendPayment(invoice);
-      },
-      getBalance: async () => {
-        return await getalbyAuth.getBalance();
-      },
-      keysend: async (args: { destination: string; amount: number; customRecords?: Record<string, string> }) => {
-        return await getalbyAuth.keysend(args.destination, args.amount, args.customRecords);
-      },
-      provider: 'getalby-web',
-      user,
-    };
-  }, []);
 
   const disconnectWallet = useCallback(() => {
     setIsConnected(false);
     setError(null);
     setWalletProvider(null);
-    setGetalbyUser(null);
     setConnectionAttemptInProgress(false); // Reset connection state
-    
-    // Logout from GetAlby if it was the connected provider
-    if (walletProvider === 'getalby-web') {
-      getalbyAuth.logout();
-    }
     
     // Emit disconnect event for other components
     emitWalletEvent('DISCONNECTED');
-  }, [walletProvider]);
+  }, []);
 
   const resetConnectionState = useCallback(() => {
     setIsConnecting(false);
@@ -255,15 +204,18 @@ export function useLightningWallet() {
   }, []);
 
   const cancelConnection = useCallback(() => {
-    setIsConnecting(false);
-    setConnectionAttemptInProgress(false);
-    setError('Connection cancelled by user');
-    console.log('Connection cancelled by user');
-  }, []);
+    if (connectionCancelRef) {
+      connectionCancelRef.cancel();
+    } else {
+      setIsConnecting(false);
+      setConnectionAttemptInProgress(false);
+      setError('Connection cancelled by user');
+      console.log('Connection cancelled by user');
+    }
+  }, [connectionCancelRef]);
 
   return {
     connectWallet,
-    connectGetAlbyWeb,
     disconnectWallet,
     resetConnectionState,
     cancelConnection,
@@ -271,7 +223,6 @@ export function useLightningWallet() {
     isConnected,
     error,
     walletProvider,
-    getalbyUser,
     connectionAttemptInProgress
   };
 } 

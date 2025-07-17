@@ -4,11 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Zap, X } from 'lucide-react';
 import { useLightningWallet } from '@/hooks/useLightningWallet';
-// Temporarily disabled: import GetAlbyLoginButton from '@/components/GetAlbyLoginButton';
 import { useValue4ValueData } from '@/hooks/useValueBlockFromRss';
 import { useUserName } from '@/hooks/useUserName';
 import confetti from 'canvas-confetti';
-// Temporarily disabled: import { GetAlbyUser } from '@/lib/getalby-auth';
 import { 
   getLightningRecipients, 
   processMultiplePaymentsWithProgress, 
@@ -115,7 +113,7 @@ export function BoostModal({
   feedId,
   episodeId
 }: BoostModalProps) {
-  const { connectWallet, /* connectGetAlbyWeb, */ isConnecting, walletProvider, /* getalbyUser */ cancelConnection } = useLightningWallet();
+  const { connectWallet, isConnecting, walletProvider, cancelConnection } = useLightningWallet();
   const { processPayment, isProcessing, status, setStatus, paymentProgress, currentPaymentIndex } = usePaymentProcessor();
   const [message, setMessage] = useState('');
   const { getDisplayName } = useUserName();
@@ -137,6 +135,14 @@ export function BoostModal({
       }
     }
   }, [open]);
+
+  // Clear error state when modal opens
+  useEffect(() => {
+    if (open) {
+      setStatus('');
+      setMessage('');
+    }
+  }, [open, setStatus]);
 
   // Prevent body scroll and viewport shifts when modal opens
   useEffect(() => {
@@ -301,9 +307,7 @@ export function BoostModal({
       
       // Close modal on success after a short delay
       setTimeout(() => {
-        onOpenChange(false);
-        setMessage('');
-        setStatus('');
+        handleClose();
       }, 2000);
       
     } catch (error) {
@@ -319,22 +323,7 @@ export function BoostModal({
     }
   }, [hasRecipients, connectWallet, processPayment, recipients, totalAmount, setStatus, contentTitle, message, onOpenChange, getDisplayName, triggerConfetti, episodeGuid, feedUrl, feedId, episodeId]);
 
-  // Temporarily disabled GetAlby handlers due to OAuth server issues
-  /*
-  const handleGetAlbyLogin = useCallback(async (user: GetAlbyUser) => {
-    try {
-      await connectGetAlbyWeb(user);
-      setStatus(`Connected to GetAlby as ${user.name || user.email}`);
-    } catch (error) {
-      console.error('GetAlby connection error:', error);
-      setStatus('Failed to connect to GetAlby');
-    }
-  }, [connectGetAlbyWeb]);
 
-  const handleGetAlbyError = useCallback((error: string) => {
-    setStatus(`GetAlby error: ${error}`);
-  }, []);
-  */
 
   const handleClose = () => {
     onOpenChange(false);
@@ -344,7 +333,7 @@ export function BoostModal({
 
   if (v4vLoading) {
     return (
-      <Dialog open={open} onOpenChange={onOpenChange}>
+      <Dialog open={open} onOpenChange={handleClose}>
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Loading V4V Data...</DialogTitle>
@@ -361,7 +350,7 @@ export function BoostModal({
 
   if (!hasRecipients) {
     return (
-      <Dialog open={open} onOpenChange={onOpenChange}>
+      <Dialog open={open} onOpenChange={handleClose}>
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>No Payment Recipients</DialogTitle>
@@ -380,7 +369,7 @@ export function BoostModal({
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-md">
         <DialogHeader>
           <div className="flex items-center justify-between">
@@ -441,11 +430,7 @@ export function BoostModal({
                 </>
               )}
               
-              {/* GetAlby OAuth temporarily disabled due to server issues */}
-              {/* <GetAlbyLoginButton 
-                onLogin={handleGetAlbyLogin}
-                onError={handleGetAlbyError}
-              /> */}
+
               
               {/* Bitcoin Connect Button - only show on desktop */}
               {!/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) && (
@@ -476,7 +461,7 @@ export function BoostModal({
                   onClick={(e) => {
                     e.preventDefault();
                     cancelConnection();
-                    onOpenChange(false);
+                    handleClose();
                   }}
                   className="w-full"
                   size="lg"
@@ -490,7 +475,7 @@ export function BoostModal({
               <Button 
                 onClick={(e) => {
                   e.preventDefault();
-                  onOpenChange(false);
+                  handleClose();
                 }}
                 className="w-full"
                 size="sm"
@@ -504,12 +489,6 @@ export function BoostModal({
           {/* Boost button (shown when wallet is connected) */}
           {walletProvider && (
             <div className="space-y-2">
-              {/* Temporarily disabled GetAlby user display */}
-              {/* getalbyUser && (
-                <div className="text-sm text-muted-foreground text-center">
-                  Connected as {getalbyUser.name || getalbyUser.email}
-                </div>
-              ) */}
               
               <Button 
                 onClick={(e) => {
