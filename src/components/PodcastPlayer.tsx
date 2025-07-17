@@ -240,7 +240,7 @@ export function PodcastPlayer() {
 
   if (!currentPodcast) {
     return (
-      <Card className="border-t rounded-none fixed bottom-0 left-0 right-0 bg-background z-50">
+      <Card className="border-t rounded-none fixed bottom-0 left-0 right-0 bg-background z-50 safe-area-bottom">
         <div className="p-3 sm:p-4 text-center text-muted-foreground text-sm">
           No track selected. Click play on any track to start listening.
         </div>
@@ -249,7 +249,7 @@ export function PodcastPlayer() {
   }
 
   return (
-    <Card className="border-t rounded-none fixed bottom-0 left-0 right-0 bg-background z-50">
+    <Card className="border-t rounded-none fixed bottom-0 left-0 right-0 bg-background z-50 safe-area-bottom">
       <div className="p-3 sm:p-4">
         <audio
           ref={audioRef}
@@ -312,11 +312,6 @@ export function PodcastPlayer() {
                 step={1}
                 onValueChange={handleSeek}
                 className="flex-1 [&_.slider-thumb]:h-5 [&_.slider-thumb]:w-5 sm:[&_.slider-thumb]:h-4 sm:[&_.slider-thumb]:w-4 [&_.slider-track]:h-2 sm:[&_.slider-track]:h-1.5"
-              />
-              <button 
-                onClick={() => setShowNowPlaying(true)}
-                className="absolute inset-0 w-full opacity-0 hover:opacity-5 bg-primary transition-opacity rounded touch-manipulation"
-                aria-label="Open Now Playing"
               />
             </div>
             <button 

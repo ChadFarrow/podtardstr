@@ -355,21 +355,6 @@ export function NowPlayingModal({ open, onOpenChange }: NowPlayingModalProps) {
               </div>
             )}
 
-            {/* Wavlake Link */}
-            {isWavlakeTrack && wavlakeUrl && (
-              <div className="mt-4">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full"
-                  onClick={() => window.open(wavlakeUrl, '_blank')}
-                >
-                  <ExternalLink className="h-4 w-4 mr-2" />
-                  View on Wavlake
-                </Button>
-              </div>
-            )}
-
             {/* LNBeats Link */}
             {isLNBeatsTrack && lnbeatsUrl && (
               <div className="mt-4">
@@ -381,6 +366,21 @@ export function NowPlayingModal({ open, onOpenChange }: NowPlayingModalProps) {
                 >
                   <ExternalLink className="h-4 w-4 mr-2" />
                   Find on LNBeats
+                </Button>
+              </div>
+            )}
+
+            {/* Wavlake Link */}
+            {isWavlakeTrack && wavlakeUrl && (
+              <div className="mt-4">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full"
+                  onClick={() => window.open(wavlakeUrl, '_blank')}
+                >
+                  <ExternalLink className="h-4 w-4 mr-2" />
+                  View on Wavlake
                 </Button>
               </div>
             )}

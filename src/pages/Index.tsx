@@ -27,7 +27,7 @@ const Index = () => {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full">
+      <div className="min-h-screen flex w-full safe-area-all">
         <Sidebar className="border-r">
           <SidebarHeader className="p-6">
             <div className="flex items-center gap-2 mb-6">
@@ -43,7 +43,7 @@ const Index = () => {
             </div>
           </SidebarHeader>
 
-          <SidebarContent className="p-6 pb-24">
+          <SidebarContent className="p-6 pb-28 sm:pb-24">
             <div className="space-y-6">
               <div>
                 <h3 className="text-sm font-medium text-muted-foreground mb-3">Navigation</h3>
@@ -153,7 +153,7 @@ const Index = () => {
 
           </header>
 
-          <main className="flex-1 p-3 sm:p-6 overflow-auto pb-20">
+          <main className="flex-1 p-3 sm:p-6 overflow-auto pb-24 sm:pb-20">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
 
               {/* <TabsContent value="music" className="space-y-6">
