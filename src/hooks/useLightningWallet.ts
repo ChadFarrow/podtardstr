@@ -69,6 +69,14 @@ export function useLightningWallet() {
   }, []);
 
   const connectWallet = useCallback(async (): Promise<LightningWallet | null> => {
+    // Check if we're on mobile - Bitcoin Connect is disabled there
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    if (isMobile) {
+      const errorMessage = 'Lightning payments are temporarily disabled on mobile devices. Please use desktop for boosting.';
+      setError(errorMessage);
+      throw new Error(errorMessage);
+    }
+    
     // Prevent multiple simultaneous connection attempts
     if (connectionAttemptInProgress) {
       console.log('Connection attempt already in progress, skipping...');

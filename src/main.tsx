@@ -20,10 +20,16 @@ window.addEventListener('message', (event) => {
 // Custom font can be added here if needed:
 // import '@fontsource-variable/<font-name>';
 
-// Initialize Bitcoin Connect for Lightning payments
-init({
-  appName: 'Podtardstr',
-});
+// Initialize Bitcoin Connect for Lightning payments - skip on mobile to prevent refresh issues
+const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+if (!isMobile) {
+  init({
+    appName: 'Podtardstr',
+  });
+  console.log('✅ Bitcoin Connect initialized for desktop');
+} else {
+  console.log('📱 Bitcoin Connect disabled on mobile (temporary workaround)');
+}
 
 // Register Service Worker for PWA functionality
 if ('serviceWorker' in navigator) {

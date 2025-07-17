@@ -422,14 +422,24 @@ export function BoostModal({
           {/* Wallet connection options */}
           {!walletProvider && (
             <div className="space-y-3">
-              <div className="text-sm text-muted-foreground text-center">
-                Connect your Lightning wallet to boost:
-              </div>
-              
-              {/* Mobile-friendly instructions */}
-              <div className="text-xs text-muted-foreground text-center bg-muted p-2 rounded">
-                📱 On mobile: A Bitcoin Connect popup will appear. You can close it if you don't want to connect.
-              </div>
+              {/* Check if mobile and show different message */}
+              {/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ? (
+                <div className="text-sm text-muted-foreground text-center bg-yellow-50 dark:bg-yellow-900/20 p-3 rounded">
+                  📱 Lightning payments are temporarily disabled on mobile devices.<br/>
+                  Please use desktop/laptop to boost creators.
+                </div>
+              ) : (
+                <>
+                  <div className="text-sm text-muted-foreground text-center">
+                    Connect your Lightning wallet to boost:
+                  </div>
+                  
+                  {/* Desktop instructions */}
+                  <div className="text-xs text-muted-foreground text-center bg-muted p-2 rounded">
+                    💻 Bitcoin Connect will help you connect your Lightning wallet
+                  </div>
+                </>
+              )}
               
               {/* GetAlby OAuth temporarily disabled due to server issues */}
               {/* <GetAlbyLoginButton 
@@ -437,29 +447,31 @@ export function BoostModal({
                 onError={handleGetAlbyError}
               /> */}
               
-              {/* Bitcoin Connect Button */}
-              <Button 
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleBoost();
-                }}
-                disabled={isProcessing || isConnecting}
-                className="w-full"
-                size="lg"
-                variant="outline"
-              >
-                {isProcessing || isConnecting ? (
-                  'Connecting...'
-                ) : (
-                  <>
-                    <Zap className="h-4 w-4 mr-2" />
-                    Other Lightning Wallets
-                  </>
-                )}
-              </Button>
+              {/* Bitcoin Connect Button - only show on desktop */}
+              {!/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) && (
+                <Button 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleBoost();
+                  }}
+                  disabled={isProcessing || isConnecting}
+                  className="w-full"
+                  size="lg"
+                  variant="outline"
+                >
+                  {isProcessing || isConnecting ? (
+                    'Connecting...'
+                  ) : (
+                    <>
+                      <Zap className="h-4 w-4 mr-2" />
+                      Other Lightning Wallets
+                    </>
+                  )}
+                </Button>
+              )}
               
-              {/* Cancel button when connecting */}
-              {isConnecting && (
+              {/* Cancel button when connecting - only on desktop */}
+              {isConnecting && !/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) && (
                 <Button 
                   onClick={(e) => {
                     e.preventDefault();
@@ -475,19 +487,17 @@ export function BoostModal({
               )}
               
               {/* Skip boost option for users who don't want to connect */}
-              {!isConnecting && (
-                <Button 
-                  onClick={(e) => {
-                    e.preventDefault();
-                    onOpenChange(false);
-                  }}
-                  className="w-full"
-                  size="sm"
-                  variant="ghost"
-                >
-                  Skip Boost
-                </Button>
-              )}
+              <Button 
+                onClick={(e) => {
+                  e.preventDefault();
+                  onOpenChange(false);
+                }}
+                className="w-full"
+                size="sm"
+                variant="ghost"
+              >
+                {/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ? 'Close' : 'Skip Boost'}
+              </Button>
             </div>
           )}
 
