@@ -41,17 +41,14 @@ if ('serviceWorker' in navigator) {
         if (newWorker) {
           newWorker.addEventListener('statechange', () => {
             if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-              // New content is available, auto-refresh after short delay
-              console.log('🔄 New app version available. Auto-refreshing...');
+              // New content is available, but don't auto-refresh
+              console.log('🔄 New app version available. Manual refresh needed.');
               
-              // Dispatch update event
+              // Dispatch update event for UI to handle
               window.dispatchEvent(new CustomEvent('sw-update-available'));
               
-              // Auto-refresh after 500ms to get latest version
-              setTimeout(() => {
-                console.log('♻️ Auto-refreshing for service worker update');
-                window.location.reload();
-              }, 500);
+              // Don't auto-refresh - let users refresh manually to prevent loops
+              console.log('💡 Refresh page to get latest version');
             }
           });
         }
