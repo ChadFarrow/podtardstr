@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { requestProvider, launchModal } from '@getalby/bitcoin-connect';
+// Bitcoin Connect imports - dynamic to prevent mobile issues
 import { getalbyAuth, GetAlbyUser } from '@/lib/getalby-auth';
 import { emitWalletEvent, onWalletEvent } from '@/lib/wallet-events';
 
@@ -34,21 +34,25 @@ export function useLightningWallet() {
         }
       }
 
-      // Check Bitcoin Connect provider
-      try {
-        const provider = await requestProvider();
-        if (provider) {
-          console.log('Existing Bitcoin Connect provider found:', {
-            provider,
-            type: typeof provider,
-            keys: Object.keys(provider),
-            hasSendPayment: 'sendPayment' in provider
-          });
-          setIsConnected(true);
-          setWalletProvider('bitcoin-connect');
+      // Check Bitcoin Connect provider - only on desktop
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      if (!isMobile) {
+        try {
+          const { requestProvider } = await import('@getalby/bitcoin-connect');
+          const provider = await requestProvider();
+          if (provider) {
+            console.log('Existing Bitcoin Connect provider found:', {
+              provider,
+              type: typeof provider,
+              keys: Object.keys(provider),
+              hasSendPayment: 'sendPayment' in provider
+            });
+            setIsConnected(true);
+            setWalletProvider('bitcoin-connect');
+          }
+        } catch (err) {
+          // No provider connected, which is fine
         }
-      } catch (err) {
-        // No provider connected, which is fine
       }
     };
 
@@ -112,7 +116,9 @@ export function useLightningWallet() {
         }
       }
       
-      // Try to get existing Bitcoin Connect provider with timeout
+      // Try to get existing Bitcoin Connect provider with timeout - use dynamic import
+      const { requestProvider, launchModal } = await import('@getalby/bitcoin-connect');
+      
       let provider = await Promise.race([
         requestProvider(),
         new Promise((_, reject) => setTimeout(() => reject(new Error('Provider request timeout')), 5000))

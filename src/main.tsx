@@ -3,8 +3,7 @@ import { createRoot } from 'react-dom/client';
 // Import polyfills first
 import './lib/polyfills.ts';
 
-// Initialize Bitcoin Connect
-import { init } from '@getalby/bitcoin-connect';
+// Bitcoin Connect import - conditional to prevent mobile issues
 
 import App from './App.tsx';
 import './index.css';
@@ -23,16 +22,21 @@ window.addEventListener('message', (event) => {
 // Initialize Bitcoin Connect for Lightning payments - skip on mobile to prevent refresh issues
 const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 if (!isMobile) {
-  init({
-    appName: 'Podtardstr',
+  // Dynamic import to prevent module loading on mobile
+  import('@getalby/bitcoin-connect').then(({ init }) => {
+    init({
+      appName: 'Podtardstr',
+    });
+    console.log('✅ Bitcoin Connect initialized for desktop');
+  }).catch(err => {
+    console.warn('Failed to initialize Bitcoin Connect:', err);
   });
-  console.log('✅ Bitcoin Connect initialized for desktop');
 } else {
   console.log('📱 Bitcoin Connect disabled on mobile (temporary workaround)');
 }
 
-// Register Service Worker for PWA functionality
-if ('serviceWorker' in navigator) {
+// Register Service Worker for PWA functionality - skip on mobile for now
+if ('serviceWorker' in navigator && !isMobile) {
   window.addEventListener('load', async () => {
     try {
       const registration = await navigator.serviceWorker.register('/sw.js', {
