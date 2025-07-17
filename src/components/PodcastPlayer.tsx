@@ -31,6 +31,23 @@ export function PodcastPlayer() {
   const [hasUserInteracted, setHasUserInteracted] = useState(false);
   const [loadedPodcastId, setLoadedPodcastId] = useState<string | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const [isIOS, setIsIOS] = useState(false);
+  const [autoplayBlocked, setAutoplayBlocked] = useState(false);
+
+  // Detect iOS and initialize audio context for autoplay
+  useEffect(() => {
+    const detectIOS = () => {
+      const userAgent = window.navigator.userAgent;
+      const isIOSDevice = /iPad|iPhone|iPod/.test(userAgent);
+      setIsIOS(isIOSDevice);
+      
+      if (isIOSDevice) {
+        console.log('iOS device detected - implementing autoplay workarounds');
+      }
+    };
+    
+    detectIOS();
+  }, []);
 
   // Debug logging for component state
   console.log('PodcastPlayer render:', {
@@ -65,14 +82,27 @@ export function PodcastPlayer() {
         console.log('🎵 Calling playNext() for autoplay');
         playNext();
         
-        // Additional attempt: Try to play immediately after playNext
+        // iOS-specific: Additional attempt with user interaction context
         setTimeout(() => {
           const audioElement = audioRef.current;
           if (audioElement && audioElement.paused) {
             console.log('🎵 Audio still paused after playNext, attempting direct play');
-            audioElement.play().catch(error => {
-              console.log('🎵 Direct autoplay failed:', error.name, error.message);
-            });
+            
+            // For iOS, we need to be more aggressive about autoplay
+            if (isIOS && hasUserInteracted) {
+              console.log('🎵 iOS: Using user interaction context for autoplay');
+              audioElement.play().catch(error => {
+                console.log('🎵 iOS autoplay failed:', error.name, error.message);
+                // On iOS, if autoplay fails, we might need to show a play button
+                if (error.name === 'NotAllowedError') {
+                  console.log('🎵 iOS: Autoplay blocked, user will need to tap play');
+                }
+              });
+            } else {
+              audioElement.play().catch(error => {
+                console.log('🎵 Direct autoplay failed:', error.name, error.message);
+              });
+            }
           }
         }, 100);
       } else {
@@ -113,6 +143,13 @@ export function PodcastPlayer() {
       // Only try to play if we haven't already started playing
       if (audio.paused) {
         console.log('Attempting to play audio');
+        
+        // iOS-specific: Load the audio before attempting to play
+        if (isIOS && !hasUserInteracted) {
+          console.log('iOS: Loading audio before play attempt');
+          audio.load();
+        }
+        
         audio.play().then(() => {
           console.log('Audio play successful');
         }).catch((error) => {
@@ -121,10 +158,21 @@ export function PodcastPlayer() {
           // Handle autoplay restrictions more gracefully
           if (error.name === 'NotAllowedError') {
             console.log('Autoplay blocked by browser - user interaction required');
-            // Don't set isPlaying to false immediately for autoplay blocks
-            // This allows the UI to show the track is "ready to play"
-            if (hasUserInteracted) {
-              setIsPlaying(false);
+            setAutoplayBlocked(true);
+            
+            // iOS-specific handling
+            if (isIOS) {
+              console.log('iOS: Autoplay blocked, keeping UI in "ready to play" state');
+              // On iOS, don't immediately set isPlaying to false
+              // This allows the user to see the track is selected and ready
+              if (hasUserInteracted) {
+                setIsPlaying(false);
+              }
+            } else {
+              // Non-iOS browsers
+              if (hasUserInteracted) {
+                setIsPlaying(false);
+              }
             }
           } else if (!error.message.includes('aborted')) {
             setIsPlaying(false);
@@ -204,6 +252,20 @@ export function PodcastPlayer() {
 
     // Mark that user has interacted
     setHasUserInteracted(true);
+    setAutoplayBlocked(false); // Reset autoplay blocked state on user interaction
+
+    // iOS-specific: Attempt to unlock audio context immediately on user interaction
+    if (isIOS && !isPlaying && audio.paused) {
+      console.log('iOS: User interaction detected, unlocking audio context');
+      
+      // Create a brief silent audio to unlock the audio context
+      const unlockAudio = new Audio();
+      unlockAudio.src = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQEAAAC0';
+      unlockAudio.volume = 0;
+      unlockAudio.play().catch(() => {
+        console.log('iOS: Silent audio unlock failed, but continuing');
+      });
+    }
 
     // If autoplay was blocked and user clicks play, try to resume autoplay capability
     if (!isPlaying && audio.paused) {
@@ -254,7 +316,9 @@ export function PodcastPlayer() {
         <audio
           ref={audioRef}
           src={currentPodcast.url}
-          preload="metadata"
+          preload={isIOS ? "none" : "metadata"}
+          playsInline
+          controls={false}
         />
         
         <div className="flex items-center gap-3 sm:gap-4">
@@ -284,7 +348,13 @@ export function PodcastPlayer() {
               <SkipBack className="h-5 w-5 sm:h-4 sm:w-4" />
             </Button>
             
-            <Button onClick={handlePlayPause} size="icon" className="h-10 w-10 sm:h-9 sm:w-9 touch-manipulation">
+            <Button 
+              onClick={handlePlayPause} 
+              size="icon" 
+              className={`h-10 w-10 sm:h-9 sm:w-9 touch-manipulation ${
+                isIOS && autoplayBlocked && !hasUserInteracted ? 'animate-pulse bg-orange-500 hover:bg-orange-600' : ''
+              }`}
+            >
               {isPlaying ? (
                 <Pause className="h-5 w-5 sm:h-4 sm:w-4" />
               ) : (

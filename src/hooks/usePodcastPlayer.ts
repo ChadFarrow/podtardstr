@@ -147,10 +147,15 @@ export const usePodcastPlayer = create<PodcastPlayerState>()(
             nextTrack: nextPodcast.title,
             willPlay: state.autoPlay
           });
+          
+          // For iOS, we need to be more careful about autoplay
+          const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+          const shouldAutoPlay = state.autoPlay && (!isIOS || state.isPlaying);
+          
           set({
             currentPodcast: nextPodcast,
             currentIndex: nextIndex,
-            isPlaying: state.autoPlay,
+            isPlaying: shouldAutoPlay,
           });
         } else {
           console.log('playNext: No more tracks in queue');

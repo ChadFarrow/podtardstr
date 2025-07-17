@@ -98,10 +98,25 @@ export function useMusicPlayback() {
         // This must happen in the user interaction context
         const audio = document.querySelector('audio');
         if (audio) {
+          console.log('Setting audio src and attempting immediate play for user interaction');
           audio.src = podcastToPlay.url;
-          audio.play().catch(error => {
-            console.log('Autoplay prevented by browser:', error);
-          });
+          
+          // iOS-specific: Load first, then play
+          const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+          if (isIOS) {
+            console.log('iOS: Loading audio first, then playing');
+            audio.load();
+            // Small delay to ensure loading starts
+            setTimeout(() => {
+              audio.play().catch(error => {
+                console.log('iOS: Autoplay prevented by browser:', error);
+              });
+            }, 50);
+          } else {
+            audio.play().catch(error => {
+              console.log('Autoplay prevented by browser:', error);
+            });
+          }
         }
       } else {
         console.warn('No playable episodes found in album:', podcast.title);
