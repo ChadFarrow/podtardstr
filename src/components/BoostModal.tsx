@@ -309,7 +309,7 @@ export function BoostModal({
   if (v4vLoading) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-md" style={{ transform: 'none' }}>
+        <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Loading V4V Data...</DialogTitle>
           </DialogHeader>
@@ -326,7 +326,7 @@ export function BoostModal({
   if (!hasRecipients) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-md" style={{ transform: 'none' }}>
+        <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>No Payment Recipients</DialogTitle>
           </DialogHeader>
@@ -345,7 +345,7 @@ export function BoostModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md" style={{ transform: 'none' }}>
+      <DialogContent className="max-w-md">
         <DialogHeader>
           <div className="flex items-center justify-between">
             <DialogTitle>Boost {contentTitle}</DialogTitle>

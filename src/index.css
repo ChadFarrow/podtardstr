@@ -153,8 +153,11 @@
 
   /* Prevent modal animations that cause page movement */
   [data-radix-dialog-content] {
-    transform: none !important;
+    transform: translate(-50%, -50%) !important;
     animation: none !important;
+    position: fixed !important;
+    left: 50% !important;
+    top: 50% !important;
   }
 
   /* Ensure modal overlay doesn't cause movement */
