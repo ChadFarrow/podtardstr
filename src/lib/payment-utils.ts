@@ -280,11 +280,12 @@ export async function processSinglePayment(
 ): Promise<boolean> {
   try {
     // Log provider details for debugging
-    console.log('Provider object:', {
+    console.log('Provider object (v1.89+):', {
       hasKeysend: !!provider.keysend,
       hasSendPayment: !!provider.sendPayment,
       providerType: provider.provider,
-      methods: Object.keys(provider).filter(key => typeof (provider as any)[key] === 'function')
+      methods: Object.keys(provider).filter(key => typeof (provider as any)[key] === 'function'),
+      version: getAppVersion()
     });
     
     // Handle keysend payments (node type)
@@ -359,6 +360,17 @@ export async function processSinglePayment(
     
     // Handle invoice-based payments (lud16, lud06)
     const invoice = await createInvoice(recipient, amount);
+    
+    // Check if sendPayment method exists
+    if (!provider.sendPayment || typeof provider.sendPayment !== 'function') {
+      console.error(`❌ Wallet provider doesn't have sendPayment method`, {
+        provider: provider,
+        hasMethod: !!provider.sendPayment,
+        typeOfMethod: typeof provider.sendPayment
+      });
+      throw new Error('Wallet does not support invoice payments');
+    }
+    
     await provider.sendPayment(invoice);
     console.log(`✅ Invoice payment successful to ${recipient.name}`);
     return true;
