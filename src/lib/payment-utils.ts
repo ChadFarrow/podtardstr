@@ -27,6 +27,16 @@ export interface PaymentResult {
   totalAmount: number;
 }
 
+export interface PaymentProgress {
+  recipientName: string;
+  amount: number;
+  status: 'pending' | 'processing' | 'success' | 'failed' | 'skipped';
+  error?: string;
+  type: string;
+}
+
+export type PaymentProgressCallback = (progress: PaymentProgress[], currentIndex: number, total: number) => void;
+
 export interface LightningProvider {
   sendPayment: (invoice: string) => Promise<void>;
   keysend?: (args: { destination: string; amount: number; customRecords?: Record<string, string> }) => Promise<void>;
@@ -379,6 +389,117 @@ export async function processSinglePayment(
     console.error(`❌ Payment failed to ${recipient.name}:`, error);
     return false;
   }
+}
+
+/**
+ * Processes multiple payments with detailed error tracking and progress callbacks
+ */
+export async function processMultiplePaymentsWithProgress(
+  provider: LightningProvider,
+  recipients: PaymentRecipient[],
+  totalAmount: number,
+  onProgress?: PaymentProgressCallback,
+  metadata?: {
+    feedId?: string | number;
+    itemId?: string | number;
+    episodeId?: string | number; // For backwards compatibility
+    contentTitle?: string;
+    app?: string;
+    appVersion?: string;
+    message?: string;
+    senderName?: string;
+    episodeGuid?: string;
+    feedUrl?: string;
+    speed?: string;
+    uuid?: string;
+  }
+): Promise<PaymentResult> {
+  const paymentAmounts = calculatePaymentAmounts(recipients, totalAmount);
+  
+  // Initialize progress tracking
+  const progressItems: PaymentProgress[] = paymentAmounts.map(({ recipient, amount }) => ({
+    recipientName: recipient.name,
+    amount,
+    status: 'pending' as const,
+    type: recipient.type
+  }));
+  
+  // Initial progress callback
+  if (onProgress) {
+    onProgress(progressItems, 0, progressItems.length);
+  }
+  
+  // Debug logging for split calculation
+  console.log('🔍 Payment Split Debug:', {
+    totalAmount,
+    recipientCount: recipients.length,
+    paymentAmountsCount: paymentAmounts.length,
+    recipients: recipients.map(r => ({ name: r.name, split: r.split, type: r.type })),
+    calculatedAmounts: paymentAmounts.map(({ recipient, amount }) => ({ 
+      name: recipient.name, 
+      split: recipient.split, 
+      amount,
+      type: recipient.type 
+    })),
+    totalCalculated: paymentAmounts.reduce((sum, { amount }) => sum + amount, 0)
+  });
+  
+  let successCount = 0;
+  const errors: string[] = [];
+
+  for (let i = 0; i < paymentAmounts.length; i++) {
+    const { recipient, amount } = paymentAmounts[i];
+    
+    // Update progress to processing
+    progressItems[i].status = 'processing';
+    if (onProgress) {
+      onProgress([...progressItems], i, progressItems.length);
+    }
+    
+    // Small delay to make progress visible
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
+    try {
+      const success = await processSinglePayment(provider, recipient, amount, {
+        ...metadata,
+        totalAmount
+      });
+      
+      if (success) {
+        successCount++;
+        progressItems[i].status = 'success';
+      } else {
+        // Categorize the error type
+        if (recipient.type === 'node' || recipient.type === 'keysend') {
+          const error = `Skipped keysend payment to ${recipient.name} (${amount} sats)`;
+          errors.push(error);
+          progressItems[i].status = 'skipped';
+          progressItems[i].error = 'Wallet does not support keysend payments';
+        } else {
+          const error = `Failed to pay ${amount} sats to ${recipient.name}`;
+          errors.push(error);
+          progressItems[i].status = 'failed';
+          progressItems[i].error = 'Payment failed';
+        }
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      errors.push(`Error paying ${amount} sats to ${recipient.name}: ${errorMessage}`);
+      progressItems[i].status = 'failed';
+      progressItems[i].error = errorMessage;
+    }
+    
+    // Update progress after each payment
+    if (onProgress) {
+      onProgress([...progressItems], i + 1, progressItems.length);
+    }
+  }
+
+  return {
+    successCount,
+    errors,
+    totalAmount
+  };
 }
 
 /**

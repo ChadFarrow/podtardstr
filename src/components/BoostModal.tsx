@@ -11,10 +11,11 @@ import confetti from 'canvas-confetti';
 // Temporarily disabled: import { GetAlbyUser } from '@/lib/getalby-auth';
 import { 
   getLightningRecipients, 
-  processMultiplePayments, 
+  processMultiplePaymentsWithProgress, 
   formatPaymentStatus,
   type ValueDestination,
   type PaymentRecipient,
+  type PaymentProgress,
   LightningProvider
 } from '@/lib/payment-utils';
 import { getAppVersion } from '@/lib/utils';
@@ -31,10 +32,12 @@ interface BoostModalProps {
   episodeId?: string;
 }
 
-// Custom hook for payment processing
+// Custom hook for payment processing with progress
 function usePaymentProcessor() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [status, setStatus] = useState('');
+  const [paymentProgress, setPaymentProgress] = useState<PaymentProgress[]>([]);
+  const [currentPaymentIndex, setCurrentPaymentIndex] = useState(0);
 
   const processPayment = useCallback(async (
     provider: unknown,
@@ -57,9 +60,28 @@ function usePaymentProcessor() {
   ) => {
     setIsProcessing(true);
     setStatus(`Boosting ${totalAmount} sats among ${recipients.length} recipients...`);
+    setPaymentProgress([]);
+    setCurrentPaymentIndex(0);
     
     try {
-      const result = await processMultiplePayments(provider as LightningProvider, recipients, totalAmount, metadata);
+      const result = await processMultiplePaymentsWithProgress(
+        provider as LightningProvider, 
+        recipients, 
+        totalAmount,
+        (progress, currentIndex, total) => {
+          setPaymentProgress(progress);
+          setCurrentPaymentIndex(currentIndex);
+          
+          if (currentIndex < total) {
+            const currentRecipient = progress[currentIndex];
+            if (currentRecipient?.status === 'processing') {
+              setStatus(`Paying ${currentRecipient.recipientName} (${currentRecipient.amount} sats)...`);
+            }
+          }
+        },
+        metadata
+      );
+      
       const statusMessage = formatPaymentStatus(result);
       setStatus(statusMessage);
       return result;
@@ -72,7 +94,14 @@ function usePaymentProcessor() {
     }
   }, []);
 
-  return { processPayment, isProcessing, status, setStatus };
+  return { 
+    processPayment, 
+    isProcessing, 
+    status, 
+    setStatus, 
+    paymentProgress, 
+    currentPaymentIndex 
+  };
 }
 
 export function BoostModal({ 
@@ -87,7 +116,7 @@ export function BoostModal({
   episodeId
 }: BoostModalProps) {
   const { connectWallet, /* connectGetAlbyWeb, */ isConnecting, walletProvider, /* getalbyUser */ } = useLightningWallet();
-  const { processPayment, isProcessing, status, setStatus } = usePaymentProcessor();
+  const { processPayment, isProcessing, status, setStatus, paymentProgress, currentPaymentIndex } = usePaymentProcessor();
   const [message, setMessage] = useState('');
   const { getDisplayName } = useUserName();
   const messageInputRef = useRef<HTMLInputElement>(null);
@@ -453,6 +482,47 @@ export function BoostModal({
           {/* Status message */}
           {status && (
             <p className="text-sm text-muted-foreground text-center">{status}</p>
+          )}
+
+          {/* Payment progress display */}
+          {isProcessing && paymentProgress.length > 0 && (
+            <div className="space-y-2">
+              <div className="text-xs text-muted-foreground text-center">
+                Progress: {currentPaymentIndex}/{paymentProgress.length}
+              </div>
+              {/* Progress bar */}
+              <div className="w-full bg-muted rounded-full h-2">
+                <div 
+                  className="bg-primary h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${(currentPaymentIndex / paymentProgress.length) * 100}%` }}
+                />
+              </div>
+              <div className="space-y-1">
+                {paymentProgress.map((progress, index) => (
+                  <div key={index} className="flex items-center justify-between text-xs">
+                    <span className="truncate flex-1">{progress.recipientName}</span>
+                    <span className="text-muted-foreground mx-2">{progress.amount} sats</span>
+                    <span className="flex items-center">
+                      {progress.status === 'pending' && (
+                        <span className="text-gray-400">⏳</span>
+                      )}
+                      {progress.status === 'processing' && (
+                        <span className="text-blue-500 animate-pulse">⚡</span>
+                      )}
+                      {progress.status === 'success' && (
+                        <span className="text-green-500">✅</span>
+                      )}
+                      {progress.status === 'failed' && (
+                        <span className="text-red-500" title={progress.error}>❌</span>
+                      )}
+                      {progress.status === 'skipped' && (
+                        <span className="text-yellow-500" title={progress.error}>⚠️</span>
+                      )}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
           )}
 
           {/* Test confetti button - development only */}
