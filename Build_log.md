@@ -5,8 +5,8 @@
 ## 🔖 Quick Reference for Future Sessions (as of July 16, 2025)
 
 ### **Current Status**
-- **Version:** 1.108 (auto-increments on commits)
-- **Status:** 🟢 Production Ready - All core features complete + Mobile Bitcoin Connect Disabled
+- **Version:** 1.112 (auto-increments on commits)
+- **Status:** 🟢 Production Ready - All core features complete + Audio Playback Fixed
 - **Production URL:** https://app.podtards.com (main branch - production)
 - **Preview URL:** https://podtardstr.vercel.app (main branch - preview)
 - **Repo:** https://github.com/ChadFarrow/podtardstr
@@ -30,6 +30,8 @@
 ✅ **Mobile Optimized** - Fixed viewport, single-click play, loading states  
 
 ### **Recent Critical Changes (Reference for Context)**
+- **Audio Playback Fixed:** Created Vercel serverless function to fix CORS issues preventing track playback (July 17, 2025)
+- **API Security Enhancement:** Moved Podcast Index API credentials to server-side only for security (July 17, 2025)
 - **Mobile Bitcoin Connect Disabled:** Temporary workaround to prevent refresh loops on mobile (July 17, 2025)
 - **Service Worker Refresh Fix:** Removed aggressive activation and auto-refresh causing mobile issues (July 17, 2025)
 - **Mobile Payment UX:** Clear messaging about Lightning payments being desktop-only temporarily (July 17, 2025)
@@ -229,6 +231,14 @@
 
 ## 🎯 Recent Achievements
 
+### **July 17, 2025 - Version 1.112 - Audio Playback Fix**
+- ✅ **Audio Playback Fixed**: Created Vercel serverless function to resolve CORS issues preventing track playback
+- ✅ **API Security Enhancement**: Moved Podcast Index API credentials to server-side only for improved security
+- ✅ **Server-Side Proxy**: Implemented `/api/podcastindex` endpoint for secure API access
+- ✅ **Cross-Platform Audio**: Tracks now play properly on both mobile and web without CORS errors
+- ✅ **Authentication Handling**: Server-side authentication with proper API key and secret management
+- ✅ **Error Handling**: Improved error handling for API requests with proper logging
+
 ### **July 17, 2025 - Version 1.108 - Mobile Refresh Loop Fix**
 - ✅ **Mobile Bitcoin Connect Disabled**: Temporary workaround to prevent refresh loops on mobile devices
 - ✅ **Service Worker Refresh Fix**: Removed aggressive skipWaiting() and clients.claim() causing mobile issues
@@ -409,12 +419,14 @@
 - **Last Build**: Successful production build ✅
 - **Last Deployment**: Version 1.85 deployed to production ✅
 - **APK Status**: Ready for generation (requires Java JDK) ✅
-- **Version**: 1.108 (auto-increments on commits) ✅
+- **Version**: 1.112 (auto-increments on commits) ✅
+- **Audio Playback**: ✅ FIXED - Tracks now play on both mobile and web via server-side proxy
+- **API Security**: ✅ ENHANCED - Podcast Index credentials moved to server-side only
+- **CORS Issues**: ✅ RESOLVED - Server-side proxy eliminates browser CORS restrictions
 - **Mobile Refresh Loop**: ✅ FIXED - Bitcoin Connect disabled on mobile, service worker less aggressive
 - **Payment Progress**: ✅ ADDED - Real-time visual progress tracking for boost payments
-- **API Key Security**: ✅ FIXED - Removed console logs exposing Podcast Index API key
 - **Mobile UX**: ✅ IMPROVED - Clear messaging about desktop-only Lightning payments
 - **Autoplay**: ✅ COMPLETELY FIXED - Working with sequential queue ordering
 - **Queue Ordering**: ✅ FIXED - "Play All" maintains proper 1→2→3 sequence
 
-**Project Health**: 🟢 **Excellent** - Production ready! All core features complete, mobile refresh loop fixed, payment progress tracking added, API key security resolved, Lightning payments working on desktop, Bitcoin Connect temporarily disabled on mobile as workaround, autoplay working perfectly, sequential queue ordering fixed, PWA fully functional, LNBeats & Wavlake integration, message support, user name customization implemented. Ready for user testing and broader deployment. 
+**Project Health**: 🟢 **Excellent** - Production ready! All core features complete, audio playback working on all platforms, CORS issues resolved via server-side proxy, API security enhanced, mobile refresh loop fixed, payment progress tracking added, Lightning payments working on desktop, Bitcoin Connect temporarily disabled on mobile as workaround, autoplay working perfectly, sequential queue ordering fixed, PWA fully functional, LNBeats & Wavlake integration, message support, user name customization implemented. Ready for user testing and broader deployment. 
