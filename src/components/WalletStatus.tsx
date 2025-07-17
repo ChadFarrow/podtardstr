@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Wallet, LogOut, Loader2 } from 'lucide-react';
 import { useLightningWallet } from '@/hooks/useLightningWallet';
