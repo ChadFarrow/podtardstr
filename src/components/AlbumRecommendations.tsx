@@ -73,13 +73,9 @@ export function AlbumRecommendations({ podroll, currentFeedUrl }: AlbumRecommend
     <div className="p-8">
       <div className="max-w-6xl mx-auto">
         <h3 className="text-2xl font-bold mb-6 text-center">
-          {hasPodroll ? 'Recommended Podcasts' : 'More from The Doerfel-Verse'}
+          {hasPodroll ? 'Recommended' : 'More from The Doerfel-Verse'}
         </h3>
         
-        {/* Debug info */}
-        <div className="text-xs text-gray-500 text-center mb-4">
-          Debug: {podroll ? `${podroll.length} PodRoll items` : 'No PodRoll data'} | Feed: {currentFeedUrl.substring(currentFeedUrl.lastIndexOf('/') + 1)}
-        </div>
         
         <div className="flex space-x-6 overflow-x-auto pb-4 scrollbar-hide">
           {/* Show PodRoll recommendations if available */}
@@ -101,6 +97,8 @@ export function AlbumRecommendations({ podroll, currentFeedUrl }: AlbumRecommend
                         src={recommendation.image}
                         alt={recommendation.title}
                         className="w-full h-full object-cover rounded-xl"
+                        onLoad={() => console.log('🖼️ Image loaded:', recommendation.title, recommendation.image)}
+                        onError={(e) => console.log('❌ Image failed:', recommendation.title, recommendation.image, e)}
                       />
                     ) : (
                       <Music className="h-16 w-16 text-gray-400" />
