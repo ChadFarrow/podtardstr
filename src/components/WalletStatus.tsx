@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Wallet, LogOut, Loader2 } from 'lucide-react';
 import { useLightningWallet } from '@/hooks/useLightningWallet';
+import { ConnectWalletButton } from '@/components/ConnectWalletButton';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -65,7 +66,17 @@ export function WalletStatus() {
   }
 
   if (!isConnected) {
-    return null;
+    return (
+      <div className="space-y-3">
+        <h3 className="text-sm font-medium text-muted-foreground">Lightning Wallet</h3>
+        
+        <ConnectWalletButton className="w-full" />
+        
+        <p className="text-xs text-muted-foreground">
+          Connect to make Lightning payments
+        </p>
+      </div>
+    );
   }
 
   const getWalletName = () => {
