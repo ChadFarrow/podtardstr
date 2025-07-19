@@ -163,14 +163,15 @@ export function PodcastPlayer() {
     const audio = audioRef.current;
     if (!audio) return;
 
-    console.log('Play effect triggered:', {
+    console.log('🎵 Play effect triggered:', {
       isPlaying,
       audioPaused: audio.paused,
       audioSrc: audio.src,
       audioReadyState: audio.readyState,
       audioCurrentTime: audio.currentTime,
       audioDuration: audio.duration,
-      hasUserInteracted
+      hasUserInteracted,
+      currentPodcastId: currentPodcast?.id
     });
 
     if (isPlaying) {
@@ -191,7 +192,7 @@ export function PodcastPlayer() {
         }
         
         audio.play().then(() => {
-          console.log('Audio play successful');
+          console.log('🎵 Audio play successful for:', currentPodcast?.title);
         }).catch((error) => {
           console.error('Play effect error:', error);
           
@@ -232,7 +233,7 @@ export function PodcastPlayer() {
       console.log('Pausing audio');
       audio.pause();
     }
-  }, [isPlaying, setIsPlaying, hasUserInteracted]);
+  }, [isPlaying, setIsPlaying, hasUserInteracted, currentPodcast?.id]);
 
   // Handle new track loading - COMPLETELY SIMPLIFIED: Let audio.play() handle loading
   useEffect(() => {
