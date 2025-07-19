@@ -380,6 +380,10 @@ export function AlbumViewEnhanced({ feedUrl }: AlbumViewEnhancedProps) {
             <h3 className="text-2xl font-bold mb-6 text-center">
               {albumData.podroll && albumData.podroll.length > 0 ? 'Recommended Podcasts' : 'More from The Doerfel-Verse'}
             </h3>
+            {/* Debug info */}
+            <div className="text-xs text-gray-500 text-center mb-4">
+              Debug: {albumData.podroll ? `${albumData.podroll.length} PodRoll items` : 'No PodRoll data'} | Feed: {currentFeedUrl.substring(currentFeedUrl.lastIndexOf('/') + 1)}
+            </div>
             <div className="flex space-x-6 overflow-x-auto pb-4 scrollbar-hide">
               {/* Show PodRoll recommendations if available */}
               {albumData.podroll && albumData.podroll.length > 0 ? (
