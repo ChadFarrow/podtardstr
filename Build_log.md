@@ -2,11 +2,11 @@
 
 ---
 
-## 🔖 Quick Reference for Future Sessions (as of July 17, 2025)
+## 🔖 Quick Reference for Future Sessions (as of July 19, 2025)
 
 ### **Current Status**
-- **Version:** 1.116 (auto-increments on commits)
-- **Status:** 🟢 Production Ready - All core features complete + UI/UX Improvements
+- **Version:** 1.132 (auto-increments on commits)
+- **Status:** 🟢 Production Ready - All core features complete + Album Artwork Fixes
 - **Production URL:** https://app.podtards.com (main branch - production)
 - **Preview URL:** https://podtardstr.vercel.app (main branch - preview)
 - **Repo:** https://github.com/ChadFarrow/podtardstr
@@ -30,6 +30,11 @@
 ✅ **Mobile Optimized** - Fixed viewport, single-click play, loading states  
 
 ### **Recent Critical Changes (Reference for Context)**
+- **HeyCitizen Album Artwork Fix:** Fixed missing album artwork for HeyCitizen Experience album with enhanced iTunes namespace parsing (July 19, 2025)
+- **RSS Feed Parser Enhancement:** Added multiple fallback methods for iTunes image element parsing to handle namespace issues (July 19, 2025)
+- **SecureImage CORS Handling:** Added HeyCitizen-specific proxy routing to resolve image loading issues (July 19, 2025)
+- **Album Feed Value Handling:** Improved album feed processing with proper V4V destination mapping for episode-level payments (July 19, 2025)
+- **Custom Album View:** Enhanced album selector UI to properly handle custom RSS feeds vs featured albums (July 19, 2025)
 - **Bitcoin Connect Modal Fix:** Fixed stuck connection modal requiring page refresh with Alby extension (July 17, 2025)
 - **Payment Error State Fix:** Resolved persistent "NO_ROUTE" and other payment errors not clearing (July 17, 2025)
 - **Progress Bar Click Fix:** Fixed progress bar click to seek properly instead of opening modal (July 17, 2025)
@@ -254,6 +259,16 @@
 
 ## 🎯 Recent Achievements
 
+### **July 19, 2025 - Version 1.132 - Album Artwork & Feed Processing Fixes**
+- ✅ **HeyCitizen Album Artwork Fixed**: Completely resolved missing album artwork for "The HeyCitizen Experience" album
+- ✅ **Enhanced RSS Feed Parser**: Added multiple fallback methods for iTunes image element parsing with proper namespace handling
+- ✅ **iTunes Namespace Support**: Improved CSS selector handling for `<itunes:image href="..."/>` elements in RSS feeds
+- ✅ **SecureImage CORS Enhancement**: Added HeyCitizen-specific proxy routing via images.weserv.nl for reliable image loading
+- ✅ **Album Feed Value Processing**: Enhanced album feed parsing with proper V4V destination mapping for episode-level payments
+- ✅ **Custom Album View Logic**: Improved album selector UI to properly distinguish between custom RSS feeds and featured albums
+- ✅ **Debug Logging Added**: Comprehensive logging for HeyCitizen image processing and error tracking
+- ✅ **Fallback Method Robustness**: Multiple parsing strategies ensure artwork loads even with namespace variations
+
 ### **July 17, 2025 - Version 1.116 - UI/UX Improvements**
 - ✅ **Bitcoin Connect Modal Fix**: Fixed stuck connection modal requiring page refresh with Alby extension
 - ✅ **Event-Driven Connection**: Replaced polling with onConnected event listener for immediate modal close
@@ -475,9 +490,9 @@
 
 - **Last Test Run**: All 15 tests passing ✅
 - **Last Build**: Successful production build ✅
-- **Last Deployment**: Version 1.116 deployed to production ✅
+- **Last Deployment**: Version 1.132 deployed to production ✅
 - **APK Status**: Ready for generation (requires Java JDK) ✅
-- **Version**: 1.116 (auto-increments on commits) ✅
+- **Version**: 1.132 (auto-increments on commits) ✅
 - **Audio Playback**: ✅ FIXED - Tracks now play on both mobile and web via server-side proxy
 - **API Security**: ✅ ENHANCED - Podcast Index credentials moved to server-side only
 - **CORS Issues**: ✅ RESOLVED - Server-side proxy eliminates browser CORS restrictions
@@ -491,5 +506,7 @@
 - **Mobile UX**: ✅ IMPROVED - Clear messaging about desktop-only Lightning payments
 - **Autoplay**: ✅ COMPLETELY FIXED - Working with sequential queue ordering
 - **Queue Ordering**: ✅ FIXED - "Play All" maintains proper 1→2→3 sequence
+- **HeyCitizen Album Artwork**: ✅ FIXED - Enhanced RSS parser with iTunes namespace handling for missing album artwork
+- **Album Feed Processing**: ✅ ENHANCED - Improved V4V destination mapping and custom album view logic
 
-**Project Health**: 🟢 **Excellent** - Production ready! All core features complete with major UI/UX improvements, Bitcoin Connect modal fixed (no more page refresh needed with Alby extension), payment error state properly managed (no persistent errors), progress bar seeking working correctly, mobile safe area support added for proper display, modular component architecture implemented, audio playback working on all platforms, CORS issues resolved via server-side proxy, API security enhanced, autoplay working perfectly, sequential queue ordering fixed, PWA fully functional, LNBeats & Wavlake integration, message support, user name customization implemented, reduced coupling between features for better maintainability. Enhanced user experience with seamless wallet connections and proper error handling. Ready for user testing and broader deployment. 
+**Project Health**: 🟢 **Excellent** - Production ready! All core features complete with album artwork fixes, enhanced RSS feed parsing with iTunes namespace support, Bitcoin Connect modal fixed (no page refresh needed with Alby extension), payment error state properly managed (no persistent errors), progress bar seeking working correctly, mobile safe area support added for proper display, modular component architecture implemented, audio playback working on all platforms, CORS issues resolved via server-side proxy, API security enhanced, autoplay working perfectly, sequential queue ordering fixed, PWA fully functional, LNBeats & Wavlake integration, message support, user name customization implemented, reduced coupling between features for better maintainability, HeyCitizen album artwork now displays correctly via enhanced feed parsing. Enhanced user experience with seamless wallet connections, proper error handling, and complete album artwork support. Ready for user testing and broader deployment. 

@@ -5,18 +5,13 @@ import { WalletStatus } from '@/components/WalletStatus';
 import { PodcastPlayer } from '@/components/PodcastPlayer';
 import { VersionDisplay } from '@/components/VersionDisplay';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Home, Disc, Plus, Music, ExternalLink } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { Home, Disc, Music, ExternalLink } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useSearchParams } from 'react-router-dom';
 
 const Albums = () => {
   const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
-  const [customFeedUrl, setCustomFeedUrl] = useState('');
-  const [showCustomInput, setShowCustomInput] = useState(false);
   
   // Get feed URL from query parameters
   const feedUrlFromParams = searchParams.get('feed');
@@ -29,14 +24,6 @@ const Albums = () => {
     ogImage: '/icon-512.png',
     twitterCard: 'summary_large_image',
   });
-
-  const handleCustomFeedSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (customFeedUrl.trim()) {
-      // Navigate to the album view with the custom feed URL
-      navigate(`/albums?feed=${encodeURIComponent(customFeedUrl.trim())}`);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -71,32 +58,7 @@ const Albums = () => {
             Discover and stream featured albums with Value4Value Lightning payments
           </p>
           
-          {/* Custom Feed Input */}
-          <Card className="mb-8">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Plus className="h-5 w-5" />
-                Load Your Own Album
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleCustomFeedSubmit} className="flex gap-4">
-                <Input
-                  type="url"
-                  placeholder="Enter RSS feed URL for your album..."
-                  value={customFeedUrl}
-                  onChange={(e) => setCustomFeedUrl(e.target.value)}
-                  className="flex-1"
-                />
-                <Button type="submit" disabled={!customFeedUrl.trim()}>
-                  Load Album
-                </Button>
-              </form>
-              <p className="text-sm text-muted-foreground mt-2">
-                Paste an RSS feed URL from any podcast platform to load and stream the album
-              </p>
-            </CardContent>
-          </Card>
+
         </div>
         
         <AlbumView feedUrl={feedUrlFromParams || undefined} />
