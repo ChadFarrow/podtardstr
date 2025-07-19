@@ -109,15 +109,15 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
       id: 'polar-embrace',
       title: 'Polar Embrace',
       artist: 'The Satellite Skirmish',
-      artwork: '/placeholder-album.png',
-      feedUrl: 'https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/polarembrace/mp3s/album_feed/feed.xml',
+      artwork: 'https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/polarembrace/art/Polar-Embrace-Feed-art-hires.gif',
+      feedUrl: 'https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/polarembrace/rss/videofeed/feed.xml',
       description: 'Ambient soundscapes inspired by arctic solitude and cosmic wonder.'
     },
     {
       id: 'autumn-rust',
       title: 'Autumn Rust',
       artist: 'The Satellite Skirmish',
-      artwork: '/placeholder-album.png',
+      artwork: 'https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/autumnrust/art/Autumn-Rust-Feed-Art.gif',
       feedUrl: 'https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/autumnrust/mp3s/album_feed/feed.xml',
       description: 'Melancholic melodies capturing the beauty of seasonal transformation.'
     },
@@ -125,7 +125,7 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
       id: 'the-satellite-skirmish-album',
       title: 'The Satellite Skirmish',
       artist: 'Various Artists',
-      artwork: '/placeholder-album.png',
+      artwork: 'https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/art/the%20satellite%20skirmish%20mku.gif',
       feedUrl: 'https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/the_satellite_skirmish_album.xml',
       description: 'A collaborative collection featuring diverse artists from the Satellite Skirmish collective.'
     },
@@ -173,7 +173,7 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
       id: 'ben-doerfel',
       title: 'Ben Doerfel',
       artist: 'Ben Doerfel',
-      artwork: '/placeholder-album.png',
+      artwork: 'https://www.doerfelverse.com/art/ben-doerfel-red.png',
       feedUrl: 'https://www.doerfelverse.com/feeds/ben-doerfel.xml',
       description: 'Solo work from Ben Doerfel'
     },
@@ -181,7 +181,7 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
       id: 'into-the-doerfelverse',
       title: 'Into the Doerfelverse',
       artist: 'The Doerfels',
-      artwork: '/placeholder-album.png',
+      artwork: 'https://www.doerfelverse.com/art/v4v-music-podcast.png',
       feedUrl: 'https://www.doerfelverse.com/feeds/intothedoerfelverse.xml',
       description: 'Journey into the Doerfelverse'
     },
@@ -189,7 +189,7 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
       id: 'kurtisdrums-v1',
       title: 'Kurtisdrums V1',
       artist: 'Kurtis',
-      artwork: '/placeholder-album.png',
+      artwork: 'https://www.doerfelverse.com/art/kurtisdrums.png',
       feedUrl: 'https://www.sirtjthewrathful.com/wp-content/uploads/2023/08/Kurtisdrums-V1.xml',
       description: 'Drum compositions by Kurtis'
     },
@@ -197,7 +197,7 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
       id: 'nostalgic',
       title: 'Nostalgic',
       artist: 'Various',
-      artwork: '/placeholder-album.png',
+      artwork: 'https://www.doerfelverse.com/art/nostalgic.png',
       feedUrl: 'https://www.sirtjthewrathful.com/wp-content/uploads/2023/08/Nostalgic.xml',
       description: 'Nostalgic musical journey'
     },
@@ -205,7 +205,7 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
       id: 'citybeach',
       title: 'CityBeach',
       artist: 'Various',
-      artwork: '/placeholder-album.png',
+      artwork: 'https://www.doerfelverse.com/art/citybeach.png',
       feedUrl: 'https://www.sirtjthewrathful.com/wp-content/uploads/2023/08/CityBeach.xml',
       description: 'Urban beach vibes'
     },
@@ -213,7 +213,7 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
       id: 'wrath-of-banjo',
       title: 'Wrath of Banjo',
       artist: 'The Doerfels',
-      artwork: '/placeholder-album.png',
+      artwork: 'https://www.doerfelverse.com/art/wrath-of-banjo.png',
       feedUrl: 'https://www.doerfelverse.com/feeds/wrath-of-banjo.xml',
       description: 'Banjo-driven compositions'
     },
@@ -221,7 +221,7 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
       id: 'ring-that-bell',
       title: 'Ring That Bell',
       artist: 'J-Dog',
-      artwork: '/placeholder-album.png',
+      artwork: 'https://www.thisisjdog.com/media/ring-that-bell.jpg',
       feedUrl: 'https://www.thisisjdog.com/media/ring-that-bell.xml',
       description: 'Bell-themed musical collection'
     }
@@ -296,7 +296,7 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
         id: 'wavlake-album',
         title: 'THEY RIDE',
         artist: 'IROH',
-        artwork: '/placeholder-album.png',
+        artwork: 'https://d12wklypp119aj.cloudfront.net/image/997060e3-9dc1-4cd8-b3c1-3ae06d54bb03.jpg',
         feedUrl: 'https://wavlake.com/feed/music/997060e3-9dc1-4cd8-b3c1-3ae06d54bb03',
         description: 'A literal ride in a 1972 Dodge Demon, presented as a Post Pandemic Zombie Rock Opera through a car radio'
       }

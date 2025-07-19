@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
-import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, X, Zap, ExternalLink } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, X, Zap, ExternalLink, Disc } from 'lucide-react';
 import { usePodcastPlayer } from '@/hooks/usePodcastPlayer';
 import { Switch } from '@/components/ui/switch';
 import { useTop100Music } from '@/hooks/usePodcastIndex';
@@ -266,11 +266,17 @@ export function NowPlayingModal({ open, onOpenChange }: NowPlayingModalProps) {
             {/* Album Artwork */}
             <div className="flex justify-center">
               <div className="relative">
-                <img 
-                  src={currentPodcast.imageUrl || '/placeholder-album.png'} 
-                  alt={currentPodcast.title}
-                  className="w-80 h-80 rounded-xl shadow-2xl object-cover"
-                />
+                {currentPodcast.imageUrl ? (
+                  <img 
+                    src={currentPodcast.imageUrl} 
+                    alt={currentPodcast.title}
+                    className="w-80 h-80 rounded-xl shadow-2xl object-cover"
+                  />
+                ) : (
+                  <div className="w-80 h-80 rounded-xl shadow-2xl bg-gray-800 flex items-center justify-center">
+                    <Disc size={120} className="text-gray-600" />
+                  </div>
+                )}
                 <div className="absolute inset-0 rounded-xl bg-black/10"></div>
               </div>
             </div>
