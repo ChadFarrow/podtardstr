@@ -22,6 +22,7 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
   const [showChadFFolder, setShowChadFFolder] = useState(false);
   const [showLiveConcerts, setShowLiveConcerts] = useState(false);
   const [showVariousArtists, setShowVariousArtists] = useState(false);
+  const [showDoerfels, setShowDoerfels] = useState(false);
   const { pinnedAlbums, pinAlbum, isPinned } = usePinnedAlbums();
   const { theme, toggleTheme } = useTheme();
   
@@ -193,6 +194,13 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
     'heycitizen-experience'
   ];
 
+  // The Doerfels folder albums
+  const DOERFELS_ALBUMS = [
+    'bloodshot-lies',
+    'music-from-the-doerfelverse',
+    'think-ep'
+  ];
+
   // Get albums that belong to ChadF folder
   const chadFAlbums = FEATURED_ALBUMS_WITH_DETAILS.filter(album => 
     CHADF_ALBUMS.includes(album.id)
@@ -206,6 +214,11 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
   // Get albums that belong to Various Artists section
   const variousArtistsAlbums = FEATURED_ALBUMS_WITH_DETAILS.filter(album => 
     VARIOUS_ARTISTS_ALBUMS.includes(album.id)
+  );
+
+  // Get albums that belong to The Doerfels section
+  const doerfelsAlbums = FEATURED_ALBUMS_WITH_DETAILS.filter(album => 
+    DOERFELS_ALBUMS.includes(album.id)
   );
 
   // Auto-pin featured albums if not already pinned
@@ -320,79 +333,93 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
                 <span className="font-medium">All Albums</span>
               </Link>
               
-              
-              
-              <Link
-                to="/albums?feed=https://www.doerfelverse.com/feeds/music-from-the-doerfelverse.xml"
-                className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 ${
-                  theme === 'dark'
-                    ? 'text-gray-400 hover:text-white hover:bg-white/10'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                }`}
-              >
-                <Disc size={20} />
-                <span className="font-medium">Music From The Doerfel-Verse</span>
-              </Link>
-              
-              <Link
-                to="/albums?feed=https://www.doerfelverse.com/feeds/think-ep.xml"
-                className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 ${
-                  theme === 'dark'
-                    ? 'text-gray-400 hover:text-white hover:bg-white/10'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                }`}
-              >
-                <Disc size={20} />
-                <span className="font-medium">Think EP</span>
-              </Link>
+              {/* The Doerfels Folder */}
+              <div>
+                <button
+                  onClick={() => setShowDoerfels(!showDoerfels)}
+                  className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 w-full ${
+                    theme === 'dark'
+                      ? 'text-gray-400 hover:text-white hover:bg-white/10'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  }`}
+                >
+                  <Folder size={20} />
+                  <span className="font-medium flex-1">The Doerfels</span>
+                  {showDoerfels ? (
+                    <ChevronDown size={16} />
+                  ) : (
+                    <ChevronRight size={16} />
+                  )}
+                </button>
+                
+                {showDoerfels && (
+                  <div className="ml-4 space-y-1 mt-1">
+                    {doerfelsAlbums.map((album) => (
+                      <Link
+                        key={album.id}
+                        to={album.id === 'bloodshot-lies' ? `/albums/bloodshot-lies` : `/albums?feed=${encodeURIComponent(album.feedUrl)}`}
+                        className={`flex items-center space-x-3 px-4 py-2 rounded-lg transition-all duration-200 ${
+                          theme === 'dark'
+                            ? 'text-gray-500 hover:text-white hover:bg-white/5'
+                            : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                        }`}
+                      >
+                        <Disc size={16} />
+                        <span className="font-medium text-sm">{album.title}</span>
+                      </Link>
+                    ))}
+                    
+                    {/* Additional Doerfels albums from podroll */}
+                    <Link
+                      to="/albums?feed=https://www.doerfelverse.com/feeds/ben-doerfel.xml"
+                      className={`flex items-center space-x-3 px-4 py-2 rounded-lg transition-all duration-200 ${
+                        theme === 'dark'
+                          ? 'text-gray-500 hover:text-white hover:bg-white/5'
+                          : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      <Disc size={16} />
+                      <span className="font-medium text-sm">Ben Doerfel</span>
+                    </Link>
 
-              <Link
-                to="/albums?feed=https://www.doerfelverse.com/feeds/ben-doerfel.xml"
-                className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 ${
-                  theme === 'dark'
-                    ? 'text-gray-400 hover:text-white hover:bg-white/10'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                }`}
-              >
-                <Disc size={20} />
-                <span className="font-medium">Ben Doerfel</span>
-              </Link>
+                    <Link
+                      to="/albums?feed=https://www.doerfelverse.com/feeds/intothedoerfelverse.xml"
+                      className={`flex items-center space-x-3 px-4 py-2 rounded-lg transition-all duration-200 ${
+                        theme === 'dark'
+                          ? 'text-gray-500 hover:text-white hover:bg-white/5'
+                          : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      <Disc size={16} />
+                      <span className="font-medium text-sm">Into the Doerfelverse</span>
+                    </Link>
 
-              <Link
-                to="/albums?feed=https://www.doerfelverse.com/feeds/intothedoerfelverse.xml"
-                className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 ${
-                  theme === 'dark'
-                    ? 'text-gray-400 hover:text-white hover:bg-white/10'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                }`}
-              >
-                <Disc size={20} />
-                <span className="font-medium">Into the Doerfelverse</span>
-              </Link>
+                    <Link
+                      to="/albums?feed=https://www.sirtjthewrathful.com/wp-content/uploads/2023/08/Kurtisdrums-V1.xml"
+                      className={`flex items-center space-x-3 px-4 py-2 rounded-lg transition-all duration-200 ${
+                        theme === 'dark'
+                          ? 'text-gray-500 hover:text-white hover:bg-white/5'
+                          : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      <Disc size={16} />
+                      <span className="font-medium text-sm">Kurtisdrums V1</span>
+                    </Link>
 
-              <Link
-                to="/albums?feed=https://www.sirtjthewrathful.com/wp-content/uploads/2023/08/Kurtisdrums-V1.xml"
-                className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 ${
-                  theme === 'dark'
-                    ? 'text-gray-400 hover:text-white hover:bg-white/10'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                }`}
-              >
-                <Disc size={20} />
-                <span className="font-medium">Kurtisdrums V1</span>
-              </Link>
-
-              <Link
-                to="/albums?feed=https://www.sirtjthewrathful.com/wp-content/uploads/2023/08/Nostalgic.xml"
-                className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 ${
-                  theme === 'dark'
-                    ? 'text-gray-400 hover:text-white hover:bg-white/10'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                }`}
-              >
-                <Disc size={20} />
-                <span className="font-medium">Nostalgic</span>
-              </Link>
+                    <Link
+                      to="/albums?feed=https://www.sirtjthewrathful.com/wp-content/uploads/2023/08/Nostalgic.xml"
+                      className={`flex items-center space-x-3 px-4 py-2 rounded-lg transition-all duration-200 ${
+                        theme === 'dark'
+                          ? 'text-gray-500 hover:text-white hover:bg-white/5'
+                          : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      <Disc size={16} />
+                      <span className="font-medium text-sm">Nostalgic</span>
+                    </Link>
+                  </div>
+                )}
+              </div>
 
               {/* ChadF Folder */}
               <div>
@@ -472,8 +499,8 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
                 )}
               </div>
 
-              {/* Pinned Albums (excluding ChadF, Live Concerts, and Various Artists albums) */}
-              {pinnedAlbums.filter(album => !CHADF_ALBUMS.includes(album.id) && !LIVE_CONCERTS_ALBUMS.includes(album.id) && !VARIOUS_ARTISTS_ALBUMS.includes(album.id)).map((album) => (
+              {/* Pinned Albums (excluding ChadF, Live Concerts, Various Artists, and Doerfels albums) */}
+              {pinnedAlbums.filter(album => !CHADF_ALBUMS.includes(album.id) && !LIVE_CONCERTS_ALBUMS.includes(album.id) && !VARIOUS_ARTISTS_ALBUMS.includes(album.id) && !DOERFELS_ALBUMS.includes(album.id)).map((album) => (
                 <Link
                   key={album.id}
                   to={`/albums?feed=${encodeURIComponent(album.feedUrl)}`}
