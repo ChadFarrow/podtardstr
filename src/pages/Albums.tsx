@@ -221,9 +221,44 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
     DOERFELS_ALBUMS.includes(album.id)
   );
 
+  // Create prioritized album list for main display
+  const getPrioritizedAlbums = () => {
+    // Create a copy of all albums
+    const allAlbums = [...FEATURED_ALBUMS_WITH_DETAILS];
+    
+    // Separate Doerfels and related albums (includes podroll items)
+    const doerfelsAndRelated = allAlbums.filter(album => {
+      // Direct Doerfels albums
+      if (DOERFELS_ALBUMS.includes(album.id)) return true;
+      
+      // Check if feedUrl contains doerfelverse domains or specific podroll items
+      if (album.feedUrl?.includes('doerfelverse.com')) return true;
+      if (album.feedUrl?.includes('sirtjthewrathful.com')) return true;
+      if (album.feedUrl?.includes('thisisjdog.com')) return true;
+      
+      // Specific podroll album IDs that might not be caught by URL
+      const podrollIds = ['ben-doerfel', 'into-the-doerfelverse', 'kurtisdrums-v1', 'nostalgic', 'citybeach', 'wrath-of-banjo', 'ring-that-bell'];
+      return podrollIds.some(id => album.id.includes(id) || album.feedUrl?.includes(id));
+    });
+    
+    // Get remaining albums
+    const otherAlbums = allAlbums.filter(album => !doerfelsAndRelated.includes(album));
+    
+    // Ensure Bloodshot Lies is first among Doerfels albums
+    const bloodshotLies = doerfelsAndRelated.find(album => album.id === 'bloodshot-lies');
+    const otherDoerfelsAlbums = doerfelsAndRelated.filter(album => album.id !== 'bloodshot-lies');
+    
+    // Return prioritized order: Bloodshot Lies first, then other Doerfels, then everything else
+    return [
+      ...(bloodshotLies ? [bloodshotLies] : []),
+      ...otherDoerfelsAlbums,
+      ...otherAlbums
+    ];
+  };
+
   // Auto-pin featured albums if not already pinned
   useEffect(() => {
-    const albumsToPin = FEATURED_ALBUMS_WITH_DETAILS.map(album => ({
+    const albumsToPin = getPrioritizedAlbums().map(album => ({
       id: album.id,
       title: album.title,
       artist: album.artist,
@@ -629,7 +664,7 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
           <AlbumViewEnhanced feedUrl={currentFeedUrl} />
         ) : (
           <div className={theme === 'dark' ? '' : 'bg-white'}>
-            <AlbumGallery albums={FEATURED_ALBUMS_WITH_DETAILS} />
+            <AlbumGallery albums={getPrioritizedAlbums()} />
           </div>
         )}
       </div>
