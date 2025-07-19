@@ -80,7 +80,7 @@ const Index = () => {
                     className="inline-flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:text-primary transition-colors rounded-md hover:bg-accent"
                   >
                     <Disc className="h-4 w-4" />
-                    Standalone Albums Site
+                    Bloodshot Lies Album
                   </a>
                   {/* <Button
                     variant={activeTab === 'discover' ? 'secondary' : 'ghost'}
