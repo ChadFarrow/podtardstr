@@ -74,14 +74,17 @@ export function parseFeedXML(xmlText: string): ParsedFeed {
 
   // Parse episodes
   const items = channel.querySelectorAll('item');
-  items.forEach(item => {
+  items.forEach((item, index) => {
+    const duration = getTextContent(item, 'itunes\\:duration');
+    console.log(`Feed parser: Track ${index + 1} duration extracted: "${duration}"`);
+    
     const episode: ParsedEpisode = {
       title: getTextContent(item, 'title'),
       description: getTextContent(item, 'description'),
       link: getTextContent(item, 'link'),
       guid: getTextContent(item, 'guid'),
       pubDate: getTextContent(item, 'pubDate'),
-      duration: getTextContent(item, 'itunes\\:duration'),
+      duration: duration,
       value: parseValueBlock(item)
     };
 
@@ -146,13 +149,31 @@ function parseValueBlock(element: Element): ValueBlock | undefined {
  */
 function getTextContent(parent: Element, selector: string, attribute?: string): string | undefined {
   const element = parent.querySelector(selector);
-  if (!element) return undefined;
+  if (!element) {
+    if (selector.includes('duration')) {
+      console.log(`getTextContent: No element found for selector "${selector}"`);
+      // Try alternative selectors for duration
+      const altSelectors = ['duration', 'itunes:duration', '*[class*="duration"]'];
+      for (const altSelector of altSelectors) {
+        const altElement = parent.querySelector(altSelector);
+        if (altElement) {
+          console.log(`getTextContent: Found duration with alternative selector "${altSelector}": "${altElement.textContent?.trim()}"`);
+          return altElement.textContent?.trim() || undefined;
+        }
+      }
+    }
+    return undefined;
+  }
   
   if (attribute) {
     return element.getAttribute(attribute) || undefined;
   }
   
-  return element.textContent?.trim() || undefined;
+  const result = element.textContent?.trim() || undefined;
+  if (selector.includes('duration')) {
+    console.log(`getTextContent: Found duration with selector "${selector}": "${result}"`);
+  }
+  return result;
 }
 
 /**
