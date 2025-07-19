@@ -181,14 +181,19 @@ export function AlbumViewEnhanced({ feedUrl }: AlbumViewEnhancedProps) {
       lastTrack: tracksData[tracksData.length - 1]?.title
     });
     
-    // Add ALL tracks to queue (including the first one)
-    tracksData.forEach(track => {
-      addToQueue(track);
-    });
+    // Set up the queue with all tracks and play the first one
+    // We need to manually set the queue and current index instead of using addToQueue + playPodcast
+    const { setQueue, setCurrentIndex } = usePodcastPlayer.getState();
+    
+    // Set the queue directly
+    setQueue(tracksData);
+    
+    // Set current index to 0 and play the first track
+    setCurrentIndex(0);
     
     // Play the first track
     if (tracksData.length > 0) {
-      console.log('🎵 Playing first track:', tracksData[0].title);
+      console.log('🎵 Playing first track at index 0:', tracksData[0].title);
       playPodcast(tracksData[0]);
     }
   };

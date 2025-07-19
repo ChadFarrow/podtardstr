@@ -30,6 +30,8 @@ interface PodcastPlayerState {
   addToQueue: (podcast: PodcastEpisode) => void;
   removeFromQueue: (id: string) => void;
   clearQueue: () => void;
+  setQueue: (queue: PodcastEpisode[]) => void;
+  setCurrentIndex: (index: number) => void;
   playNext: () => void;
   playPrevious: () => void;
 }
@@ -158,6 +160,19 @@ export const usePodcastPlayer = create<PodcastPlayerState>()(
           currentIndex: -1,
           isPlaying: false,
         });
+      },
+
+      setQueue: (queue) => {
+        console.log('🎵 setQueue called:', {
+          queueLength: queue.length,
+          tracks: queue.map((q, i) => `${i}: ${q.title}`)
+        });
+        set({ queue });
+      },
+
+      setCurrentIndex: (index) => {
+        console.log('🎵 setCurrentIndex called:', { index });
+        set({ currentIndex: index });
       },
 
       playNext: () => {
