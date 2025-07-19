@@ -60,9 +60,17 @@ async function fetchPodRollArtwork(feedUrl: string): Promise<string | undefined>
   try {
     console.log(`🎨 fetchPodRollArtwork: Fetching ${feedUrl}`);
     
+    // Add timeout to prevent hanging
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+    
     // Use our existing RSS proxy to fetch the feed
     const proxyUrl = `/api/rss-proxy?url=${encodeURIComponent(feedUrl)}`;
-    const response = await fetch(proxyUrl);
+    const response = await fetch(proxyUrl, {
+      signal: controller.signal
+    });
+    
+    clearTimeout(timeoutId);
     
     if (!response.ok) {
       throw new Error(`Failed to fetch feed: ${response.status}`);
@@ -90,7 +98,11 @@ async function fetchPodRollArtwork(feedUrl: string): Promise<string | undefined>
       return undefined;
     }
   } catch (error) {
-    console.error(`🎨 Error fetching PodRoll artwork from ${feedUrl}:`, error);
+    if (error.name === 'AbortError') {
+      console.log(`🎨 Timeout fetching artwork from ${feedUrl}`);
+    } else {
+      console.error(`🎨 Error fetching PodRoll artwork from ${feedUrl}:`, error);
+    }
     return undefined;
   }
 }
@@ -236,8 +248,18 @@ async function parsePodRoll(element: Element): Promise<PodRollItem[] | undefined
   const remoteItems = actualPodrollElement.querySelectorAll('podcast\\:remoteItem, remoteItem');
   console.log('🎯 parsePodRoll: Found', remoteItems.length, 'remoteItem elements');
   
-  for (let index = 0; index < remoteItems.length; index++) {
-    const item = remoteItems[index];
+  // Prepare all items first
+  const itemsToProcess: Array<{
+    index: number;
+    feedGuid?: string;
+    feedUrl?: string;
+    title: string;
+    description?: string;
+    image?: string;
+    author?: string;
+  }> = [];
+  
+  Array.from(remoteItems).forEach((item, index) => {
     const feedGuid = item.getAttribute('feedGuid') || undefined;
     const feedUrl = item.getAttribute('feedUrl') || undefined;
     const title = item.textContent?.trim() || item.getAttribute('title') || '';
@@ -258,59 +280,70 @@ async function parsePodRoll(element: Element): Promise<PodRollItem[] | undefined
       author: author || 'none'
     });
 
-    // Include items with either feedGuid or feedUrl, even if no title
-    // Use a fallback title if none is provided
+    // Include items with either feedGuid or feedUrl
     if (feedGuid || feedUrl) {
-      const fallbackTitle = title || `Recommended Podcast ${index + 1}`;
-      
-      // Try to fetch actual artwork from the RSS feed
-      let finalImage = image;
-      
-      // If we have a feedUrl, try to fetch the actual iTunes artwork
-      if (feedUrl && !finalImage) {
-        console.log(`🎯 Attempting to fetch iTunes artwork for: "${fallbackTitle}" from ${feedUrl}`);
-        try {
-          // Fetch the RSS feed and extract iTunes image
-          const artworkUrl = await fetchPodRollArtwork(feedUrl);
-          if (artworkUrl) {
-            finalImage = artworkUrl;
-            console.log(`✅ Found iTunes artwork for "${fallbackTitle}": ${artworkUrl}`);
-          } else {
-            console.log(`❌ No iTunes artwork found for "${fallbackTitle}"`);
-          }
-        } catch (error) {
-          console.log(`❌ Failed to fetch artwork for "${fallbackTitle}":`, error);
-        }
-      }
-      
-      // Generate fallback artwork if still no image
-      if (!finalImage) {
-        // Use a variety of music-themed stock images as fallbacks
-        const fallbackImages = [
-          'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop&auto=format', // Banjo
-          'https://images.unsplash.com/photo-1471478331149-c72f17e33c73?w=300&h=300&fit=crop&auto=format', // Drums
-          'https://images.unsplash.com/photo-1415201364774-f6f0bb35f28f?w=300&h=300&fit=crop&auto=format', // Guitar
-          'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=300&fit=crop&auto=format', // Beach/indie
-          'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop&auto=format', // String instrument
-          'https://images.unsplash.com/photo-1571330735066-03aaa9429d89?w=300&h=300&fit=crop&auto=format'  // Microphone
-        ];
-        finalImage = fallbackImages[index % fallbackImages.length];
-        console.log(`🎵 Using fallback image ${index % fallbackImages.length + 1} for: "${fallbackTitle}"`);
-      }
-      
-      console.log(`✅ parsePodRoll: Adding item ${index + 1} with title: "${fallbackTitle}"`);
-      podrollItems.push({
+      itemsToProcess.push({
+        index,
         feedGuid,
         feedUrl,
-        title: fallbackTitle,
+        title: title || `Recommended Podcast ${index + 1}`,
         description,
-        image: finalImage,
+        image,
         author
       });
     } else {
       console.log(`❌ parsePodRoll: Skipping item ${index + 1} - no feedGuid or feedUrl`);
     }
-  }
+  });
+
+  // Fetch artwork for all items in parallel with Promise.allSettled
+  const artworkPromises = itemsToProcess.map(async (item) => {
+    if (item.feedUrl && !item.image) {
+      console.log(`🎯 Attempting to fetch iTunes artwork for: "${item.title}" from ${item.feedUrl}`);
+      return await fetchPodRollArtwork(item.feedUrl);
+    }
+    return item.image;
+  });
+
+  const artworkResults = await Promise.allSettled(artworkPromises);
+  
+  // Process results and build final items array
+  itemsToProcess.forEach((item, index) => {
+    let finalImage = item.image;
+    
+    // Get artwork result
+    const artworkResult = artworkResults[index];
+    if (artworkResult.status === 'fulfilled' && artworkResult.value) {
+      finalImage = artworkResult.value;
+      console.log(`✅ Found iTunes artwork for "${item.title}": ${artworkResult.value}`);
+    } else if (artworkResult.status === 'rejected') {
+      console.log(`❌ Failed to fetch artwork for "${item.title}":`, artworkResult.reason);
+    }
+    
+    // Generate fallback artwork if still no image
+    if (!finalImage) {
+      const fallbackImages = [
+        'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop&auto=format', // Banjo
+        'https://images.unsplash.com/photo-1471478331149-c72f17e33c73?w=300&h=300&fit=crop&auto=format', // Drums
+        'https://images.unsplash.com/photo-1415201364774-f6f0bb35f28f?w=300&h=300&fit=crop&auto=format', // Guitar
+        'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=300&fit=crop&auto=format', // Beach/indie
+        'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop&auto=format', // String instrument
+        'https://images.unsplash.com/photo-1571330735066-03aaa9429d89?w=300&h=300&fit=crop&auto=format'  // Microphone
+      ];
+      finalImage = fallbackImages[item.index % fallbackImages.length];
+      console.log(`🎵 Using fallback image ${item.index % fallbackImages.length + 1} for: "${item.title}"`);
+    }
+    
+    console.log(`✅ parsePodRoll: Adding item ${item.index + 1} with title: "${item.title}"`);
+    podrollItems.push({
+      feedGuid: item.feedGuid,
+      feedUrl: item.feedUrl,
+      title: item.title,
+      description: item.description,
+      image: finalImage,
+      author: item.author
+    });
+  });
 
   console.log(`🎯 PodRoll parsing result: Found ${podrollItems.length} items`);
   if (podrollItems.length > 0) {
