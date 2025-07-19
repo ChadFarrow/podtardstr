@@ -5,7 +5,7 @@ import { LoginArea } from '@/components/auth/LoginArea';
 
 import { PodcastPlayer } from '@/components/PodcastPlayer';
 import { VersionDisplay } from '@/components/VersionDisplay';
-import { Home, Disc, Menu, X, Sun, Moon } from 'lucide-react';
+import { Home, Disc, Menu, X, Sun, Moon, ChevronDown, ChevronRight, Folder } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useSearchParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
@@ -19,6 +19,7 @@ interface AlbumsProps {
 const Albums = ({ feedUrl }: AlbumsProps) => {
   const [searchParams] = useSearchParams();
   const [showMenu, setShowMenu] = useState(false);
+  const [showChadFFolder, setShowChadFFolder] = useState(false);
   const { pinnedAlbums, unpinAlbum, pinAlbum, isPinned } = usePinnedAlbums();
   const { theme, toggleTheme } = useTheme();
   
@@ -167,6 +168,19 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
     }
   ];
 
+  // ChadF folder albums
+  const CHADF_ALBUMS = [
+    'empty-passenger-seat',
+    'pony-up-daddy', 
+    'deathdreams',
+    'spectral-hiding'
+  ];
+
+  // Get albums that belong to ChadF folder
+  const chadFAlbums = FEATURED_ALBUMS_WITH_DETAILS.filter(album => 
+    CHADF_ALBUMS.includes(album.id)
+  );
+
   // Auto-pin featured albums if not already pinned
   useEffect(() => {
     const albumsToPin = FEATURED_ALBUMS_WITH_DETAILS.map(album => ({
@@ -303,8 +317,47 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
                 <span className="font-medium">HeyCitizen Experience</span>
               </Link>
 
-              {/* Pinned Albums */}
-              {pinnedAlbums.map((album) => (
+              {/* ChadF Folder */}
+              <div>
+                <button
+                  onClick={() => setShowChadFFolder(!showChadFFolder)}
+                  className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 w-full ${
+                    theme === 'dark'
+                      ? 'text-gray-400 hover:text-white hover:bg-white/10'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  }`}
+                >
+                  <Folder size={20} />
+                  <span className="font-medium flex-1">ChadF</span>
+                  {showChadFFolder ? (
+                    <ChevronDown size={16} />
+                  ) : (
+                    <ChevronRight size={16} />
+                  )}
+                </button>
+                
+                {showChadFFolder && (
+                  <div className="ml-4 space-y-1 mt-1">
+                    {chadFAlbums.map((album) => (
+                      <Link
+                        key={album.id}
+                        to={`/albums?feed=${encodeURIComponent(album.feedUrl)}`}
+                        className={`flex items-center space-x-3 px-4 py-2 rounded-lg transition-all duration-200 ${
+                          theme === 'dark'
+                            ? 'text-gray-500 hover:text-white hover:bg-white/5'
+                            : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                        }`}
+                      >
+                        <Disc size={16} />
+                        <span className="font-medium text-sm">{album.title}</span>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Pinned Albums (excluding ChadF albums) */}
+              {pinnedAlbums.filter(album => !CHADF_ALBUMS.includes(album.id)).map((album) => (
                 <Link
                   key={album.id}
                   to={`/albums?feed=${encodeURIComponent(album.feedUrl)}`}
