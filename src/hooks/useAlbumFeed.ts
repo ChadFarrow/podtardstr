@@ -68,14 +68,20 @@ async function fetchAlbumFeed(feedUrl: string): Promise<AlbumFeedData> {
         // Parse duration from string format (e.g., "3:45" to seconds)
         let durationInSeconds = 0;
         if (episode.duration) {
+          console.log(`Track ${index + 1} duration from RSS: "${episode.duration}"`);
           const parts = episode.duration.split(':');
           if (parts.length === 2) {
             durationInSeconds = parseInt(parts[0]) * 60 + parseInt(parts[1]);
+            console.log(`Parsed as MM:SS format: ${durationInSeconds} seconds`);
           } else if (parts.length === 3) {
             durationInSeconds = parseInt(parts[0]) * 3600 + parseInt(parts[1]) * 60 + parseInt(parts[2]);
+            console.log(`Parsed as HH:MM:SS format: ${durationInSeconds} seconds`);
           } else if (!isNaN(parseInt(episode.duration))) {
             durationInSeconds = parseInt(episode.duration);
+            console.log(`Parsed as seconds: ${durationInSeconds} seconds`);
           }
+        } else {
+          console.log(`Track ${index + 1} has no duration`);
         }
         
         return {
