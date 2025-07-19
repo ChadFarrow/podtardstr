@@ -22,6 +22,7 @@ export function PodcastPlayer() {
     setIsMuted,
     playNext,
     playPrevious,
+    playNextAuto,
     autoPlay,
     setAutoPlay
   } = usePodcastPlayer();
@@ -117,8 +118,8 @@ export function PodcastPlayer() {
     const handleEnded = () => {
       console.log('🎵 Track ended, autoPlay enabled:', autoPlay);
       if (autoPlay) {
-        console.log('🎵 Calling playNext() for autoplay');
-        playNext();
+        console.log('🎵 Calling playNextAuto() for autoplay');
+        playNextAuto();
         
         // iOS-specific: Additional attempt with user interaction context
         setTimeout(() => {
@@ -155,7 +156,7 @@ export function PodcastPlayer() {
       audio.removeEventListener('error', handleError);
       audio.removeEventListener('ended', handleEnded);
     };
-  }, [setCurrentTime, setDuration, playNext, autoPlay]);
+  }, [setCurrentTime, setDuration, playNextAuto, autoPlay]);
 
   // Enhanced play effect with autoplay support and user interaction tracking
   useEffect(() => {

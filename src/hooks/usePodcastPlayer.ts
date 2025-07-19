@@ -34,6 +34,7 @@ interface PodcastPlayerState {
   setCurrentIndex: (index: number) => void;
   playNext: () => void;
   playPrevious: () => void;
+  playNextAuto: () => void;
 }
 
 export const usePodcastPlayer = create<PodcastPlayerState>()(
@@ -192,14 +193,12 @@ export const usePodcastPlayer = create<PodcastPlayerState>()(
           const nextPodcast = state.queue[nextIndex];
           console.log('🎵 playNext: Playing next track:', nextPodcast.title);
           
-          // For iOS, we need to be more careful about autoplay
-          const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-          const shouldAutoPlay = state.autoPlay && (!isIOS || state.isPlaying);
-          
+          // For manual next button clicks, always start playing
+          // Only check iOS autoplay restrictions for automatic progression
           set({
             currentPodcast: nextPodcast,
             currentIndex: nextIndex,
-            isPlaying: shouldAutoPlay,
+            isPlaying: true,
           });
         } else {
           console.log('🎵 playNext: No more tracks in queue');
@@ -228,6 +227,37 @@ export const usePodcastPlayer = create<PodcastPlayerState>()(
           });
         } else {
           console.log('🎵 playPrevious: No previous tracks in queue');
+        }
+      },
+
+      playNextAuto: () => {
+        const state = get();
+        const nextIndex = state.currentIndex + 1;
+        
+        console.log('🎵 playNextAuto called:', {
+          currentIndex: state.currentIndex,
+          queueLength: state.queue.length,
+          nextIndex,
+          currentTrack: state.currentPodcast?.title,
+          autoPlay: state.autoPlay,
+          queueTracks: state.queue.map((q, i) => `${i}: ${q.title}`)
+        });
+        
+        if (nextIndex < state.queue.length) {
+          const nextPodcast = state.queue[nextIndex];
+          console.log('🎵 playNextAuto: Playing next track:', nextPodcast.title);
+          
+          // For iOS, we need to be more careful about autoplay
+          const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+          const shouldAutoPlay = state.autoPlay && (!isIOS || state.isPlaying);
+          
+          set({
+            currentPodcast: nextPodcast,
+            currentIndex: nextIndex,
+            isPlaying: shouldAutoPlay,
+          });
+        } else {
+          console.log('🎵 playNextAuto: No more tracks in queue');
         }
       },
     }),
