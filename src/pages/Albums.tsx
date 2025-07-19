@@ -212,43 +212,40 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
                 <Disc size={20} />
                 <span className="font-medium">HeyCitizen Experience</span>
               </Link>
-            </nav>
 
-            {/* Pinned Albums Section */}
-            {pinnedAlbums.length > 0 && (
-              <div className="mt-6">
-                <h3 className="text-sm font-medium text-gray-400 mb-3 flex items-center gap-2 px-4">
-                  <Pin size={16} />
-                  Pinned Albums
-                </h3>
-                <div className="space-y-1 max-h-64 overflow-y-auto">
-                  {pinnedAlbums.map((album) => (
-                    <div
-                      key={album.id}
-                      className="flex items-center gap-3 px-4 py-2 text-gray-400 hover:text-white hover:bg-white/10 transition-all duration-200 group"
-                    >
-                      <div className="flex-shrink-0">
-                        <SecureImage
-                          src={album.artwork}
-                          alt={album.title}
-                          className="w-8 h-8 rounded object-cover"
-                        />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">{album.title}</p>
-                        <p className="text-xs text-gray-500 truncate">{album.artist}</p>
-                      </div>
-                      <button
-                        onClick={() => unpinAlbum(album.id)}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-white/10 rounded"
-                      >
-                        <X size={12} className="text-gray-500 hover:text-white" />
-                      </button>
-                    </div>
-                  ))}
+              {/* Pinned Albums - Display as individual navigation items */}
+              {pinnedAlbums.map((album) => (
+                <div
+                  key={album.id}
+                  className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-all duration-200 group relative"
+                >
+                  <Link
+                    to={`/albums?feed=${encodeURIComponent(album.feedUrl)}`}
+                    className="absolute inset-0"
+                  />
+                  <div className="flex-shrink-0 relative z-10">
+                    <SecureImage
+                      src={album.artwork || '/default-album.png'}
+                      alt={album.title}
+                      className="w-5 h-5 rounded object-cover"
+                    />
+                  </div>
+                  <div className="flex-1 min-w-0 relative z-10">
+                    <span className="font-medium truncate">{album.title}</span>
+                  </div>
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      unpinAlbum(album.id);
+                    }}
+                    className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-white/10 rounded relative z-20"
+                  >
+                    <X size={12} className="text-gray-500 hover:text-white" />
+                  </button>
                 </div>
-              </div>
-            )}
+              ))}
+            </nav>
             
             <div className="absolute bottom-6 left-6 right-6">
               <VersionDisplay />
