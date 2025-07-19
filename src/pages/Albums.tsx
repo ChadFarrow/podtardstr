@@ -195,11 +195,11 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
   return (
     <div className="min-h-screen bg-black relative">
       {/* Top Navigation Bar */}
-      <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between p-6 bg-gradient-to-b from-black/80 to-transparent">
+      <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-4 py-2 bg-gradient-to-b from-black/80 to-transparent">
         <div className="flex items-center space-x-4">
           <button 
             onClick={() => setShowMenu(!showMenu)}
-            className="p-3 rounded-full bg-black/50 backdrop-blur-sm hover:bg-black/70 transition-all"
+            className="p-2 rounded-full bg-black/50 backdrop-blur-sm hover:bg-black/70 transition-all"
           >
             {showMenu ? <X size={20} className="text-white" /> : <Menu size={20} className="text-white" />}
           </button>
@@ -288,7 +288,7 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
       )}
 
       {/* Main Content */}
-      <div className="relative z-10 pt-24">
+      <div className="relative z-10 pt-16">
         {currentFeedUrl ? (
           <AlbumViewEnhanced feedUrl={currentFeedUrl} />
         ) : (
