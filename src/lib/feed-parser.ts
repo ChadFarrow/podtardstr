@@ -169,7 +169,7 @@ function parsePodRoll(element: Element): PodRollItem[] | undefined {
 
   // Parse all podcast:remoteItem elements within the podroll
   const remoteItems = podrollElement.querySelectorAll('podcast\\:remoteItem, remoteItem');
-  remoteItems.forEach(item => {
+  remoteItems.forEach((item, index) => {
     const feedGuid = item.getAttribute('feedGuid') || undefined;
     const feedUrl = item.getAttribute('feedUrl') || undefined;
     const title = item.textContent?.trim() || item.getAttribute('title') || '';
@@ -179,12 +179,14 @@ function parsePodRoll(element: Element): PodRollItem[] | undefined {
     const image = item.getAttribute('image') || undefined;
     const author = item.getAttribute('author') || undefined;
 
-    // Only include items with at least a title and either feedGuid or feedUrl
-    if (title && (feedGuid || feedUrl)) {
+    // Include items with either feedGuid or feedUrl, even if no title
+    // Use a fallback title if none is provided
+    if (feedGuid || feedUrl) {
+      const fallbackTitle = title || `Recommended Podcast ${index + 1}`;
       podrollItems.push({
         feedGuid,
         feedUrl,
-        title,
+        title: fallbackTitle,
         description,
         image,
         author
