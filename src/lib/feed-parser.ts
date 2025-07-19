@@ -137,7 +137,7 @@ export async function parseFeedXML(xmlText: string): Promise<ParsedFeed> {
     description: getTextContent(channel, 'description'),
     link: getTextContent(channel, 'link'),
     image: getChannelImage(channel),
-    author: getTextContent(channel, 'itunes\\:author') || getTextContent(channel, 'managingEditor'),
+    author: getChannelAuthor(channel),
     value: parseValueBlock(channel),
     podroll: await parsePodRoll(channel),
     funding: parseFunding(channel),
@@ -451,6 +451,57 @@ function getTextContent(parent: Element, selector: string, attribute?: string): 
     console.log(`getTextContent: Found duration with selector "${selector}": "${result}"`);
   }
   return result;
+}
+
+/**
+ * Helper to extract channel author with better namespace handling
+ */
+function getChannelAuthor(channel: Element): string | undefined {
+  // Try multiple author sources in order of preference
+  const authorSources = [
+    // iTunes author with escaped colon
+    () => getTextContent(channel, 'itunes\\:author'),
+    // iTunes author without namespace escape
+    () => {
+      const allElements = channel.querySelectorAll('*');
+      for (const element of Array.from(allElements)) {
+        if (element.tagName.toLowerCase() === 'itunes:author' || 
+            element.tagName.toLowerCase().includes('author')) {
+          const text = element.textContent?.trim();
+          if (text && text.length > 0) {
+            console.log('Found author via tagName search:', text);
+            return text;
+          }
+        }
+      }
+      return undefined;
+    },
+    // Direct author element
+    () => getTextContent(channel, 'author'),
+    // Managing editor as fallback
+    () => getTextContent(channel, 'managingEditor'),
+    // DC creator
+    () => getTextContent(channel, 'dc\\:creator'),
+    // Any element with 'author' in tag name
+    () => {
+      const authorEl = channel.querySelector('[tagName*="author"]');
+      if (authorEl) {
+        return authorEl.textContent?.trim() || undefined;
+      }
+      return undefined;
+    }
+  ];
+
+  for (const getAuthorFn of authorSources) {
+    const author = getAuthorFn();
+    if (author) {
+      console.log('Found channel author:', author);
+      return author;
+    }
+  }
+
+  console.log('No channel author found');
+  return undefined;
 }
 
 /**
