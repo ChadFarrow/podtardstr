@@ -223,13 +223,7 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
                     to={`/albums?feed=${encodeURIComponent(album.feedUrl)}`}
                     className="absolute inset-0"
                   />
-                  <div className="flex-shrink-0 relative z-10">
-                    <SecureImage
-                      src={album.artwork || '/default-album.png'}
-                      alt={album.title}
-                      className="w-5 h-5 rounded object-cover"
-                    />
-                  </div>
+                  <Disc size={20} className="relative z-10" />
                   <div className="flex-1 min-w-0 relative z-10">
                     <span className="font-medium truncate">{album.title}</span>
                   </div>
