@@ -35,14 +35,18 @@ export function MusicCard({
         {/* Hero Album Art - 80x80 with enhanced styling */}
         <div className="relative group">
           <div className="relative w-20 h-20 mx-auto">
-            <SecureImage 
-              src={feed.image || feed.artwork} 
-              alt={feed.title}
+            <div 
               className="w-20 h-20 rounded-2xl object-cover shadow-lg group-hover:shadow-xl transition-all duration-300 pointer-events-none"
               style={{
                 boxShadow: '0 12px 24px rgba(0,0,0,0.25), 0 0 24px rgba(139,69,19,0.15)'
               }}
-            />
+            >
+              <SecureImage 
+                src={feed.image || feed.artwork} 
+                alt={feed.title}
+                className="w-full h-full object-cover rounded-2xl"
+              />
+            </div>
             <button
               onMouseDown={(e) => {
                 e.preventDefault();

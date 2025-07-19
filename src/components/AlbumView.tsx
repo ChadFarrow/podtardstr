@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { useAlbumFeed } from '@/hooks/useAlbumFeed';
+import { usePinnedAlbums } from '@/hooks/usePinnedAlbums';
 import { SecureImage } from '@/components/SecureImage';
 
 import { AlbumTrackList } from '@/components/AlbumTrackList';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { Music, ExternalLink, ChevronDown } from 'lucide-react';
+import { Music, ExternalLink, ChevronDown, Pin, PinOff } from 'lucide-react';
 import { htmlToText } from '@/lib/html-utils';
 import {
   DropdownMenu,
@@ -37,6 +38,7 @@ export function AlbumView({ feedUrl }: AlbumViewProps) {
     FEATURED_ALBUMS[0].feedUrl;
   
   const { data: albumData, isLoading, error } = useAlbumFeed(currentFeedUrl);
+  const { pinAlbum, unpinAlbum, isPinned } = usePinnedAlbums();
 
   if (isLoading) {
     return (
@@ -106,23 +108,59 @@ export function AlbumView({ feedUrl }: AlbumViewProps) {
             {/* Album Artwork */}
             <div className="flex-shrink-0">
               <div className="relative group">
-                <SecureImage
-                  src={albumData.artwork}
-                  alt={albumData.title}
+                <div 
                   className="w-64 h-64 rounded-lg shadow-2xl object-cover"
                   style={{
                     boxShadow: '0 20px 40px rgba(0,0,0,0.3), 0 0 40px rgba(139,69,19,0.2)'
                   }}
-                />
+                >
+                  <SecureImage
+                    src={albumData.artwork}
+                    alt={albumData.title}
+                    className="w-full h-full object-cover rounded-lg"
+                  />
+                </div>
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-lg" />
               </div>
             </div>
 
             {/* Album Info */}
             <div className="flex-1 space-y-4">
-              <div>
-                <h1 className="text-3xl md:text-4xl font-bold mb-2">{albumData.title}</h1>
-                <p className="text-xl text-muted-foreground">{albumData.artist}</p>
+              <div className="flex items-start justify-between">
+                <div>
+                  <h1 className="text-3xl md:text-4xl font-bold mb-2">{albumData.title}</h1>
+                  <p className="text-xl text-muted-foreground">{albumData.artist}</p>
+                </div>
+                <Button
+                  variant={isPinned(selectedAlbumId) ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => {
+                    if (isPinned(selectedAlbumId)) {
+                      unpinAlbum(selectedAlbumId);
+                    } else {
+                      pinAlbum({
+                        id: selectedAlbumId,
+                        title: albumData.title,
+                        artist: albumData.artist,
+                        artwork: albumData.artwork,
+                        feedUrl: currentFeedUrl,
+                      });
+                    }
+                  }}
+                  className="flex items-center gap-2"
+                >
+                  {isPinned(selectedAlbumId) ? (
+                    <>
+                      <PinOff className="h-4 w-4" />
+                      Unpin
+                    </>
+                  ) : (
+                    <>
+                      <Pin className="h-4 w-4" />
+                      Pin
+                    </>
+                  )}
+                </Button>
               </div>
 
               {albumData.description && (() => {
@@ -140,8 +178,6 @@ export function AlbumView({ feedUrl }: AlbumViewProps) {
                   </p>
                 );
               })()}
-
-
 
               {/* Album Stats */}
               <div className="flex gap-6 text-sm text-muted-foreground pt-2">

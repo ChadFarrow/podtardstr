@@ -1,5 +1,6 @@
 import { useSeoMeta } from '@unhead/react';
 import { AlbumViewEnhanced } from '@/components/AlbumViewEnhanced';
+import { AlbumSelector } from '@/components/AlbumSelector';
 import { LoginArea } from '@/components/auth/LoginArea';
 
 import { PodcastPlayer } from '@/components/PodcastPlayer';
@@ -9,18 +10,48 @@ import { Link } from 'react-router-dom';
 import { useSearchParams } from 'react-router-dom';
 import { useState } from 'react';
 
-const Albums = () => {
+interface AlbumsProps {
+  feedUrl?: string;
+}
+
+const Albums = ({ feedUrl }: AlbumsProps) => {
   const [searchParams] = useSearchParams();
   const [showMenu, setShowMenu] = useState(false);
   
-  // Get feed URL from query parameters
+  // Get feed URL from props first, then from query parameters
   const feedUrlFromParams = searchParams.get('feed');
+  const currentFeedUrl = feedUrl || feedUrlFromParams || undefined;
+
+  // Determine current album info for SEO
+  const getAlbumInfo = () => {
+    if (currentFeedUrl?.includes('bloodshot-lies')) {
+      return {
+        title: 'Bloodshot Lies - The Album - Podtardstr',
+        description: 'Stream Bloodshot Lies by The Doerfels with Value4Value Lightning payments',
+        artist: 'The Doerfels'
+      };
+    }
+    if (currentFeedUrl?.includes('heycitizen-experience')) {
+      return {
+        title: 'The HeyCitizen Experience - Podtardstr',
+        description: 'Stream The HeyCitizen Experience with Value4Value Lightning payments',
+        artist: 'HeyCitizen'
+      };
+    }
+    return {
+      title: 'Albums - Podtardstr',
+      description: 'Discover and stream featured albums with Value4Value Lightning payments',
+      artist: ''
+    };
+  };
+
+  const albumInfo = getAlbumInfo();
 
   useSeoMeta({
-    title: 'Albums - Podtardstr',
-    description: 'Discover and stream featured albums with Value4Value Lightning payments',
-    ogTitle: 'Albums - Podtardstr',
-    ogDescription: 'Discover and stream featured albums with Value4Value Lightning payments',
+    title: albumInfo.title,
+    description: albumInfo.description,
+    ogTitle: albumInfo.title,
+    ogDescription: albumInfo.description,
     ogImage: '/icon-512.png',
     twitterCard: 'summary_large_image',
   });
@@ -67,7 +98,21 @@ const Albums = () => {
                 className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-white bg-white/10"
               >
                 <Disc size={20} />
-                <span className="font-medium">Albums</span>
+                <span className="font-medium">All Albums</span>
+              </Link>
+              <Link
+                to="/albums/bloodshot-lies"
+                className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-all duration-200"
+              >
+                <Disc size={20} />
+                <span className="font-medium">Bloodshot Lies</span>
+              </Link>
+              <Link
+                to="/albums/heycitizen-experience"
+                className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-all duration-200"
+              >
+                <Disc size={20} />
+                <span className="font-medium">HeyCitizen Experience</span>
               </Link>
             </nav>
             
@@ -81,8 +126,13 @@ const Albums = () => {
         </div>
       )}
 
+      {/* Album Selector */}
+      <div className="relative z-10 pt-24">
+        <AlbumSelector />
+      </div>
+
       {/* Main Content */}
-      <AlbumViewEnhanced feedUrl={feedUrlFromParams || undefined} />
+      <AlbumViewEnhanced feedUrl={currentFeedUrl} />
 
       {/* Audio Player */}
       <PodcastPlayer />

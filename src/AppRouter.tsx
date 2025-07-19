@@ -13,6 +13,10 @@ export function AppRouter() {
       <Routes>
         <Route path="/" element={<Index />} />
         <Route path="/albums" element={<Albums />} />
+        
+        {/* Individual Album Pages - Following the same template as /albums */}
+        <Route path="/albums/bloodshot-lies" element={<Albums feedUrl="https://www.doerfelverse.com/feeds/bloodshot-lies-album.xml" />} />
+        <Route path="/albums/heycitizen-experience" element={<Albums feedUrl="https://files.heycitizen.xyz/Songs/Albums/The-Heycitizen-Experience/the heycitizen experience.xml" />} />
   
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />

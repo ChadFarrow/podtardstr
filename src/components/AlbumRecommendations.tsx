@@ -32,6 +32,19 @@ export function AlbumRecommendations({ podroll, currentFeedUrl }: AlbumRecommend
     return null;
   }
 
+  // Map feed URLs to individual album routes
+  const getAlbumRoute = (feedUrl: string): string => {
+    // Check if it's one of our featured albums
+    if (feedUrl.includes('bloodshot-lies-album.xml')) {
+      return '/albums/bloodshot-lies';
+    }
+    if (feedUrl.includes('heycitizen-experience')) {
+      return '/albums/heycitizen-experience';
+    }
+    // For other albums, use query parameter approach
+    return `/albums?feed=${encodeURIComponent(feedUrl)}`;
+  };
+
   return (
     <div className="p-8 pb-16">
       <div className="max-w-6xl mx-auto">
@@ -46,7 +59,8 @@ export function AlbumRecommendations({ podroll, currentFeedUrl }: AlbumRecommend
               className="flex-none group cursor-pointer"
               onClick={() => {
                 if (recommendation.feedUrl) {
-                  navigate(`/albums?feed=${encodeURIComponent(recommendation.feedUrl)}`);
+                  const route = getAlbumRoute(recommendation.feedUrl);
+                  navigate(route);
                 }
               }}
             >

@@ -14,13 +14,16 @@ import { WalletStatus } from '@/components/WalletStatus';
 import { Sidebar, SidebarContent, SidebarHeader, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Code, Star, Shield, Disc } from 'lucide-react';
+import { Code, Star, Shield, Disc, Pin, X } from 'lucide-react';
+import { usePinnedAlbums } from '@/hooks/usePinnedAlbums';
+import { SecureImage } from '@/components/SecureImage';
 import { useState, useEffect } from 'react';
 import { VersionDisplay } from '@/components/VersionDisplay';
 import { usePrefetchAlbums } from '@/hooks/useAlbumFeed';
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState('top100');
+  const { pinnedAlbums, unpinAlbum } = usePinnedAlbums();
 
   // Prefetch albums for better performance
   usePrefetchAlbums();
@@ -78,7 +81,7 @@ const Index = () => {
                     Albums
                   </Button>
                   <a
-                    href="/albums"
+                    href="/albums/bloodshot-lies"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:text-primary transition-colors rounded-md hover:bg-accent"
@@ -128,6 +131,44 @@ const Index = () => {
                   </Button>
                 </div>
               </div>
+
+              {/* Pinned Albums */}
+              {pinnedAlbums.length > 0 && (
+                <div>
+                  <h3 className="text-sm font-medium text-muted-foreground mb-3 flex items-center gap-2">
+                    <Pin className="h-4 w-4" />
+                    Pinned Albums
+                  </h3>
+                  <div className="space-y-2">
+                    {pinnedAlbums.map((album) => (
+                      <div
+                        key={album.id}
+                        className="flex items-center gap-3 p-2 rounded-md hover:bg-accent transition-colors group"
+                      >
+                        <div className="flex-shrink-0">
+                          <SecureImage
+                            src={album.artwork}
+                            alt={album.title}
+                            className="w-8 h-8 rounded object-cover"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">{album.title}</p>
+                          <p className="text-xs text-muted-foreground truncate">{album.artist}</p>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => unpinAlbum(album.id)}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-0"
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <div>
                 <UserNameInput />
