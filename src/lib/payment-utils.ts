@@ -294,7 +294,7 @@ export async function processSinglePayment(
       hasKeysend: !!provider.keysend,
       hasSendPayment: !!provider.sendPayment,
       providerType: provider.provider,
-      methods: Object.keys(provider).filter(key => typeof (provider as any)[key] === 'function'),
+              methods: Object.keys(provider).filter(key => typeof (provider as unknown as Record<string, unknown>)[key] === 'function'),
       version: getAppVersion()
     });
     

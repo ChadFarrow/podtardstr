@@ -14,7 +14,7 @@ describe('Feed Parser', () => {
   });
 
   describe('parseFeedXML', () => {
-    it('should parse basic RSS feed structure', () => {
+    it('should parse basic RSS feed structure', async () => {
       const xml = `<?xml version="1.0" encoding="UTF-8"?>
         <rss xmlns:podcast="https://podcastindex.org/namespace/1.0">
           <channel>
@@ -55,7 +55,7 @@ describe('Feed Parser', () => {
           </channel>
         </rss>`;
 
-      const feed = parseFeedXML(xml);
+      const feed = await parseFeedXML(xml);
 
       expect(feed.title).toBe('Test Podcast');
       expect(feed.description).toBe('A test podcast');
@@ -101,7 +101,7 @@ describe('Feed Parser', () => {
       });
     });
 
-    it('should handle feeds without value blocks', () => {
+    it('should handle feeds without value blocks', async () => {
       const xml = `<?xml version="1.0" encoding="UTF-8"?>
         <rss>
           <channel>
@@ -114,7 +114,7 @@ describe('Feed Parser', () => {
           </channel>
         </rss>`;
 
-      const feed = parseFeedXML(xml);
+      const feed = await parseFeedXML(xml);
 
       expect(feed.title).toBe('Regular Podcast');
       expect(feed.value).toBeUndefined();
@@ -122,7 +122,7 @@ describe('Feed Parser', () => {
       expect(feed.episodes[0].value).toBeUndefined();
     });
 
-    it('should filter out invalid recipients', () => {
+    it('should filter out invalid recipients', async () => {
       const xml = `<?xml version="1.0" encoding="UTF-8"?>
         <rss xmlns:podcast="https://podcastindex.org/namespace/1.0">
           <channel>
@@ -137,7 +137,7 @@ describe('Feed Parser', () => {
           </channel>
         </rss>`;
 
-      const feed = parseFeedXML(xml);
+      const feed = await parseFeedXML(xml);
 
       expect(feed.value?.recipients).toHaveLength(1);
       expect(feed.value?.recipients[0].name).toBe('Valid');

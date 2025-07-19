@@ -15,7 +15,7 @@ import { Sidebar, SidebarContent, SidebarHeader, SidebarProvider, SidebarTrigger
 import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Code, Star, Shield, Disc } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { VersionDisplay } from '@/components/VersionDisplay';
 import { usePrefetchAlbums } from '@/hooks/useAlbumFeed';
 

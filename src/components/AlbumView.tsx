@@ -7,14 +7,8 @@ import { AlbumTrackList } from '@/components/AlbumTrackList';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { Music, ExternalLink, Pin, PinOff, Disc } from 'lucide-react';
+import { Music, Pin, PinOff, Disc } from 'lucide-react';
 import { htmlToText } from '@/lib/html-utils';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 
 interface AlbumViewProps {
   feedUrl?: string;
@@ -73,9 +67,9 @@ const FEATURED_ALBUMS = [
 
 export function AlbumView({ feedUrl }: AlbumViewProps) {
   const [selectedAlbumId, setSelectedAlbumId] = useState(feedUrl ? 'custom' : 'bloodshot-lies');
-  const [customFeedUrl, setCustomFeedUrl] = useState(feedUrl || '');
+  const [_customFeedUrl, _setCustomFeedUrl] = useState(feedUrl || '');
   
-  const currentFeedUrl = selectedAlbumId === 'custom' ? customFeedUrl : 
+  const currentFeedUrl = selectedAlbumId === 'custom' ? _customFeedUrl : 
     FEATURED_ALBUMS.find(album => album.id === selectedAlbumId)?.feedUrl || 
     FEATURED_ALBUMS[0].feedUrl;
   
@@ -117,7 +111,7 @@ export function AlbumView({ feedUrl }: AlbumViewProps) {
     );
   }
 
-  const selectedAlbum = FEATURED_ALBUMS.find(album => album.id === selectedAlbumId);
+  const _selectedAlbum = FEATURED_ALBUMS.find(album => album.id === selectedAlbumId);
 
   return (
     <div className="space-y-6 p-4 max-w-6xl mx-auto">
@@ -259,9 +253,7 @@ export function AlbumView({ feedUrl }: AlbumViewProps) {
       {/* Track List */}
       <AlbumTrackList 
         tracks={albumData.tracks} 
-        albumTitle={albumData.title}
         albumArtist={albumData.artist}
-        defaultValue={albumData.value}
       />
     </div>
   );

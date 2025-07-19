@@ -4,6 +4,7 @@ import { ScrollToTop } from "./components/ScrollToTop";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Albums from "./pages/Albums";
+import Music from "./pages/Music";
 
 
 export function AppRouter() {
@@ -12,6 +13,7 @@ export function AppRouter() {
       <ScrollToTop />
       <Routes>
         <Route path="/" element={<Index />} />
+        <Route path="/music" element={<Music />} />
         <Route path="/albums" element={<Albums />} />
         
         {/* Individual Album Pages - Following the same template as /albums */}

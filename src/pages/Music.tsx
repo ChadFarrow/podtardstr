@@ -1,55 +1,15 @@
 import { useSeoMeta } from '@unhead/react';
-import { AlbumViewEnhanced } from '@/components/AlbumViewEnhanced';
 import { AlbumGallery } from '@/components/AlbumGallery';
 import { LoginArea } from '@/components/auth/LoginArea';
-
 import { PodcastPlayer } from '@/components/PodcastPlayer';
 import { VersionDisplay } from '@/components/VersionDisplay';
-import { Home, Disc, Menu, X } from 'lucide-react';
+import { Home, Disc, Menu, X, Music as MusicIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { useSearchParams } from 'react-router-dom';
-import { useState, useEffect } from 'react';
-import { usePinnedAlbums } from '@/hooks/usePinnedAlbums';
+import { useState } from 'react';
 
-interface AlbumsProps {
-  feedUrl?: string;
-}
-
-const Albums = ({ feedUrl }: AlbumsProps) => {
-  const [searchParams] = useSearchParams();
+const Music = () => {
   const [showMenu, setShowMenu] = useState(false);
-  const { pinnedAlbums, unpinAlbum, pinAlbum, isPinned } = usePinnedAlbums();
-  
-  // Get feed URL from props first, then from query parameters
-  const feedUrlFromParams = searchParams.get('feed');
-  const currentFeedUrl = feedUrl || feedUrlFromParams || undefined;
 
-  // Determine current album info for SEO
-  const getAlbumInfo = () => {
-    if (currentFeedUrl?.includes('bloodshot-lies')) {
-      return {
-        title: 'Bloodshot Lies - The Album - Podtardstr',
-        description: 'Stream Bloodshot Lies by The Doerfels with Value4Value Lightning payments',
-        artist: 'The Doerfels'
-      };
-    }
-    if (currentFeedUrl?.includes('heycitizen-experience')) {
-      return {
-        title: 'The HeyCitizen Experience - Podtardstr',
-        description: 'Stream The HeyCitizen Experience with Value4Value Lightning payments',
-        artist: 'HeyCitizen'
-      };
-    }
-    return {
-      title: 'Albums - Podtardstr',
-      description: 'Discover and stream featured albums with Value4Value Lightning payments',
-      artist: ''
-    };
-  };
-
-  const albumInfo = getAlbumInfo();
-
-  // Featured albums data with descriptions
   const FEATURED_ALBUMS_WITH_DETAILS = [
     {
       id: 'bloodshot-lies',
@@ -165,28 +125,11 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
     }
   ];
 
-  // Auto-pin featured albums if not already pinned
-  useEffect(() => {
-    const albumsToPin = FEATURED_ALBUMS_WITH_DETAILS.map(album => ({
-      id: album.id,
-      title: album.title,
-      artist: album.artist,
-      artwork: album.artwork,
-      feedUrl: album.feedUrl
-    }));
-
-    albumsToPin.forEach(album => {
-      if (!isPinned(album.id)) {
-        pinAlbum(album);
-      }
-    });
-  }, [pinAlbum, isPinned]);
-
   useSeoMeta({
-    title: albumInfo.title,
-    description: albumInfo.description,
-    ogTitle: albumInfo.title,
-    ogDescription: albumInfo.description,
+    title: 'Music - Podtardstr',
+    description: 'Discover and stream featured music with Value4Value Lightning payments on Podtardstr',
+    ogTitle: 'Music - Podtardstr',
+    ogDescription: 'Discover and stream featured music with Value4Value Lightning payments on Podtardstr',
     ogImage: '/icon-512.png',
     twitterCard: 'summary_large_image',
   });
@@ -202,7 +145,6 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
           >
             {showMenu ? <X size={20} className="text-white" /> : <Menu size={20} className="text-white" />}
           </button>
-
         </div>
         
         <div className="flex items-center gap-4">
@@ -230,11 +172,19 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
               </Link>
               
               <Link
-                to="/albums"
+                to="/music"
                 className="flex items-center space-x-3 px-4 py-3 rounded-lg text-white bg-white/10"
               >
+                <MusicIcon size={20} />
+                <span className="font-medium">Music</span>
+              </Link>
+              
+              <Link
+                to="/albums"
+                className="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-all duration-200"
+              >
                 <Disc size={20} />
-                <span className="font-medium">All Albums</span>
+                <span className="font-medium">Albums</span>
               </Link>
               
               <Link
@@ -252,28 +202,6 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
                 <Disc size={20} />
                 <span className="font-medium">HeyCitizen Experience</span>
               </Link>
-
-              {/* Pinned Albums */}
-              {pinnedAlbums.map((album) => (
-                <Link
-                  key={album.id}
-                  to={`/albums?feed=${encodeURIComponent(album.feedUrl)}`}
-                  className="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-all duration-200 group"
-                >
-                  <Disc size={20} />
-                  <span className="font-medium flex-1">{album.title}</span>
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      unpinAlbum(album.id);
-                    }}
-                    className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-white/10 rounded"
-                  >
-                    <X size={12} className="text-gray-500 hover:text-white" />
-                  </button>
-                </Link>
-              ))}
             </nav>
             
             <div className="absolute bottom-6 left-6 right-6">
@@ -286,13 +214,40 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
         </div>
       )}
 
-      {/* Main Content */}
+      {/* Hero Section */}
       <div className="relative z-10 pt-16">
-        {currentFeedUrl ? (
-          <AlbumViewEnhanced feedUrl={currentFeedUrl} />
-        ) : (
-          <AlbumGallery albums={FEATURED_ALBUMS_WITH_DETAILS} />
-        )}
+        <div className="text-center py-16 px-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="flex justify-center mb-6">
+              <div className="p-4 rounded-full bg-gradient-to-r from-purple-500 to-pink-500">
+                <MusicIcon size={48} className="text-white" />
+              </div>
+            </div>
+            <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
+              Discover Music
+            </h1>
+            <p className="text-xl md:text-2xl text-gray-300 mb-8">
+              Stream and support independent artists with Value4Value Lightning payments
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link
+                to="/albums/bloodshot-lies"
+                className="px-8 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all"
+              >
+                Featured Album
+              </Link>
+              <Link
+                to="/albums"
+                className="px-8 py-3 border border-white/20 text-white font-semibold rounded-lg hover:bg-white/10 transition-all"
+              >
+                Browse All Albums
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        {/* Featured Albums */}
+        <AlbumGallery albums={FEATURED_ALBUMS_WITH_DETAILS} />
       </div>
 
       {/* Audio Player */}
@@ -301,4 +256,4 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
   );
 };
 
-export default Albums; 
+export default Music;

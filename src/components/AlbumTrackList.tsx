@@ -5,16 +5,14 @@ import { usePodcastPlayer } from '@/hooks/usePodcastPlayer';
 import { useMusicPlayback } from '@/hooks/useMusicPlayback';
 import { htmlToText } from '@/lib/html-utils';
 import type { AlbumTrack } from '@/hooks/useAlbumFeed';
-import type { PodcastIndexPodcast } from '@/hooks/usePodcastIndex';
+// import type { PodcastIndexPodcast } from '@/hooks/usePodcastIndex';
 
 interface AlbumTrackListProps {
   tracks: AlbumTrack[];
-  albumTitle: string;
   albumArtist: string;
-  defaultValue?: PodcastIndexPodcast['value'];
 }
 
-export function AlbumTrackList({ tracks, albumTitle, albumArtist, defaultValue }: AlbumTrackListProps) {
+export function AlbumTrackList({ tracks, albumArtist }: AlbumTrackListProps) {
   const { currentPodcast, isPlaying, playPodcast, setIsPlaying } = usePodcastPlayer();
   const { loadingTrackId } = useMusicPlayback();
 

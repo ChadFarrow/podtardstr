@@ -229,7 +229,7 @@ function parseFunding(element: Element): FundingInfo | undefined {
   if (!fundingElement) {
     // Try alternative approaches to find the funding element
     const allElements = element.querySelectorAll('*');
-    let foundFunding = null;
+    let foundFunding: Element | null = null;
     for (const el of Array.from(allElements)) {
       if (el.tagName.toLowerCase().includes('funding')) {
         console.log('💰 parseFunding: Found funding via tagName search:', el.tagName);
@@ -290,7 +290,7 @@ async function parsePodRoll(element: Element): Promise<PodRollItem[] | undefined
   if (!podrollElement) {
     // Try alternative approaches to find the podroll element
     const allElements = element.querySelectorAll('*');
-    let foundPodroll = null;
+    let foundPodroll: Element | null = null;
     for (const el of Array.from(allElements)) {
       if (el.tagName.toLowerCase().includes('podroll')) {
         console.log('🎯 parsePodRoll: Found podroll via tagName search:', el.tagName);
@@ -311,6 +311,10 @@ async function parsePodRoll(element: Element): Promise<PodRollItem[] | undefined
   const podrollItems: PodRollItem[] = [];
 
   // Parse all podcast:remoteItem elements within the podroll
+  if (!actualPodrollElement) {
+    console.log('❌ parsePodRoll: No podroll element available for querying');
+    return undefined;
+  }
   const remoteItems = actualPodrollElement.querySelectorAll('podcast\\:remoteItem, remoteItem');
   console.log('🎯 parsePodRoll: Found', remoteItems.length, 'remoteItem elements');
   
@@ -430,12 +434,17 @@ function getTextContent(parent: Element, selector: string, attribute?: string): 
     if (selector.includes('duration')) {
       console.log(`getTextContent: No element found for selector "${selector}"`);
       // Try alternative selectors for duration
-      const altSelectors = ['duration', 'itunes:duration', '*[class*="duration"]'];
+      const altSelectors = ['duration', 'itunes\\:duration', '*[class*="duration"]'];
       for (const altSelector of altSelectors) {
-        const altElement = parent.querySelector(altSelector);
-        if (altElement) {
-          console.log(`getTextContent: Found duration with alternative selector "${altSelector}": "${altElement.textContent?.trim()}"`);
-          return altElement.textContent?.trim() || undefined;
+        try {
+          const altElement = parent.querySelector(altSelector);
+          if (altElement) {
+            console.log(`getTextContent: Found duration with alternative selector "${altSelector}": "${altElement.textContent?.trim()}"`);
+            return altElement.textContent?.trim() || undefined;
+          }
+        } catch {
+          // Skip invalid selectors
+          console.log(`getTextContent: Invalid selector "${altSelector}", skipping`);
         }
       }
     }

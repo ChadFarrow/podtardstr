@@ -99,24 +99,33 @@ export function useLightningWallet() {
           });
           
           // Launch the modal
-          launchModal().catch((err) => {
+          try {
+            launchModal();
+            // Modal launched successfully, connection will be handled by onConnected
+          } catch (err) {
             console.error('Failed to launch Bitcoin Connect modal:', err);
             clearTimeout(timeout);
             setConnectionCancelRef(null);
             if (unsubscribe) unsubscribe();
             reject(err);
-          });
+          }
         });
 
-      if (provider) {
+      if (provider && typeof provider === 'object') {
+        const providerObj = provider as Record<string, unknown> & {
+          sendPayment?: (invoice: string) => Promise<void>;
+          getBalance?: () => Promise<number>;
+          signMessage?: (message: string) => Promise<string>;
+          keysend?: (args: { destination: string; amount: number; customRecords?: Record<string, string> }) => Promise<unknown>;
+        };
         console.log('Bitcoin Connect provider obtained:', {
           provider,
           type: typeof provider,
-          keys: Object.keys(provider),
-          hasWebln: 'webln' in provider,
-          hasSendPayment: 'sendPayment' in provider,
-          hasKeysend: 'keysend' in provider,
-          proto: Object.getPrototypeOf(provider)
+          keys: Object.keys(providerObj),
+          hasWebln: 'webln' in providerObj,
+          hasSendPayment: 'sendPayment' in providerObj,
+          hasKeysend: 'keysend' in providerObj,
+          proto: Object.getPrototypeOf(providerObj)
         });
         
         setIsConnected(true);
@@ -125,10 +134,10 @@ export function useLightningWallet() {
         
         // Ensure methods are properly exposed
         const wallet: LightningWallet = {
-          sendPayment: provider.sendPayment ? provider.sendPayment.bind(provider) : undefined,
-          getBalance: provider.getBalance ? provider.getBalance.bind(provider) : undefined,
-          signMessage: provider.signMessage ? provider.signMessage.bind(provider) : undefined,
-          keysend: provider.keysend ? provider.keysend.bind(provider) : undefined,
+          sendPayment: providerObj.sendPayment ? providerObj.sendPayment.bind(providerObj) : undefined,
+          getBalance: providerObj.getBalance ? providerObj.getBalance.bind(providerObj) : undefined,
+          signMessage: providerObj.signMessage ? providerObj.signMessage.bind(providerObj) : undefined,
+          keysend: providerObj.keysend ? providerObj.keysend.bind(providerObj) : undefined,
           provider: 'bitcoin-connect',
         };
         

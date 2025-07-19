@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import CryptoJS from 'crypto-js';
+// import CryptoJS from 'crypto-js';
 
 // Podcast Index API types
 export interface PodcastIndexPodcast {
@@ -107,25 +107,25 @@ interface PodcastIndexResponse<T> {
 
 // API credentials from environment variables or fallback to demo credentials
 // Note: Fallback credentials are public demo keys from Podcast Index documentation
-const API_KEY = import.meta.env.VITE_PODCAST_INDEX_API_KEY || 'UXKCGDSYGY6UIQNRNPJ7';
-const API_SECRET = import.meta.env.VITE_PODCAST_INDEX_API_SECRET || 'yzJtuQGBpfZp^t5V4vB^5PYg#H8&EX^kLx8EhZuP';
+// const API_KEY = import.meta.env.VITE_PODCAST_INDEX_API_KEY || 'UXKCGDSYGY6UIQNRNPJ7';
+// const API_SECRET = import.meta.env.VITE_PODCAST_INDEX_API_SECRET || 'yzJtuQGBpfZp^t5V4vB^5PYg#H8&EX^kLx8EhZuP';
 
 // Note: API credentials are configured via environment variables
 // Always use proxy to avoid CORS issues (both dev and production)
 const BASE_URL = '/api/podcastindex';
 
-function generateAuthHeaders() {
-  const apiHeaderTime = Math.floor(Date.now() / 1000);
-  const data4Hash = API_KEY + API_SECRET + apiHeaderTime;
-  const hash4Header = CryptoJS.SHA1(data4Hash).toString();
+// function generateAuthHeaders() {
+//   const apiHeaderTime = Math.floor(Date.now() / 1000);
+//   const data4Hash = API_KEY + API_SECRET + apiHeaderTime;
+//   const hash4Header = CryptoJS.SHA1(data4Hash).toString();
 
-  return {
-    'X-Auth-Date': apiHeaderTime.toString(),
-    'X-Auth-Key': API_KEY,
-    'Authorization': hash4Header,
-    // Removed User-Agent to avoid CORS preflight issues
-  };
-}
+//   return {
+//     'X-Auth-Date': apiHeaderTime.toString(),
+//     'X-Auth-Key': API_KEY,
+//     'Authorization': hash4Header,
+//     // Removed User-Agent to avoid CORS preflight issues
+//   };
+// }
 
 export async function podcastIndexFetch<T>(endpoint: string, params: Record<string, string> = {}): Promise<PodcastIndexResponse<T>> {
   // Remove leading slash from endpoint if present
