@@ -5,11 +5,12 @@ import { LoginArea } from '@/components/auth/LoginArea';
 
 import { PodcastPlayer } from '@/components/PodcastPlayer';
 import { VersionDisplay } from '@/components/VersionDisplay';
-import { Home, Disc, Menu, X } from 'lucide-react';
+import { Home, Disc, Menu, X, Sun, Moon } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useSearchParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { usePinnedAlbums } from '@/hooks/usePinnedAlbums';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface AlbumsProps {
   feedUrl?: string;
@@ -19,6 +20,7 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
   const [searchParams] = useSearchParams();
   const [showMenu, setShowMenu] = useState(false);
   const { pinnedAlbums, unpinAlbum, pinAlbum, isPinned } = usePinnedAlbums();
+  const { theme, toggleTheme } = useTheme();
   
   // Get feed URL from props first, then from query parameters
   const feedUrlFromParams = searchParams.get('feed');
@@ -192,38 +194,74 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
   });
 
   return (
-    <div className="min-h-screen bg-black relative">
+    <div className={`min-h-screen relative ${theme === 'dark' ? 'bg-black' : 'bg-gray-50'}`}>
       {/* Top Navigation Bar */}
-      <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-4 py-2 bg-gradient-to-b from-black/80 to-transparent">
+      <div className={`absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-4 py-2 ${
+        theme === 'dark' 
+          ? 'bg-gradient-to-b from-black/80 to-transparent' 
+          : 'bg-gradient-to-b from-white/95 to-white/60 backdrop-blur-sm shadow-sm'
+      }`}>
         <div className="flex items-center space-x-4">
           <button 
             onClick={() => setShowMenu(!showMenu)}
-            className="p-2 rounded-full bg-black/50 backdrop-blur-sm hover:bg-black/70 transition-all"
+            className={`p-2 rounded-full backdrop-blur-sm transition-all ${
+              theme === 'dark'
+                ? 'bg-black/50 hover:bg-black/70'
+                : 'bg-white/80 hover:bg-white/95 shadow-sm border border-gray-200'
+            }`}
           >
-            {showMenu ? <X size={20} className="text-white" /> : <Menu size={20} className="text-white" />}
+            {showMenu ? (
+              <X size={20} className={theme === 'dark' ? 'text-white' : 'text-gray-700'} />
+            ) : (
+              <Menu size={20} className={theme === 'dark' ? 'text-white' : 'text-gray-700'} />
+            )}
           </button>
 
         </div>
         
         <div className="flex items-center gap-4">
+          <button
+            onClick={toggleTheme}
+            className={`p-2 rounded-full backdrop-blur-sm transition-all ${
+              theme === 'dark'
+                ? 'bg-black/50 hover:bg-black/70'
+                : 'bg-white/80 hover:bg-white/95 shadow-sm border border-gray-200'
+            }`}
+          >
+            {theme === 'dark' ? (
+              <Sun size={20} className="text-white" />
+            ) : (
+              <Moon size={20} className="text-gray-700" />
+            )}
+          </button>
           <LoginArea className="max-w-60" />
         </div>
       </div>
 
       {/* Slide-out Menu */}
       {showMenu && (
-        <div className="absolute top-0 left-0 h-full w-80 bg-black/90 backdrop-blur-lg z-30 transform transition-transform duration-300">
+        <div className={`absolute top-0 left-0 h-full w-80 backdrop-blur-lg z-30 transform transition-transform duration-300 ${
+          theme === 'dark' 
+            ? 'bg-black/90' 
+            : 'bg-white/95 shadow-xl border-r border-gray-200'
+        }`}>
           <div className="p-6">
             <div className="flex items-center justify-between mb-8">
-              <h2 className="text-xl font-bold text-white">Navigation</h2>
+              <h2 className={`text-xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                Navigation
+              </h2>
               <button onClick={() => setShowMenu(false)}>
-                <X size={20} className="text-white" />
+                <X size={20} className={theme === 'dark' ? 'text-white' : 'text-gray-600'} />
               </button>
             </div>
             <nav className="space-y-2">
               <Link
                 to="/"
-                className="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-all duration-200"
+                className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 ${
+                  theme === 'dark'
+                    ? 'text-gray-400 hover:text-white hover:bg-white/10'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                }`}
               >
                 <Home size={20} />
                 <span className="font-medium">Back to Main App</span>
@@ -231,7 +269,11 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
               
               <Link
                 to="/albums"
-                className="flex items-center space-x-3 px-4 py-3 rounded-lg text-white bg-white/10"
+                className={`flex items-center space-x-3 px-4 py-3 rounded-lg ${
+                  theme === 'dark'
+                    ? 'text-white bg-white/10'
+                    : 'text-blue-600 bg-blue-50 border border-blue-200'
+                }`}
               >
                 <Disc size={20} />
                 <span className="font-medium">All Albums</span>
@@ -239,7 +281,11 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
               
               <Link
                 to="/albums/bloodshot-lies"
-                className="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-all duration-200"
+                className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 ${
+                  theme === 'dark'
+                    ? 'text-gray-400 hover:text-white hover:bg-white/10'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                }`}
               >
                 <Disc size={20} />
                 <span className="font-medium">Bloodshot Lies</span>
@@ -247,7 +293,11 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
               
               <Link
                 to="/albums/heycitizen-experience"
-                className="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-all duration-200"
+                className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 ${
+                  theme === 'dark'
+                    ? 'text-gray-400 hover:text-white hover:bg-white/10'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                }`}
               >
                 <Disc size={20} />
                 <span className="font-medium">HeyCitizen Experience</span>
@@ -258,7 +308,11 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
                 <Link
                   key={album.id}
                   to={`/albums?feed=${encodeURIComponent(album.feedUrl)}`}
-                  className="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-all duration-200 group"
+                  className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 group ${
+                    theme === 'dark'
+                      ? 'text-gray-400 hover:text-white hover:bg-white/10'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  }`}
                 >
                   <Disc size={20} />
                   <span className="font-medium flex-1">{album.title}</span>
@@ -268,9 +322,13 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
                       e.stopPropagation();
                       unpinAlbum(album.id);
                     }}
-                    className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-white/10 rounded"
+                    className={`opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded ${
+                      theme === 'dark' ? 'hover:bg-white/10' : 'hover:bg-gray-200'
+                    }`}
                   >
-                    <X size={12} className="text-gray-500 hover:text-white" />
+                    <X size={12} className={`text-gray-500 ${
+                      theme === 'dark' ? 'hover:text-white' : 'hover:text-gray-700'
+                    }`} />
                   </button>
                 </Link>
               ))}
@@ -278,8 +336,17 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
             
             <div className="absolute bottom-6 left-6 right-6">
               <VersionDisplay />
-              <p className="text-xs text-gray-500 mt-2">
-                Vibed with <a href="https://soapbox.pub/mkstack" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">MKStack</a>
+              <p className={`text-xs mt-2 ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`}>
+                Vibed with <a 
+                  href="https://soapbox.pub/mkstack" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className={`hover:underline ${
+                    theme === 'dark' ? 'text-primary' : 'text-blue-600 hover:text-blue-800'
+                  }`}
+                >
+                  MKStack
+                </a>
               </p>
             </div>
           </div>
@@ -291,7 +358,9 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
         {currentFeedUrl ? (
           <AlbumViewEnhanced feedUrl={currentFeedUrl} />
         ) : (
-          <AlbumGallery albums={FEATURED_ALBUMS_WITH_DETAILS} />
+          <div className={theme === 'dark' ? '' : 'bg-white'}>
+            <AlbumGallery albums={FEATURED_ALBUMS_WITH_DETAILS} />
+          </div>
         )}
       </div>
 
