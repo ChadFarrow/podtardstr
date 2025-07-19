@@ -7,13 +7,14 @@ import { PodcastPlayer } from '@/components/PodcastPlayer';
 import { TrendingMusic } from '@/components/TrendingMusic';
 import { FeedValueParser } from '@/components/FeedValueParser';
 import { PodcastValidator } from '@/components/PodcastValidator';
+import { AlbumView } from '@/components/AlbumView';
 import { LoginArea } from '@/components/auth/LoginArea';
 import { UserNameInput } from '@/components/UserNameInput';
 import { WalletStatus } from '@/components/WalletStatus';
 import { Sidebar, SidebarContent, SidebarHeader, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Code, Star, Shield } from 'lucide-react';
+import { Code, Star, Shield, Disc } from 'lucide-react';
 import { useState } from 'react';
 import { VersionDisplay } from '@/components/VersionDisplay';
 
@@ -63,6 +64,14 @@ const Index = () => {
                   >
                     <Star className="h-4 w-4 mr-2" />
                     Top 100 V4V tracks
+                  </Button>
+                  <Button
+                    variant={activeTab === 'albums' ? 'secondary' : 'ghost'}
+                    className="w-full justify-start text-sm"
+                    onClick={() => setActiveTab('albums')}
+                  >
+                    <Disc className="h-4 w-4 mr-2" />
+                    Albums
                   </Button>
                   {/* <Button
                     variant={activeTab === 'discover' ? 'secondary' : 'ghost'}
@@ -133,6 +142,7 @@ const Index = () => {
                 <h2 className="text-base sm:text-xl font-semibold truncate">
                   {/* {activeTab === 'music' && 'Music'} */}
                   {activeTab === 'top100' && 'Top 100 V4V tracks'}
+                  {activeTab === 'albums' && 'Albums'}
                   {/* {activeTab === 'discover' && 'Discover'}
                   {activeTab === 'search' && 'Search'} */}
                   {/* {activeTab === 'nostr' && 'Nostr Feed'} */}
@@ -142,6 +152,7 @@ const Index = () => {
                 <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">
                   {/* {activeTab === 'music' && 'Search and discover music with Value4Value'} */}
                   {activeTab === 'top100' && 'The hottest Value4Value music tracks ranked by community boosts'}
+                  {activeTab === 'albums' && 'Explore full albums with Value4Value support'}
                   {/* {activeTab === 'discover' && 'Trending music and recent releases'}
                   {activeTab === 'search' && 'Find music and tracks from Podcast Index'} */}
                   {/* {activeTab === 'nostr' && 'Music recommendations and discussions on Nostr'} */}
@@ -162,6 +173,10 @@ const Index = () => {
 
               <TabsContent value="top100" className="space-y-6">
                 <TrendingMusic />
+              </TabsContent>
+
+              <TabsContent value="albums" className="space-y-6">
+                <AlbumView />
               </TabsContent>
 
               {/* <TabsContent value="discover" className="space-y-6">
