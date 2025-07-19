@@ -75,7 +75,7 @@ async function fetchAlbumFeed(feedUrl: string): Promise<AlbumFeedData> {
           split: recipient.split,
         })),
       } : undefined,
-      funding: undefined, // The parser doesn't extract funding info yet
+      funding: parsedFeed.funding
     };
 
     // Process episodes as tracks

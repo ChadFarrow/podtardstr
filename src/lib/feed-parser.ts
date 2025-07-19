@@ -27,6 +27,11 @@ export interface PodRollItem {
   author?: string;
 }
 
+export interface FundingInfo {
+  url: string;
+  message: string;
+}
+
 export interface ParsedFeed {
   title?: string;
   description?: string;
@@ -35,6 +40,7 @@ export interface ParsedFeed {
   author?: string;
   value?: ValueBlock;
   podroll?: PodRollItem[];
+  funding?: FundingInfo;
   episodes: ParsedEpisode[];
 }
 
@@ -134,6 +140,7 @@ export async function parseFeedXML(xmlText: string): Promise<ParsedFeed> {
     author: getTextContent(channel, 'itunes\\:author') || getTextContent(channel, 'managingEditor'),
     value: parseValueBlock(channel),
     podroll: await parsePodRoll(channel),
+    funding: parseFunding(channel),
     episodes: []
   };
 
@@ -207,6 +214,65 @@ function parseValueBlock(element: Element): ValueBlock | undefined {
 
   // Only return value block if it has recipients
   return valueBlock.recipients.length > 0 ? valueBlock : undefined;
+}
+
+/**
+ * Parses podcast:funding element and extracts funding information
+ */
+function parseFunding(element: Element): FundingInfo | undefined {
+  console.log('💰 parseFunding: Starting funding parsing...');
+  
+  // Look for podcast:funding element (with or without namespace prefix)
+  const fundingElement = element.querySelector('podcast\\:funding, funding');
+  console.log('💰 parseFunding: Funding element found:', !!fundingElement);
+  
+  if (!fundingElement) {
+    // Try alternative approaches to find the funding element
+    const allElements = element.querySelectorAll('*');
+    let foundFunding = null;
+    for (const el of Array.from(allElements)) {
+      if (el.tagName.toLowerCase().includes('funding')) {
+        console.log('💰 parseFunding: Found funding via tagName search:', el.tagName);
+        foundFunding = el;
+        break;
+      }
+    }
+    if (!foundFunding) {
+      console.log('❌ parseFunding: No podcast:funding element found');
+      return undefined;
+    }
+    return parseFundingElement(foundFunding);
+  }
+  
+  return parseFundingElement(fundingElement);
+}
+
+/**
+ * Helper function to parse a funding element
+ */
+function parseFundingElement(fundingElement: Element): FundingInfo | undefined {
+  const url = fundingElement.getAttribute('url');
+  const message = fundingElement.textContent?.trim() || fundingElement.getAttribute('message') || '';
+  
+  console.log('💰 parseFunding: Processing funding element:', {
+    url: url ? url.substring(0, 50) + '...' : 'none',
+    message: message ? message.substring(0, 50) + '...' : 'none',
+    hasUrl: !!url,
+    hasMessage: !!message
+  });
+  
+  if (!url) {
+    console.log('❌ parseFunding: No URL found in funding element');
+    return undefined;
+  }
+  
+  const fundingInfo: FundingInfo = {
+    url,
+    message: message || 'Support this podcast'
+  };
+  
+  console.log('✅ parseFunding: Successfully parsed funding info:', fundingInfo);
+  return fundingInfo;
 }
 
 /**

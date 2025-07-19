@@ -1,6 +1,12 @@
 import { Play, Pause } from 'lucide-react';
 import { SecureImage } from '@/components/SecureImage';
 import { htmlToText } from '@/lib/html-utils';
+import { FundingButton } from '@/components/FundingButton';
+
+interface FundingInfo {
+  url: string;
+  message: string;
+}
 
 interface AlbumHeroProps {
   title: string;
@@ -11,6 +17,7 @@ interface AlbumHeroProps {
   totalDuration: number;
   currentYear: number;
   isPlaying: boolean;
+  funding?: FundingInfo;
   onPlayAlbum: () => void;
 }
 
@@ -23,6 +30,7 @@ export function AlbumHero({
   totalDuration,
   currentYear,
   isPlaying,
+  funding,
   onPlayAlbum
 }: AlbumHeroProps) {
   const formatTotalDuration = (seconds: number) => {
@@ -92,6 +100,10 @@ export function AlbumHero({
                   <><Play size={24} className="ml-1" /><span>Play Album</span></>
                 )}
               </button>
+              
+              {funding && (
+                <FundingButton funding={funding} />
+              )}
             </div>
           </div>
         </div>

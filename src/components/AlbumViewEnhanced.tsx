@@ -86,6 +86,7 @@ export function AlbumViewEnhanced({ feedUrl }: AlbumViewEnhancedProps) {
         totalDuration={totalDuration}
         currentYear={currentYear}
         isPlaying={controls.isAlbumPlaying()}
+        funding={albumData.funding}
         onPlayAlbum={controls.handleAlbumPlay}
       />
 
