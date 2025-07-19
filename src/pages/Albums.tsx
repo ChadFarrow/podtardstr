@@ -21,6 +21,7 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
   const [showMenu, setShowMenu] = useState(false);
   const [showChadFFolder, setShowChadFFolder] = useState(false);
   const [showLiveConcerts, setShowLiveConcerts] = useState(false);
+  const [showVariousArtists, setShowVariousArtists] = useState(false);
   const { pinnedAlbums, pinAlbum, isPinned } = usePinnedAlbums();
   const { theme, toggleTheme } = useTheme();
   
@@ -185,6 +186,13 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
     'polar-embrace'
   ];
 
+  // Various Artists folder albums
+  const VARIOUS_ARTISTS_ALBUMS = [
+    'stay-awhile',
+    'lofi-experience',
+    'heycitizen-experience'
+  ];
+
   // Get albums that belong to ChadF folder
   const chadFAlbums = FEATURED_ALBUMS_WITH_DETAILS.filter(album => 
     CHADF_ALBUMS.includes(album.id)
@@ -193,6 +201,11 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
   // Get albums that belong to Live Concerts section
   const liveConcertsAlbums = FEATURED_ALBUMS_WITH_DETAILS.filter(album => 
     LIVE_CONCERTS_ALBUMS.includes(album.id)
+  );
+
+  // Get albums that belong to Various Artists section
+  const variousArtistsAlbums = FEATURED_ALBUMS_WITH_DETAILS.filter(album => 
+    VARIOUS_ARTISTS_ALBUMS.includes(album.id)
   );
 
   // Auto-pin featured albums if not already pinned
@@ -430,8 +443,47 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
                 )}
               </div>
 
-              {/* Pinned Albums (excluding ChadF and Live Concerts albums) */}
-              {pinnedAlbums.filter(album => !CHADF_ALBUMS.includes(album.id) && !LIVE_CONCERTS_ALBUMS.includes(album.id)).map((album) => (
+              {/* Various Artists Folder */}
+              <div>
+                <button
+                  onClick={() => setShowVariousArtists(!showVariousArtists)}
+                  className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 w-full ${
+                    theme === 'dark'
+                      ? 'text-gray-400 hover:text-white hover:bg-white/10'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  }`}
+                >
+                  <Folder size={20} />
+                  <span className="font-medium flex-1">Various Artists</span>
+                  {showVariousArtists ? (
+                    <ChevronDown size={16} />
+                  ) : (
+                    <ChevronRight size={16} />
+                  )}
+                </button>
+                
+                {showVariousArtists && (
+                  <div className="ml-4 space-y-1 mt-1">
+                    {variousArtistsAlbums.map((album) => (
+                      <Link
+                        key={album.id}
+                        to={`/albums?feed=${encodeURIComponent(album.feedUrl)}`}
+                        className={`flex items-center space-x-3 px-4 py-2 rounded-lg transition-all duration-200 ${
+                          theme === 'dark'
+                            ? 'text-gray-500 hover:text-white hover:bg-white/5'
+                            : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                        }`}
+                      >
+                        <Disc size={16} />
+                        <span className="font-medium text-sm">{album.title}</span>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Pinned Albums (excluding ChadF, Live Concerts, and Various Artists albums) */}
+              {pinnedAlbums.filter(album => !CHADF_ALBUMS.includes(album.id) && !LIVE_CONCERTS_ALBUMS.includes(album.id) && !VARIOUS_ARTISTS_ALBUMS.includes(album.id)).map((album) => (
                 <Link
                   key={album.id}
                   to={`/albums?feed=${encodeURIComponent(album.feedUrl)}`}
