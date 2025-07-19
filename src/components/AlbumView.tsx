@@ -7,7 +7,7 @@ import { AlbumTrackList } from '@/components/AlbumTrackList';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { Music, ExternalLink, ChevronDown, Pin, PinOff, Disc } from 'lucide-react';
+import { Music, ExternalLink, Pin, PinOff, Disc } from 'lucide-react';
 import { htmlToText } from '@/lib/html-utils';
 import {
   DropdownMenu,
@@ -122,34 +122,23 @@ export function AlbumView({ feedUrl }: AlbumViewProps) {
   return (
     <div className="space-y-6 p-4 max-w-6xl mx-auto">
 
-      {/* Header Section with All Albums and Selector */}
+      {/* Header Section with All Albums and Album Buttons */}
       {!feedUrl && (
-        <div className="flex items-center justify-between">
+        <div className="space-y-4">
           <h1 className="text-2xl font-bold">All Albums</h1>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="flex items-center gap-2">
+          <div className="flex flex-wrap gap-3">
+            {FEATURED_ALBUMS.map((album) => (
+              <Button
+                key={album.id}
+                variant={selectedAlbumId === album.id ? "default" : "outline"}
+                onClick={() => setSelectedAlbumId(album.id)}
+                className="flex items-center gap-2"
+              >
                 <Disc className="h-4 w-4" />
-                {selectedAlbum?.title || 'Select Album'}
-                <ChevronDown className="h-4 w-4" />
+                <span className="truncate max-w-32">{album.title}</span>
               </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-64">
-              {FEATURED_ALBUMS.map((album) => (
-                <DropdownMenuItem
-                  key={album.id}
-                  onClick={() => setSelectedAlbumId(album.id)}
-                  className="flex items-center gap-3"
-                >
-                  <Disc className="h-4 w-4" />
-                  <div className="flex-1 min-w-0">
-                    <div className="font-medium truncate">{album.title}</div>
-                    <div className="text-xs text-muted-foreground truncate">{album.artist}</div>
-                  </div>
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+            ))}
+          </div>
         </div>
       )}
 

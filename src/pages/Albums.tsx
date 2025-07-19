@@ -224,9 +224,7 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
                     className="absolute inset-0 z-10"
                   />
                   <Disc size={20} className="relative z-20" />
-                  <div className="flex-1 min-w-0 relative z-20">
-                    <span className="font-medium block leading-tight">{album.title}</span>
-                  </div>
+                  <span className="font-medium block leading-tight flex-1 min-w-0 relative z-20">{album.title}</span>
                   <button
                     onClick={(e) => {
                       e.preventDefault();
