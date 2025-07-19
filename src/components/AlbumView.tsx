@@ -77,11 +77,21 @@ export function AlbumView({ feedUrl = 'https://www.doerfelverse.com/feeds/bloods
                 <p className="text-xl text-muted-foreground">{albumData.artist}</p>
               </div>
 
-              {albumData.description && (
-                <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
-                  {htmlToText(albumData.description)}
-                </p>
-              )}
+              {albumData.description && (() => {
+                const cleanDescription = htmlToText(albumData.description);
+                // Skip displaying description if it's just metadata like "By [Artist]" or "Song Lyrics"
+                const isJustMetadata = cleanDescription.match(/^(By .+?)?\s*(Song Lyrics)?\s*$/i);
+                
+                if (isJustMetadata) {
+                  return null;
+                }
+                
+                return (
+                  <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
+                    {cleanDescription}
+                  </p>
+                );
+              })()}
 
               <div className="flex flex-wrap gap-3 pt-4">
                 {/* V4V Payment Button */}
