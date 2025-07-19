@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAlbumFeed } from '@/hooks/useAlbumFeed';
 import { SecureImage } from '@/components/SecureImage';
 import { Card, CardContent } from '@/components/ui/card';
@@ -69,6 +70,7 @@ const OTHER_ALBUMS = [
 ];
 
 export function AlbumViewEnhanced({ feedUrl }: AlbumViewEnhancedProps) {
+  const navigate = useNavigate();
   const currentFeedUrl = feedUrl || FEATURED_ALBUMS[0].feedUrl;
   
   console.log('🎵 AlbumViewEnhanced: Loading feed URL:', currentFeedUrl);
@@ -387,7 +389,8 @@ export function AlbumViewEnhanced({ feedUrl }: AlbumViewEnhancedProps) {
                     className="flex-none group cursor-pointer"
                     onClick={() => {
                       if (recommendation.feedUrl) {
-                        window.open(`/albums?feed=${encodeURIComponent(recommendation.feedUrl)}`, '_blank');
+                        // Navigate to the same albums page with the new feed URL
+                        navigate(`/albums?feed=${encodeURIComponent(recommendation.feedUrl)}`);
                       }
                     }}
                   >
