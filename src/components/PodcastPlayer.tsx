@@ -354,8 +354,8 @@ export function PodcastPlayer() {
 
   if (!currentPodcast) {
     return (
-      <Card className="border-t rounded-none fixed bottom-0 left-0 right-0 bg-background z-50 safe-area-bottom">
-        <div className="p-3 sm:p-4 text-center text-muted-foreground text-sm">
+      <Card className="border-t border-gray-800 rounded-none fixed bottom-0 left-0 right-0 bg-black/90 backdrop-blur-lg z-50 safe-area-bottom">
+        <div className="p-3 sm:p-4 text-center text-gray-400 text-sm">
           No track selected. Click play on any track to start listening.
         </div>
       </Card>
@@ -363,7 +363,7 @@ export function PodcastPlayer() {
   }
 
   return (
-    <Card className="border-t rounded-none fixed bottom-0 left-0 right-0 bg-background z-50 safe-area-bottom">
+    <Card className="border-t border-gray-800 rounded-none fixed bottom-0 left-0 right-0 bg-black/90 backdrop-blur-lg z-50 safe-area-bottom">
       <div className="p-3 sm:p-4">
         <audio
           ref={audioRef}
@@ -377,7 +377,7 @@ export function PodcastPlayer() {
           {/* Episode Info - Clickable */}
           <button 
             onClick={() => setShowNowPlaying(true)}
-            className="flex items-center gap-3 min-w-0 flex-1 hover:bg-muted/50 active:bg-muted/70 -m-2 p-2 rounded-lg transition-colors touch-manipulation"
+            className="flex items-center gap-3 min-w-0 flex-1 hover:bg-white/10 active:bg-white/20 -m-2 p-2 rounded-lg transition-colors touch-manipulation"
           >
             {currentPodcast.imageUrl && (
               <div className="h-12 w-12 sm:h-12 sm:w-12 rounded object-cover flex-shrink-0">
@@ -389,14 +389,14 @@ export function PodcastPlayer() {
               </div>
             )}
             <div className="min-w-0 text-left">
-              <h4 className="font-medium text-sm sm:text-sm truncate">{currentPodcast.title}</h4>
-              <p className="text-xs text-muted-foreground truncate">{currentPodcast.author}</p>
+              <h4 className="font-medium text-sm sm:text-sm truncate text-white">{currentPodcast.title}</h4>
+              <p className="text-xs text-gray-400 truncate">{currentPodcast.author}</p>
             </div>
           </button>
 
           {/* Controls */}
           <div className="flex items-center gap-1 sm:gap-2">
-            <Button variant="ghost" size="icon" onClick={playPrevious} className="h-10 w-10 sm:h-9 sm:w-9 touch-manipulation">
+            <Button variant="ghost" size="icon" onClick={playPrevious} className="h-10 w-10 sm:h-9 sm:w-9 touch-manipulation text-gray-400 hover:text-white hover:bg-white/10">
               <SkipBack className="h-5 w-5 sm:h-4 sm:w-4" />
             </Button>
             
@@ -404,7 +404,7 @@ export function PodcastPlayer() {
               onClick={handlePlayPause} 
               size="icon" 
               className={`h-10 w-10 sm:h-9 sm:w-9 touch-manipulation ${
-                isIOS && autoplayBlocked && !hasUserInteracted ? 'animate-pulse bg-orange-500 hover:bg-orange-600' : ''
+                isIOS && autoplayBlocked && !hasUserInteracted ? 'animate-pulse bg-red-600 hover:bg-red-500' : 'bg-red-600 hover:bg-red-500 text-white'
               }`}
             >
               {isPlaying ? (
@@ -414,7 +414,7 @@ export function PodcastPlayer() {
               )}
             </Button>
             
-            <Button variant="ghost" size="icon" onClick={playNext} className="h-10 w-10 sm:h-9 sm:w-9 touch-manipulation">
+            <Button variant="ghost" size="icon" onClick={playNext} className="h-10 w-10 sm:h-9 sm:w-9 touch-manipulation text-gray-400 hover:text-white hover:bg-white/10">
               <SkipForward className="h-5 w-5 sm:h-4 sm:w-4" />
             </Button>
           </div>
@@ -423,7 +423,7 @@ export function PodcastPlayer() {
           <div className="flex items-center gap-2 flex-1 max-w-md group">
             <button 
               onClick={() => setShowNowPlaying(true)}
-              className="text-xs text-muted-foreground w-8 sm:w-10 text-right hover:text-foreground transition-colors touch-manipulation"
+              className="text-xs text-gray-400 w-8 sm:w-10 text-right hover:text-white transition-colors touch-manipulation"
             >
               {formatTime(currentTime)}
             </button>
@@ -438,7 +438,7 @@ export function PodcastPlayer() {
             </div>
             <button 
               onClick={() => setShowNowPlaying(true)}
-              className="text-xs text-muted-foreground w-8 sm:w-10 hover:text-foreground transition-colors touch-manipulation"
+              className="text-xs text-gray-400 w-8 sm:w-10 hover:text-white transition-colors touch-manipulation"
             >
               {formatTime(duration)}
             </button>
@@ -446,7 +446,7 @@ export function PodcastPlayer() {
 
           {/* Volume - Hidden on mobile to save space */}
           <div className="hidden sm:flex items-center gap-2">
-            <Button variant="ghost" size="icon" onClick={handleMute}>
+            <Button variant="ghost" size="icon" onClick={handleMute} className="text-gray-400 hover:text-white hover:bg-white/10">
               {isMuted || volume === 0 ? (
                 <VolumeX className="h-4 w-4" />
               ) : (
@@ -472,14 +472,14 @@ export function PodcastPlayer() {
                 setAutoPlay(checked);
               }} 
             />
-            <label htmlFor="autoplay-switch" className="text-xs text-muted-foreground select-none cursor-pointer">
+            <label htmlFor="autoplay-switch" className="text-xs text-gray-400 select-none cursor-pointer">
               Auto-Play {autoPlay ? '✓' : '✗'}
             </label>
           </div>
           
           {/* Mobile volume button only */}
           <div className="sm:hidden">
-            <Button variant="ghost" size="icon" onClick={handleMute} className="h-10 w-10 touch-manipulation">
+            <Button variant="ghost" size="icon" onClick={handleMute} className="h-10 w-10 touch-manipulation text-gray-400 hover:text-white hover:bg-white/10">
               {isMuted || volume === 0 ? (
                 <VolumeX className="h-5 w-5" />
               ) : (
