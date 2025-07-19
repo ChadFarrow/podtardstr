@@ -1,5 +1,4 @@
 import { Menu, X, Sun, Moon } from 'lucide-react';
-import { useState } from 'react';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useAlbumColors } from '@/hooks/useAlbumColors';
 import { LoginArea } from '@/components/auth/LoginArea';
@@ -57,9 +56,9 @@ export function AlbumNavigation({ onMenuToggle, showMenu }: AlbumNavigationProps
           }`}
         >
           {theme === 'dark' ? (
-            <Sun size={20} className={albumColors.isActive || theme === 'dark' ? 'text-white' : 'text-gray-700'} />
+            <Sun size={20} className={albumColors.isActive ? 'text-white' : 'text-gray-700'} />
           ) : (
-            <Moon size={20} className={albumColors.isActive || theme === 'dark' ? 'text-white' : 'text-gray-700'} />
+            <Moon size={20} className={albumColors.isActive ? 'text-white' : 'text-gray-700'} />
           )}
         </button>
         <LoginArea className="max-w-60" />

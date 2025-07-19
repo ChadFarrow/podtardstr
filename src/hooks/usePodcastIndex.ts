@@ -343,6 +343,32 @@ export function usePodcastEpisodes(feedId: number, options: { enabled?: boolean 
   });
 }
 
+export function usePodcastByFeedId(feedId: number, options: { enabled?: boolean } = {}) {
+  return useQuery({
+    queryKey: ['podcast-index', 'podcast-by-feedid', feedId],
+    queryFn: async () => {
+      console.log('Fetching podcast by feed ID:', feedId);
+      
+      try {
+        const response = await podcastIndexFetch<PodcastIndexPodcast>('/podcasts/byfeedid', {
+          id: feedId.toString(),
+        });
+
+        console.log('Podcast by feed ID API response:', response);
+
+        return {
+          podcast: response.feeds?.[0] || null,
+        };
+      } catch (error) {
+        console.error('Error fetching podcast by feed ID', feedId, ':', error);
+        throw error;
+      }
+    },
+    enabled: options.enabled !== false && feedId > 0,
+    staleTime: 10 * 60 * 1000, // 10 minutes
+  });
+}
+
 // Top100 Music Chart from Podcast Index (same as LNBeats)
 interface Top100MusicEntry {
   rank: number;
