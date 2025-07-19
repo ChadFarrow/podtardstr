@@ -51,6 +51,7 @@ export interface ParsedEpisode {
   guid?: string;
   pubDate?: string;
   duration?: string;
+  image?: string;
   enclosure?: {
     url: string;
     type: string;
@@ -157,6 +158,7 @@ export async function parseFeedXML(xmlText: string): Promise<ParsedFeed> {
       guid: getTextContent(item, 'guid'),
       pubDate: getTextContent(item, 'pubDate'),
       duration: duration,
+      image: getEpisodeImage(item),
       value: parseValueBlock(item)
     };
 
@@ -584,6 +586,51 @@ function getChannelImage(channel: Element): string | undefined {
   }
 
   console.log('No channel image found');
+  return undefined;
+}
+
+/**
+ * Extracts image from an episode/item element
+ */
+function getEpisodeImage(item: Element): string | undefined {
+  // Try multiple image sources in order of preference
+  const imageSources = [
+    // iTunes image with href attribute
+    () => getTextContent(item, 'itunes\\:image', 'href'),
+    // Direct image element content
+    () => getTextContent(item, 'image'),
+    // Image element with href attribute
+    () => getTextContent(item, 'image', 'href'),
+    // Artwork element
+    () => getTextContent(item, 'artwork'),
+    // Check for any image-related element without namespace
+    () => {
+      const imageEl = item.querySelector('image');
+      if (imageEl) {
+        // Try common attributes
+        const attrs = ['href', 'url', 'src'];
+        for (const attr of attrs) {
+          const value = imageEl.getAttribute(attr);
+          if (value) return value;
+        }
+        // Try text content
+        const text = imageEl.textContent?.trim();
+        if (text && (text.includes('http') || text.includes('.jpg') || text.includes('.png'))) {
+          return text;
+        }
+      }
+      return undefined;
+    }
+  ];
+
+  for (const getImageFn of imageSources) {
+    const image = getImageFn();
+    if (image) {
+      console.log('Found episode image:', image);
+      return image;
+    }
+  }
+
   return undefined;
 }
 

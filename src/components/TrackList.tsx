@@ -46,9 +46,22 @@ export function TrackList({ tracks, artist, onTrackPlay, isTrackPlaying }: Track
                   )}
                   <Play size={18} className="text-white hidden group-hover:block mx-auto" />
                 </div>
-                <div>
-                  <p className="font-semibold text-white text-lg">{track.title}</p>
-                  <p className="text-gray-400">{artist}</p>
+                <div className="flex items-center space-x-4">
+                  {/* Track artwork if available */}
+                  {track.image && track.image !== track.albumArt && (
+                    <img 
+                      src={track.image} 
+                      alt={track.title}
+                      className="w-12 h-12 rounded-lg object-cover"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                      }}
+                    />
+                  )}
+                  <div>
+                    <p className="font-semibold text-white text-lg">{track.title}</p>
+                    <p className="text-gray-400">{artist}</p>
+                  </div>
                 </div>
               </div>
               <div className="flex items-center space-x-6">

@@ -116,7 +116,7 @@ async function fetchAlbumFeed(feedUrl: string): Promise<AlbumFeedData> {
           duration: durationInSeconds,
           explicit: 0,
           episodeType: 'full',
-          image: albumData.artwork,
+          image: episode.image || albumData.artwork,
           feedImage: albumData.artwork,
           feedId: 0,
           feedTitle: albumData.title,
