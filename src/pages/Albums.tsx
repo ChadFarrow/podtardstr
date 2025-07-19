@@ -485,7 +485,7 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
                     {doerfelsAlbums.map((album) => (
                       <Link
                         key={album.id}
-                        to={album.id === 'bloodshot-lies' ? `/albums/bloodshot-lies` : `/albums?feed=${encodeURIComponent(album.feedUrl)}`}
+                        to={`/albums/${album.id}`}
                         className={`flex items-center space-x-3 px-4 py-2 rounded-lg transition-all duration-200 ${
                           theme === 'dark'
                             ? 'text-gray-500 hover:text-white hover:bg-white/5'
@@ -524,7 +524,7 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
                     {chadFAlbums.map((album) => (
                       <Link
                         key={album.id}
-                        to={`/albums?feed=${encodeURIComponent(album.feedUrl)}`}
+                        to={`/albums/${album.id}`}
                         className={`flex items-center space-x-3 px-4 py-2 rounded-lg transition-all duration-200 ${
                           theme === 'dark'
                             ? 'text-gray-500 hover:text-white hover:bg-white/5'
@@ -538,7 +538,7 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
                     
                     {/* Additional ChadF album */}
                     <Link
-                      to="/albums?feed=https://wavlake.com/feed/music/997060e3-9dc1-4cd8-b3c1-3ae06d54bb03"
+                      to="/albums/wavlake-album"
                       className={`flex items-center space-x-3 px-4 py-2 rounded-lg transition-all duration-200 ${
                         theme === 'dark'
                           ? 'text-gray-500 hover:text-white hover:bg-white/5'
@@ -576,7 +576,7 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
                     {friendsAlbums.map((album) => (
                       <Link
                         key={album.id}
-                        to={`/albums?feed=${encodeURIComponent(album.feedUrl)}`}
+                        to={`/albums/${album.id}`}
                         className={`flex items-center space-x-3 px-4 py-2 rounded-lg transition-all duration-200 ${
                           theme === 'dark'
                             ? 'text-gray-500 hover:text-white hover:bg-white/5'
@@ -595,7 +595,7 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
               {pinnedAlbums.filter(album => !CHADF_ALBUMS.includes(album.id) && !LIVE_CONCERTS_ALBUMS.includes(album.id) && !FRIENDS_ALBUMS.includes(album.id) && !DOERFELS_ALBUMS.includes(album.id)).map((album) => (
                 <Link
                   key={album.id}
-                  to={`/albums?feed=${encodeURIComponent(album.feedUrl)}`}
+                  to={`/albums/${album.id}`}
                   className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 ${
                     theme === 'dark'
                       ? 'text-gray-400 hover:text-white hover:bg-white/10'
@@ -631,7 +631,7 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
                     {liveConcertsAlbums.map((album) => (
                       <Link
                         key={album.id}
-                        to={`/albums?feed=${encodeURIComponent(album.feedUrl)}`}
+                        to={`/albums/${album.id}`}
                         className={`flex items-center space-x-3 px-4 py-2 rounded-lg transition-all duration-200 ${
                           theme === 'dark'
                             ? 'text-gray-500 hover:text-white hover:bg-white/5'

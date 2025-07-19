@@ -25,7 +25,7 @@ export function AlbumGallery({ albums }: AlbumGalleryProps) {
           {albums.map((album) => (
             <Link
               key={album.id}
-              to={`/albums?feed=${encodeURIComponent(album.feedUrl)}`}
+              to={`/albums/${album.id}`}
               className="group relative overflow-hidden rounded-lg bg-gray-900 hover:bg-gray-800 transition-all duration-300 hover:scale-105"
             >
               <div className="aspect-square relative overflow-hidden">

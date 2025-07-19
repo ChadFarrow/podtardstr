@@ -2,12 +2,13 @@ import { useState } from 'react';
 import { useAlbumFeed } from '@/hooks/useAlbumFeed';
 import { usePinnedAlbums } from '@/hooks/usePinnedAlbums';
 import { SecureImage } from '@/components/SecureImage';
+import { useAlbumControls } from '@/components/AlbumControls';
 
 import { AlbumTrackList } from '@/components/AlbumTrackList';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { Music, Pin, PinOff, Disc } from 'lucide-react';
+import { Music, Pin, PinOff, Disc, Play, Pause } from 'lucide-react';
 import { htmlToText } from '@/lib/html-utils';
 
 interface AlbumViewProps {
@@ -75,6 +76,9 @@ export function AlbumView({ feedUrl }: AlbumViewProps) {
   
   const { data: albumData, isLoading, error } = useAlbumFeed(currentFeedUrl);
   const { pinAlbum, unpinAlbum, isPinned } = usePinnedAlbums();
+  
+  // Use album controls for play functionality
+  const controls = useAlbumControls({ albumData: albumData || { tracks: [], artist: '', artwork: '' } });
 
   if (isLoading) {
     return (

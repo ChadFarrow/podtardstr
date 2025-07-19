@@ -72,15 +72,34 @@ export function AlbumRecommendations({ podroll, currentFeedUrl }: AlbumRecommend
 
   // Map feed URLs to individual album routes
   const getAlbumRoute = (feedUrl: string): string => {
-    // Check if it's one of our featured albums
-    if (feedUrl.includes('bloodshot-lies-album.xml')) {
-      return '/albums/bloodshot-lies';
-    }
-    if (feedUrl.includes('heycitizen-experience')) {
-      return '/albums/heycitizen-experience';
-    }
-    // For other albums, use query parameter approach
-    return `/albums?feed=${encodeURIComponent(feedUrl)}`;
+    // Create a mapping of feed URLs to clean routes
+    const urlMappings: Record<string, string> = {
+      'https://www.doerfelverse.com/feeds/bloodshot-lies-album.xml': '/albums/bloodshot-lies',
+      'https://files.heycitizen.xyz/Songs/Albums/The-Heycitizen-Experience/the heycitizen experience.xml': '/albums/heycitizen-experience',
+      'https://www.doerfelverse.com/feeds/think-ep.xml': '/albums/think-ep',
+      'https://www.doerfelverse.com/feeds/music-from-the-doerfelverse.xml': '/albums/music-from-the-doerfelverse',
+      'https://ableandthewolf.com/static/media/feed.xml': '/albums/stay-awhile',
+      'https://zine.bitpunk.fm/feeds/spectral-hiding.xml': '/albums/spectral-hiding',
+      'https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/polarembrace/rss/videofeed/feed.xml': '/albums/polar-embrace',
+      'https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/autumnrust/mp3s/album_feed/feed.xml': '/albums/autumn-rust',
+      'https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/the_satellite_skirmish_album.xml': '/albums/the-satellite-skirmish',
+      'https://files.heycitizen.xyz/Songs/Albums/Lofi-Experience/lofi.xml': '/albums/lofi-experience',
+      'https://wavlake.com/feed/music/d677db67-0310-4813-970e-e65927c689f1': '/albums/tinderbox',
+      'https://static.staticsave.com/mspfiles/deathdreams.xml': '/albums/deathdreams',
+      'https://music.behindthesch3m3s.com/wp-content/uploads/Mike_Epting/$2Holla/pony%20up%20daddy.xml': '/albums/pony-up-daddy',
+      'https://whiterabbitrecords.org/wp-content/uploads/2023/04/Empty-Passenger-Seat.xml': '/albums/empty-passenger-seat',
+      'https://www.doerfelverse.com/feeds/ben-doerfel.xml': '/albums/ben-doerfel',
+      'https://www.doerfelverse.com/feeds/intothedoerfelverse.xml': '/albums/into-the-doerfelverse',
+      'https://www.sirtjthewrathful.com/wp-content/uploads/2023/08/Kurtisdrums-V1.xml': '/albums/kurtisdrums-v1',
+      'https://www.sirtjthewrathful.com/wp-content/uploads/2023/08/Nostalgic.xml': '/albums/nostalgic',
+      'https://www.sirtjthewrathful.com/wp-content/uploads/2023/08/CityBeach.xml': '/albums/citybeach',
+      'https://www.doerfelverse.com/feeds/wrath-of-banjo.xml': '/albums/wrath-of-banjo',
+      'https://www.thisisjdog.com/media/ring-that-bell.xml': '/albums/ring-that-bell',
+      'https://wavlake.com/feed/music/997060e3-9dc1-4cd8-b3c1-3ae06d54bb03': '/albums/wavlake-album'
+    };
+
+    // Return clean route if found, otherwise fall back to query parameter
+    return urlMappings[feedUrl] || `/albums?feed=${encodeURIComponent(feedUrl)}`;
   };
 
   return (
