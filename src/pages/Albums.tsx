@@ -231,13 +231,90 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
     DOERFELS_ALBUMS.includes(album.id)
   );
 
-  // Create prioritized album list for main display
-  const getPrioritizedAlbums = () => {
-    // Create a copy of all albums
+  // Create complete album list including all sidebar navigation items
+  const getAllNavigationAlbums = () => {
+    // Start with featured albums
     const allAlbums = [...FEATURED_ALBUMS_WITH_DETAILS];
     
+    // Add albums from sidebar navigation that aren't in featured albums
+    const sidebarAlbums = [
+      // Additional Doerfels albums from podroll
+      {
+        id: 'ben-doerfel',
+        title: 'Ben Doerfel',
+        artist: 'Ben Doerfel',
+        artwork: '/placeholder-album.png',
+        feedUrl: 'https://www.doerfelverse.com/feeds/ben-doerfel.xml',
+        description: 'Solo work from Ben Doerfel'
+      },
+      {
+        id: 'into-the-doerfelverse',
+        title: 'Into the Doerfelverse',
+        artist: 'The Doerfels',
+        artwork: '/placeholder-album.png',
+        feedUrl: 'https://www.doerfelverse.com/feeds/intothedoerfelverse.xml',
+        description: 'Journey into the Doerfelverse'
+      },
+      {
+        id: 'kurtisdrums-v1',
+        title: 'Kurtisdrums V1',
+        artist: 'Kurtis',
+        artwork: '/placeholder-album.png',
+        feedUrl: 'https://www.sirtjthewrathful.com/wp-content/uploads/2023/08/Kurtisdrums-V1.xml',
+        description: 'Drum compositions by Kurtis'
+      },
+      {
+        id: 'nostalgic',
+        title: 'Nostalgic',
+        artist: 'Various',
+        artwork: '/placeholder-album.png',
+        feedUrl: 'https://www.sirtjthewrathful.com/wp-content/uploads/2023/08/Nostalgic.xml',
+        description: 'Nostalgic musical journey'
+      },
+      {
+        id: 'citybeach',
+        title: 'CityBeach',
+        artist: 'Various',
+        artwork: '/placeholder-album.png',
+        feedUrl: 'https://www.sirtjthewrathful.com/wp-content/uploads/2023/08/CityBeach.xml',
+        description: 'Urban beach vibes'
+      },
+      {
+        id: 'wrath-of-banjo',
+        title: 'Wrath of Banjo',
+        artist: 'The Doerfels',
+        artwork: '/placeholder-album.png',
+        feedUrl: 'https://www.doerfelverse.com/feeds/wrath-of-banjo.xml',
+        description: 'Banjo-driven compositions'
+      },
+      {
+        id: 'ring-that-bell',
+        title: 'Ring That Bell',
+        artist: 'J-Dog',
+        artwork: '/placeholder-album.png',
+        feedUrl: 'https://www.thisisjdog.com/media/ring-that-bell.xml',
+        description: 'Bell-themed musical collection'
+      },
+      {
+        id: 'wavlake-album',
+        title: 'Wavlake Album',
+        artist: 'ChadF',
+        artwork: '/placeholder-album.png',
+        feedUrl: 'https://wavlake.com/feed/music/997060e3-9dc1-4cd8-b3c1-3ae06d54bb03',
+        description: 'Album from Wavlake platform'
+      }
+    ];
+
+    // Filter out sidebar albums that are already in featured albums
+    const newSidebarAlbums = sidebarAlbums.filter(sidebarAlbum => 
+      !allAlbums.some(featuredAlbum => featuredAlbum.feedUrl === sidebarAlbum.feedUrl)
+    );
+
+    // Combine all albums
+    const combinedAlbums = [...allAlbums, ...newSidebarAlbums];
+    
     // Separate Doerfels and related albums (includes podroll items)
-    const doerfelsAndRelated = allAlbums.filter(album => {
+    const doerfelsAndRelated = combinedAlbums.filter(album => {
       // Direct Doerfels albums
       if (DOERFELS_ALBUMS.includes(album.id)) return true;
       
@@ -252,7 +329,7 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
     });
     
     // Get remaining albums
-    const otherAlbums = allAlbums.filter(album => !doerfelsAndRelated.includes(album));
+    const otherAlbums = combinedAlbums.filter(album => !doerfelsAndRelated.includes(album));
     
     // Ensure Bloodshot Lies is first among Doerfels albums
     const bloodshotLies = doerfelsAndRelated.find(album => album.id === 'bloodshot-lies');
@@ -266,9 +343,9 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
     ];
   };
 
-  // Auto-pin featured albums if not already pinned
+  // Auto-pin all navigation albums if not already pinned
   useEffect(() => {
-    const albumsToPin = getPrioritizedAlbums().map(album => ({
+    const albumsToPin = getAllNavigationAlbums().map(album => ({
       id: album.id,
       title: album.title,
       artist: album.artist,
@@ -947,7 +1024,7 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
           <AlbumViewEnhanced feedUrl={currentFeedUrl} />
         ) : (
           <div className={theme === 'dark' ? '' : 'bg-white'}>
-            <AlbumGallery albums={getPrioritizedAlbums()} />
+            <AlbumGallery albums={getAllNavigationAlbums()} />
           </div>
         )}
       </div>
