@@ -294,17 +294,7 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
                 <span className="font-medium">All Albums</span>
               </Link>
               
-              <Link
-                to="/albums/bloodshot-lies"
-                className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 ${
-                  theme === 'dark'
-                    ? 'text-gray-400 hover:text-white hover:bg-white/10'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                }`}
-              >
-                <Disc size={20} />
-                <span className="font-medium">Bloodshot Lies</span>
-              </Link>
+
               
 
 
