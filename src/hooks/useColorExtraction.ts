@@ -39,8 +39,38 @@ export const useColorExtraction = (imageUrl: string | undefined) => {
               return `#${rgb.map(x => x.toString(16).padStart(2, '0')).join('')}`;
             };
 
-            const primary = rgbToHex(dominantColor);
-            const paletteHex = palette.map(rgbToHex);
+            // Enhance colors for better visibility
+            const enhanceColor = (rgb: number[]) => {
+              const [r, g, b] = rgb;
+              // Calculate luminance to detect gray colors
+              const luminance = (0.299 * r + 0.587 * g + 0.114 * b);
+              
+              // If it's a very gray color (low saturation), add some color bias
+              const maxChannel = Math.max(r, g, b);
+              const minChannel = Math.min(r, g, b);
+              const saturation = maxChannel === 0 ? 0 : (maxChannel - minChannel) / maxChannel;
+              
+              if (saturation < 0.3 && luminance > 100) {
+                // Add blue bias for light grays
+                return [Math.min(255, r + 20), Math.min(255, g + 30), Math.min(255, b + 60)];
+              } else if (saturation < 0.3 && luminance <= 100) {
+                // Add purple bias for dark grays
+                return [Math.min(255, r + 40), Math.min(255, g + 20), Math.min(255, b + 50)];
+              }
+              
+              // Boost saturation for all colors
+              const boostedR = Math.min(255, Math.round(r * 1.2));
+              const boostedG = Math.min(255, Math.round(g * 1.2));
+              const boostedB = Math.min(255, Math.round(b * 1.2));
+              
+              return [boostedR, boostedG, boostedB];
+            };
+
+            const enhancedDominant = enhanceColor(dominantColor);
+            const enhancedPalette = palette.map(enhanceColor);
+
+            const primary = rgbToHex(enhancedDominant);
+            const paletteHex = enhancedPalette.map(rgbToHex);
             
             // Use palette for variety
             const secondary = paletteHex[1] || primary;

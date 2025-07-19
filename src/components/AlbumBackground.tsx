@@ -47,10 +47,10 @@ export function AlbumBackground({ artwork, children }: AlbumBackgroundProps) {
           colors && !isLoading
             ? {
                 background: `linear-gradient(135deg, 
-                  ${colors.primary}60 0%, 
-                  ${colors.secondary}50 50%, 
-                  ${colors.accent}40 70%,
-                  #000000cc 100%)`
+                  ${colors.primary}80 0%, 
+                  ${colors.secondary}70 50%, 
+                  ${colors.accent}60 70%,
+                  #000000aa 100%)`
               }
             : {}
         }
