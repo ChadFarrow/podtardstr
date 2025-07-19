@@ -80,7 +80,10 @@ export function AlbumViewEnhanced({ feedUrl }: AlbumViewEnhancedProps) {
     hasError: !!error, 
     hasData: !!albumData,
     trackCount: albumData?.tracks?.length || 0,
-    firstTrackDuration: albumData?.tracks?.[0]?.duration || 'N/A'
+    firstTrackDuration: albumData?.tracks?.[0]?.duration || 'N/A',
+    hasPodroll: !!albumData?.podroll,
+    podrollLength: albumData?.podroll?.length || 0,
+    podrollItems: albumData?.podroll
   });
   const { currentPodcast, isPlaying, playPodcast, setIsPlaying, addToQueue, clearQueue } = usePodcastPlayer();
 

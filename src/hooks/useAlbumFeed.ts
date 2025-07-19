@@ -46,6 +46,13 @@ async function fetchAlbumFeed(feedUrl: string): Promise<AlbumFeedData> {
     // Use the existing fetchAndParseFeed function which handles CORS and fallbacks
     const parsedFeed = await fetchAndParseFeed(feedUrl);
     
+    console.log('🎵 useAlbumFeed: Parsed feed data:', {
+      title: parsedFeed.title,
+      hasPodroll: !!parsedFeed.podroll,
+      podrollLength: parsedFeed.podroll?.length || 0,
+      podrollItems: parsedFeed.podroll
+    });
+    
     // Transform the RSS data into our album format
     const albumData: AlbumFeedData = {
       title: parsedFeed.title || 'Unknown Album',
@@ -158,10 +165,10 @@ async function fetchAlbumFeed(feedUrl: string): Promise<AlbumFeedData> {
 
 export function useAlbumFeed(feedUrl: string, options: { enabled?: boolean } = {}) {
   return useQuery({
-    queryKey: ['album-feed', feedUrl],
+    queryKey: ['album-feed', feedUrl, '1.159'], // Add version to bust cache
     queryFn: () => fetchAlbumFeed(feedUrl),
     enabled: options.enabled !== false && !!feedUrl,
-    staleTime: 10 * 60 * 1000, // 10 minutes
-    gcTime: 30 * 60 * 1000, // 30 minutes
+    staleTime: 1 * 60 * 1000, // Reduce to 1 minute for debugging
+    gcTime: 5 * 60 * 1000, // Reduce to 5 minutes for debugging
   });
 }

@@ -159,20 +159,52 @@ function parseValueBlock(element: Element): ValueBlock | undefined {
  * Parses podcast:podroll elements and extracts podcast recommendations
  */
 function parsePodRoll(element: Element): PodRollItem[] | undefined {
+  console.log('🎯 parsePodRoll: Starting PodRoll parsing...');
+  
   // Look for podcast:podroll element (with or without namespace prefix)
   const podrollElement = element.querySelector('podcast\\:podroll, podroll');
+  console.log('🎯 parsePodRoll: PodRoll element found:', !!podrollElement);
+  
+  let actualPodrollElement = podrollElement;
+  
   if (!podrollElement) {
-    return undefined;
+    // Try alternative approaches to find the podroll element
+    const allElements = element.querySelectorAll('*');
+    let foundPodroll = null;
+    for (const el of Array.from(allElements)) {
+      if (el.tagName.toLowerCase().includes('podroll')) {
+        console.log('🎯 parsePodRoll: Found podroll via tagName search:', el.tagName);
+        foundPodroll = el;
+        break;
+      }
+    }
+    if (!foundPodroll) {
+      console.log('❌ parsePodRoll: No podcast:podroll element found');
+      return undefined;
+    } else {
+      // Use the found element
+      console.log('✅ parsePodRoll: Using fallback podroll element');
+      actualPodrollElement = foundPodroll;
+    }
   }
 
   const podrollItems: PodRollItem[] = [];
 
   // Parse all podcast:remoteItem elements within the podroll
-  const remoteItems = podrollElement.querySelectorAll('podcast\\:remoteItem, remoteItem');
+  const remoteItems = actualPodrollElement.querySelectorAll('podcast\\:remoteItem, remoteItem');
+  console.log('🎯 parsePodRoll: Found', remoteItems.length, 'remoteItem elements');
   remoteItems.forEach((item, index) => {
     const feedGuid = item.getAttribute('feedGuid') || undefined;
     const feedUrl = item.getAttribute('feedUrl') || undefined;
     const title = item.textContent?.trim() || item.getAttribute('title') || '';
+    
+    console.log(`🎯 parsePodRoll: Processing remoteItem ${index + 1}:`, {
+      feedGuid: feedGuid?.substring(0, 20) + '...',
+      feedUrl: feedUrl?.substring(0, 50) + '...',
+      title,
+      hasTextContent: !!item.textContent?.trim(),
+      tagName: item.tagName
+    });
     
     // Additional attributes that might be present
     const description = item.getAttribute('description') || undefined;
@@ -183,6 +215,7 @@ function parsePodRoll(element: Element): PodRollItem[] | undefined {
     // Use a fallback title if none is provided
     if (feedGuid || feedUrl) {
       const fallbackTitle = title || `Recommended Podcast ${index + 1}`;
+      console.log(`✅ parsePodRoll: Adding item ${index + 1} with title: "${fallbackTitle}"`);
       podrollItems.push({
         feedGuid,
         feedUrl,
@@ -191,10 +224,17 @@ function parsePodRoll(element: Element): PodRollItem[] | undefined {
         image,
         author
       });
+    } else {
+      console.log(`❌ parsePodRoll: Skipping item ${index + 1} - no feedGuid or feedUrl`);
     }
   });
 
-  console.log(`Parsed ${podrollItems.length} podroll recommendations:`, podrollItems);
+  console.log(`🎯 PodRoll parsing result: Found ${podrollItems.length} items`);
+  if (podrollItems.length > 0) {
+    console.log('🎯 PodRoll items:', podrollItems);
+  } else {
+    console.log('❌ No PodRoll items found - check if podcast:podroll exists or if remoteItems have required attributes');
+  }
   
   return podrollItems.length > 0 ? podrollItems : undefined;
 }
