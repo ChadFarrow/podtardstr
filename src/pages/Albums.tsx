@@ -11,7 +11,6 @@ import { useSearchParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { usePinnedAlbums } from '@/hooks/usePinnedAlbums';
 import { useTheme } from '@/contexts/ThemeContext';
-import { usePodcastByFeedId } from '@/hooks/usePodcastIndex';
 
 interface AlbumsProps {
   feedUrl?: string;
@@ -26,9 +25,6 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
   const [showDoerfels, setShowDoerfels] = useState(false);
   const { pinnedAlbums, pinAlbum, isPinned } = usePinnedAlbums();
   const { theme, toggleTheme } = useTheme();
-  
-  // Temporary: Look up podcast with ID 4630863
-  const { data: podcastData } = usePodcastByFeedId(4630863);
   
   // Get feed URL from props first, then from query parameters
   const feedUrlFromParams = searchParams.get('feed');
@@ -372,18 +368,7 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
 
   return (
     <div className={`min-h-screen relative ${theme === 'dark' ? 'bg-black' : 'bg-gray-50'}`}>
-      {/* Temporary: Display podcast info for ID 4630863 */}
-      {podcastData?.podcast && (
-        <div className="fixed top-4 right-4 z-50 bg-white p-4 rounded-lg shadow-lg max-w-md">
-          <h3 className="font-bold text-lg mb-2">Podcast ID 4630863:</h3>
-          <p><strong>Title:</strong> {podcastData.podcast.title}</p>
-          <p><strong>Author:</strong> {podcastData.podcast.author}</p>
-          <p><strong>Feed URL:</strong> {podcastData.podcast.url}</p>
-          <p><strong>Image:</strong> {podcastData.podcast.image}</p>
-          <p><strong>Artwork:</strong> {podcastData.podcast.artwork}</p>
-          <p><strong>Description:</strong> {podcastData.podcast.description?.substring(0, 100)}...</p>
-        </div>
-      )}
+
       {/* Top Navigation Bar - Only show when not viewing individual album */}
       {!currentFeedUrl && (
         <div 
