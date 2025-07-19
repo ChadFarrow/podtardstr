@@ -66,9 +66,9 @@ async function fetchPodRollArtwork(feedUrl: string): Promise<string | undefined>
   try {
     console.log(`🎨 fetchPodRollArtwork: Fetching ${feedUrl}`);
     
-    // Add timeout to prevent hanging
+    // Add timeout to prevent hanging - reduced from 5s to 3s for faster loading
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+    const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
     
     // Use our existing RSS proxy to fetch the feed
     const proxyUrl = `/api/rss-proxy?url=${encodeURIComponent(feedUrl)}`;
@@ -532,12 +532,7 @@ function getChannelImage(channel: Element): string | undefined {
  */
 export async function fetchAndParseFeed(feedUrl: string): Promise<ParsedFeed> {
   try {
-    // Add cache-busting parameter to avoid stale deployments
-    const urlWithCacheBust = new URL(feedUrl);
-    urlWithCacheBust.searchParams.set('_cb', Date.now().toString());
-    const finalFeedUrl = urlWithCacheBust.toString();
-    
-    console.log('🔍 Attempting to fetch RSS feed:', finalFeedUrl);
+    console.log('🔍 Attempting to fetch RSS feed:', feedUrl);
     
     // Use server-side RSS proxy to completely avoid CORS issues
     const proxies = [
@@ -550,92 +545,73 @@ export async function fetchAndParseFeed(feedUrl: string): Promise<ParsedFeed> {
     let xmlText: string | undefined;
     let lastError: Error | null = null;
     
-    // Skipping direct fetch - using CORS proxies
-    console.log('Skipping direct fetch - using CORS proxies');
-    
-    // Skip no-cors mode, go straight to proxies
-    // Skipping no-cors mode, go straight to proxies
-    
-    if (!xmlText) {
-      // Try each proxy in sequence with exponential backoff
-      for (let i = 0; i < proxies.length; i++) {
-        try {
-          const proxyFn = proxies[i];
-          const proxyUrl = proxyFn(finalFeedUrl);
-          console.log(`🌐 Trying proxy ${i + 1}/${proxies.length}:`, proxyUrl);
-          
-          // Add delay between retries to avoid rate limiting
-          if (i > 0) {
-            const delay = Math.min(1000 * Math.pow(2, i - 1), 5000); // Exponential backoff, max 5s
-            console.log(`Waiting ${delay}ms before next proxy attempt...`);
-            await new Promise(resolve => setTimeout(resolve, delay));
-          }
-          
-          const response = await fetch(proxyUrl, {
-            method: 'GET',
-            // Only use CORS-safelisted headers
-            headers: {
-              'Accept': 'application/json, text/plain, text/xml, */*',
-            },
-            redirect: 'follow',
-          });
-          
-          if (!response.ok) {
-            throw new Error(`Proxy ${i + 1} failed: ${response.status} ${response.statusText}`);
-          }
-          
-          const contentType = response.headers.get('content-type') || '';
-          
-          if (proxyUrl.startsWith('/api/rss-proxy')) {
-            // Our server-side proxy returns XML directly
-            xmlText = await response.text();
-            console.log(`📡 Server-side proxy returned ${xmlText.length} chars`);
-          } else if (contentType.includes('application/json')) {
-            // Handle JSON response from external proxies
-            const proxyData = await response.json();
-            
-            // Different proxies return different JSON structures
-            if (proxyData.contents) {
-              xmlText = proxyData.contents;
-            } else if (proxyData.data) {
-              xmlText = proxyData.data;
-            } else if (proxyData.body) {
-              xmlText = proxyData.body;
-            } else if (typeof proxyData === 'string') {
-              xmlText = proxyData;
-            } else {
-              throw new Error('Unexpected JSON response structure from proxy');
-            }
-            
-            if (!xmlText) {
-              throw new Error('No content received from JSON proxy');
-            }
-          } else {
-            // Handle direct XML/text response from other proxies
-            xmlText = await response.text();
-          }
-          
-          console.log(`✅ Proxy ${i + 1} fetch successful - got ${xmlText?.length || 0} chars`);
-          break;
-        } catch (proxyError) {
-          console.log(`Proxy ${i + 1} failed:`, proxyError);
-          lastError = proxyError as Error;
-          
-          // If this is a rate limit error, add extra delay
-          if (proxyError instanceof Error && 
-              (proxyError.message.includes('429') || proxyError.message.includes('rate limit'))) {
-            console.log('Rate limit detected, adding extra delay...');
-            await new Promise(resolve => setTimeout(resolve, 3000));
-          }
-          
-          continue;
+    // Try each proxy in sequence with minimal backoff
+    for (let i = 0; i < proxies.length; i++) {
+      try {
+        const proxyFn = proxies[i];
+        const proxyUrl = proxyFn(feedUrl);
+        console.log(`🌐 Trying proxy ${i + 1}/${proxies.length}:`, proxyUrl);
+        
+        // Minimal delay between retries
+        if (i > 0) {
+          await new Promise(resolve => setTimeout(resolve, 500)); // 500ms delay
         }
+        
+        const response = await fetch(proxyUrl, {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json, text/plain, text/xml, */*',
+          },
+          redirect: 'follow',
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Proxy ${i + 1} failed: ${response.status} ${response.statusText}`);
+        }
+        
+        const contentType = response.headers.get('content-type') || '';
+        
+        if (proxyUrl.startsWith('/api/rss-proxy')) {
+          // Our server-side proxy returns XML directly
+          xmlText = await response.text();
+          console.log(`📡 Server-side proxy returned ${xmlText.length} chars`);
+        } else if (contentType.includes('application/json')) {
+          // Handle JSON response from external proxies
+          const proxyData = await response.json();
+          
+          // Different proxies return different JSON structures
+          if (proxyData.contents) {
+            xmlText = proxyData.contents;
+          } else if (proxyData.data) {
+            xmlText = proxyData.data;
+          } else if (proxyData.body) {
+            xmlText = proxyData.body;
+          } else if (typeof proxyData === 'string') {
+            xmlText = proxyData;
+          } else {
+            throw new Error('Unexpected JSON response structure from proxy');
+          }
+          
+          if (!xmlText) {
+            throw new Error('No content received from JSON proxy');
+          }
+        } else {
+          // Handle direct XML/text response from other proxies
+          xmlText = await response.text();
+        }
+        
+        console.log(`✅ Proxy ${i + 1} fetch successful - got ${xmlText?.length || 0} chars`);
+        break;
+      } catch (proxyError) {
+        console.log(`Proxy ${i + 1} failed:`, proxyError);
+        lastError = proxyError as Error;
+        continue;
       }
     }
     
     if (!xmlText) {
       // Return empty feed instead of throwing for better UX
-      console.warn(`All fetch methods failed for ${finalFeedUrl}. Last error: ${lastError?.message}`);
+      console.warn(`All fetch methods failed for ${feedUrl}. Last error: ${lastError?.message}`);
       return {
         title: 'Feed Unavailable',
         description: 'Unable to fetch feed due to CORS or network issues',

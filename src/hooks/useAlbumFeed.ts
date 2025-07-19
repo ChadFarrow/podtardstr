@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { PodcastIndexEpisode } from './usePodcastIndex';
 import { fetchAndParseFeed, PodRollItem } from '@/lib/feed-parser';
 
@@ -164,12 +164,44 @@ async function fetchAlbumFeed(feedUrl: string): Promise<AlbumFeedData> {
   }
 }
 
+const FEATURED_ALBUMS = [
+  {
+    id: 'bloodshot-lies',
+    title: 'Bloodshot Lies - The Album',
+    artist: 'The Doerfels',
+    feedUrl: 'https://www.doerfelverse.com/feeds/bloodshot-lies-album.xml',
+  },
+  {
+    id: 'heycitizen-experience',
+    title: 'The HeyCitizen Experience',
+    artist: 'HeyCitizen',
+    feedUrl: 'https://files.heycitizen.xyz/Songs/Albums/The-Heycitizen-Experience/the heycitizen experience.xml',
+  },
+];
+
+// Prefetch common albums for better performance
+export function usePrefetchAlbums() {
+  const queryClient = useQueryClient();
+  
+  // Prefetch the featured albums when the hook is called
+  FEATURED_ALBUMS.forEach(album => {
+    queryClient.prefetchQuery({
+      queryKey: ['album-feed', album.feedUrl, '1.172'],
+      queryFn: () => fetchAlbumFeed(album.feedUrl),
+      staleTime: 10 * 60 * 1000,
+      gcTime: 60 * 60 * 1000,
+    });
+  });
+}
+
 export function useAlbumFeed(feedUrl: string, options: { enabled?: boolean } = {}) {
   return useQuery({
-    queryKey: ['album-feed', feedUrl, '1.170'], // Add version to bust cache
+    queryKey: ['album-feed', feedUrl, '1.172'], // Add version to bust cache
     queryFn: () => fetchAlbumFeed(feedUrl),
     enabled: options.enabled !== false && !!feedUrl,
-    staleTime: 0, // No cache for debugging
-    gcTime: 1 * 60 * 1000, // 1 minute for debugging
+    staleTime: 10 * 60 * 1000, // 10 minutes - data is fresh for 10 minutes
+    gcTime: 60 * 60 * 1000, // 1 hour - keep in cache for 1 hour
+    refetchOnWindowFocus: false, // Don't refetch when window regains focus
+    refetchOnReconnect: false, // Don't refetch on network reconnect
   });
 }

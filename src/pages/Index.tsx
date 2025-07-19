@@ -15,11 +15,15 @@ import { Sidebar, SidebarContent, SidebarHeader, SidebarProvider, SidebarTrigger
 import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Code, Star, Shield, Disc } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { VersionDisplay } from '@/components/VersionDisplay';
+import { usePrefetchAlbums } from '@/hooks/useAlbumFeed';
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState('top100');
+
+  // Prefetch albums for better performance
+  usePrefetchAlbums();
 
   useSeoMeta({
     title: 'Podtardstr',

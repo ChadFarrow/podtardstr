@@ -1,89 +1,77 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { cn } from '@/lib/utils';
 
-interface SecureImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
-  src?: string;
+interface SecureImageProps {
+  src: string;
   alt: string;
+  className?: string;
   fallback?: string;
 }
 
-/**
- * SecureImage component that handles HTTP to HTTPS conversion and provides fallbacks
- * for podcast images that may be served over insecure connections
- */
-export function SecureImage({ src, alt, fallback, ...props }: SecureImageProps) {
-  const [imageError, setImageError] = useState(false);
-  const [currentSrc, setCurrentSrc] = useState(src);
+export function SecureImage({ src, alt, className, fallback = '🎵' }: SecureImageProps) {
+  const [imgSrc, setImgSrc] = useState<string>('');
+  const [hasError, setHasError] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Convert HTTP URLs to HTTPS-proxied versions
-  const getSecureImageUrl = (url: string) => {
-    if (!url) return fallback || '';
-    
-    // Debug logging for HeyCitizen images
-    if (url.includes('heycitizen')) {
-      console.log('HeyCitizen image URL:', url);
+  useEffect(() => {
+    if (!src) {
+      setHasError(true);
+      setIsLoading(false);
+      return;
     }
-    
-    // For HeyCitizen domain, use proxy to avoid potential CORS issues
-    if (url.includes('files.heycitizen.xyz')) {
-      console.log('Using proxy for HeyCitizen image:', url);
-      return `https://images.weserv.nl/?url=${encodeURIComponent(url)}`;
+
+    setIsLoading(true);
+    setHasError(false);
+
+    // Convert HTTP to HTTPS for security
+    let secureSrc = src;
+    if (src.startsWith('http://')) {
+      secureSrc = src.replace('http://', 'https://');
     }
-    
-    // For any HTTP URL, immediately use proxy to avoid mixed content issues
-    if (url.startsWith('http://')) {
-      return `https://images.weserv.nl/?url=${encodeURIComponent(url)}`;
+
+    // Use image proxy for HTTP images to avoid mixed content
+    if (src.startsWith('http://')) {
+      secureSrc = `https://images.weserv.nl/?url=${encodeURIComponent(src)}&w=800&h=800&fit=cover`;
     }
-    
-    // HTTPS URLs can be used directly
-    if (url.startsWith('https://')) {
-      return url;
-    }
-    
-    return url;
+
+    setImgSrc(secureSrc);
+  }, [src]);
+
+  const handleLoad = () => {
+    setIsLoading(false);
+    setHasError(false);
   };
 
-  const handleImageError = () => {
-    // Debug logging for HeyCitizen images
-    if (currentSrc?.includes('heycitizen')) {
-      console.log('HeyCitizen image error:', currentSrc);
-    }
-    
-    if (!imageError && currentSrc && currentSrc.startsWith('https://') && src?.startsWith('http://')) {
-      // If HTTPS version failed and we have an HTTP original, try a different approach
-      
-      
-      // Try using an image proxy service
-      const proxyUrl = `https://images.weserv.nl/?url=${encodeURIComponent(src)}`;
-      setCurrentSrc(proxyUrl);
-      setImageError(false);
-    } else if (!imageError && fallback) {
-      // Try fallback image
-      setCurrentSrc(fallback);
-      setImageError(false);
-    } else {
-      // No more options, show error state
-      setImageError(true);
-    }
+  const handleError = () => {
+    setIsLoading(false);
+    setHasError(true);
   };
 
-  if (imageError) {
+  if (hasError) {
     return (
-      <div 
-        {...props} 
-        className={`bg-muted flex items-center justify-center text-muted-foreground text-xs ${props.className}`}
-      >
-        🎵
+      <div className={cn('flex items-center justify-center bg-gray-800 text-gray-400 text-4xl', className)}>
+        {fallback}
       </div>
     );
   }
 
   return (
-    <img
-      {...props}
-      src={getSecureImageUrl(currentSrc || '')}
-      alt={alt}
-      onError={handleImageError}
-      loading="lazy"
-    />
+    <>
+      {isLoading && (
+        <div className={cn('animate-pulse bg-gray-800', className)} />
+      )}
+      <img
+        src={imgSrc}
+        alt={alt}
+        className={cn(
+          'transition-opacity duration-300',
+          isLoading ? 'opacity-0' : 'opacity-100',
+          className
+        )}
+        loading="lazy"
+        onLoad={handleLoad}
+        onError={handleError}
+      />
+    </>
   );
 }
