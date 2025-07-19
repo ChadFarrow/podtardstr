@@ -8,7 +8,6 @@ import { Play, Pause, Heart, ExternalLink, ChevronDown, Music, Clock, Shuffle, S
 import { htmlToText } from '@/lib/html-utils';
 import { usePodcastPlayer } from '@/hooks/usePodcastPlayer';
 import { useMusicPlayback } from '@/hooks/useMusicPlayback';
-import { usePlayAll } from '@/hooks/usePlayAll';
 import type { AlbumTrack } from '@/hooks/useAlbumFeed';
 import {
   DropdownMenu,
@@ -85,9 +84,8 @@ export function AlbumViewEnhanced({ feedUrl }: AlbumViewEnhancedProps) {
     FEATURED_ALBUMS[0].feedUrl;
   
   const { data: albumData, isLoading, error } = useAlbumFeed(currentFeedUrl);
-  const { currentPodcast, isPlaying, playPodcast, setIsPlaying } = usePodcastPlayer();
+  const { currentPodcast, isPlaying, playPodcast, setIsPlaying, addToQueue, clearQueue } = usePodcastPlayer();
   const { loadingTrackId, handleMusicPlay } = useMusicPlayback();
-  const { handlePlayAll } = usePlayAll();
 
   const formatDuration = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
@@ -113,18 +111,28 @@ export function AlbumViewEnhanced({ feedUrl }: AlbumViewEnhancedProps) {
   const handleAlbumPlay = () => {
     if (!albumData?.tracks || albumData.tracks.length === 0) return;
     
+    // Clear existing queue
+    clearQueue();
+    
+    // Convert tracks to the format expected by the player
     const tracksData = albumData.tracks.map(track => ({
       id: track.id.toString(),
       title: track.title,
-      artist: track.albumArtist || albumData.artist,
-      enclosureUrl: track.enclosureUrl,
+      author: track.albumArtist || albumData.artist,
+      url: track.enclosureUrl,
       imageUrl: track.albumArt || track.image || albumData.artwork,
-      podcastTitle: albumData.title,
-      description: track.description || '',
-      value: track.value || albumData.value,
+      duration: track.duration,
     }));
     
-    handlePlayAll(tracksData);
+    // Add all tracks to queue except the first one
+    tracksData.slice(1).forEach(track => {
+      addToQueue(track);
+    });
+    
+    // Play the first track
+    if (tracksData.length > 0) {
+      playPodcast(tracksData[0]);
+    }
   };
 
   const isTrackPlaying = (track: AlbumTrack) => {
