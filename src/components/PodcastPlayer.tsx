@@ -53,14 +53,14 @@ export function PodcastPlayer() {
   }, []);
 
   // Debug logging for component state
-  console.log('PodcastPlayer render:', {
-    hasCurrentPodcast: !!currentPodcast,
-    currentPodcastId: currentPodcast?.id,
-    currentPodcastTitle: currentPodcast?.title,
-    currentPodcastUrl: currentPodcast?.url,
-    isPlaying,
-    hasUserInteracted
-  });
+  // console.log('PodcastPlayer render:', {
+  //   hasCurrentPodcast: !!currentPodcast,
+  //   currentPodcastId: currentPodcast?.id,
+  //   currentPodcastTitle: currentPodcast?.title,
+  //   currentPodcastUrl: currentPodcast?.url,
+  //   isPlaying,
+  //   hasUserInteracted
+  // });
 
   useEffect(() => {
     const audio = audioRef.current;

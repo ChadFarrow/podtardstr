@@ -44,10 +44,11 @@ export function AlbumHero({
 
   return (
     <div 
-      className="flex-1 flex items-center justify-center py-8"
+      className="flex-1 flex items-center justify-center py-8 pt-20"
       style={{
         paddingLeft: `max(2rem, env(safe-area-inset-left))`,
-        paddingRight: `max(2rem, env(safe-area-inset-right))`
+        paddingRight: `max(2rem, env(safe-area-inset-right))`,
+        paddingTop: `max(5rem, env(safe-area-inset-top) + 2rem)`
       }}
     >
       <div className="max-w-6xl w-full">

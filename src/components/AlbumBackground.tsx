@@ -32,7 +32,10 @@ export function AlbumBackground({ artwork, children }: AlbumBackgroundProps) {
   return (
     <div 
       className="min-h-screen bg-black text-white overflow-hidden relative"
-      style={getAccentStyles()}
+      style={{
+        ...getAccentStyles(),
+        paddingTop: `env(safe-area-inset-top)`
+      }}
     >
       {/* Album Art Background */}
       <div 
@@ -63,14 +66,7 @@ export function AlbumBackground({ artwork, children }: AlbumBackgroundProps) {
         }
       />
       
-      {/* Debug: Show extracted colors */}
-      {colors && !isLoading && (
-        <div className="absolute top-4 right-4 z-50 bg-black/80 p-2 rounded text-xs text-white">
-          <div>Primary: {colors.primary}</div>
-          <div>Secondary: {colors.secondary}</div>
-          <div>Accent: {colors.accent}</div>
-        </div>
-      )}
+
       
       {/* Subtle Pattern Overlay for Texture */}
       {colors && (

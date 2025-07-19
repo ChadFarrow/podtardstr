@@ -481,7 +481,7 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
         pinAlbum(album);
       }
     });
-  }, [pinAlbum, isPinned]);
+  }, []); // Empty dependency array - only run once on mount
 
   useSeoMeta({
     title: albumInfo.title,
