@@ -14,8 +14,8 @@ interface AlbumTrackListProps {
 }
 
 export function AlbumTrackList({ tracks, albumTitle, albumArtist, defaultValue }: AlbumTrackListProps) {
-  const { currentPodcast, isPlaying } = usePodcastPlayer();
-  const { handlePlayPause, loadingTrackId } = useMusicPlayback();
+  const { currentPodcast, isPlaying, playPodcast, setIsPlaying } = usePodcastPlayer();
+  const { loadingTrackId } = useMusicPlayback();
 
   const formatDuration = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
@@ -24,50 +24,29 @@ export function AlbumTrackList({ tracks, albumTitle, albumArtist, defaultValue }
   };
 
   const handleTrackPlay = (track: AlbumTrack) => {
-    // Convert AlbumTrack to PodcastIndexPodcast format for player
-    const podcastFormat: PodcastIndexPodcast = {
-      id: parseInt(track.id) || Date.now(),
+    // Check if this track is already playing
+    if (isPlaying && currentPodcast?.id === track.id) {
+      setIsPlaying(false);
+      return;
+    }
+
+    // Check if we need to resume the same track
+    if (!isPlaying && currentPodcast?.id === track.id) {
+      setIsPlaying(true);
+      return;
+    }
+
+    // Play the new track
+    const podcastEpisode = {
+      id: track.id,
       title: track.title,
-      url: track.feedUrl || '',
-      originalUrl: track.feedUrl || '',
-      link: track.link,
-      description: track.description,
       author: track.albumArtist || albumArtist,
-      ownerName: track.albumArtist || albumArtist,
-      image: track.albumArt || track.image,
-      artwork: track.albumArt || track.image,
-      lastUpdateTime: 0,
-      lastCrawlTime: 0,
-      lastParseTime: 0,
-      lastGoodHttpStatusTime: 0,
-      lastHttpStatus: 200,
-      contentType: 'audio/mpeg',
-      itunesType: 'music',
-      generator: '',
-      language: 'en',
-      type: 0,
-      dead: 0,
-      crawlErrors: 0,
-      parseErrors: 0,
-      categories: { 'music': 'Music' },
-      locked: 0,
-      imageUrlHash: 0,
-      newestItemPubdate: track.datePublished,
-      episodeCount: 1,
-      value: track.value || defaultValue,
+      url: track.enclosureUrl,
+      imageUrl: track.albumArt || track.image,
+      duration: track.duration,
     };
 
-    handlePlayPause(podcastFormat, {
-      id: track.id,
-      guid: track.guid,
-      title: track.title,
-      enclosureUrl: track.enclosureUrl,
-      duration: track.duration,
-      feedTitle: track.albumTitle || albumTitle,
-      feedAuthor: track.albumArtist || albumArtist,
-      feedImage: track.albumArt || track.image,
-      value: track.value || defaultValue,
-    });
+    playPodcast(podcastEpisode);
   };
 
   const isTrackPlaying = (track: AlbumTrack) => {
