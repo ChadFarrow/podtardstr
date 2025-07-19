@@ -73,8 +73,46 @@ export function PodcastPlayer() {
       setDuration(dur);
     };
 
+    // Error handler for media loading issues
+    const handleError = (event: Event) => {
+      const audio = event.target as HTMLAudioElement;
+      const error = audio.error;
+      
+      if (error) {
+        console.error('Audio element error:', {
+          code: error.code,
+          message: error.message,
+          src: audio.src
+        });
+        
+        // Handle different media error types
+        switch (error.code) {
+          case MediaError.MEDIA_ERR_ABORTED:
+            console.log('Media loading aborted by user');
+            break;
+          case MediaError.MEDIA_ERR_NETWORK:
+            console.error('Network error while loading media');
+            setIsPlaying(false);
+            break;
+          case MediaError.MEDIA_ERR_DECODE:
+            console.error('Media decoding error');
+            setIsPlaying(false);
+            break;
+          case MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED:
+            console.error('Media format not supported');
+            setIsPlaying(false);
+            break;
+          default:
+            console.error('Unknown media error');
+            setIsPlaying(false);
+        }
+      }
+    };
+
     audio.addEventListener('timeupdate', updateTime);
     audio.addEventListener('loadedmetadata', updateDuration);
+    audio.addEventListener('error', handleError);
+    
     // Auto-play next track when ended, if enabled
     const handleEnded = () => {
       console.log('🎵 Track ended, autoPlay enabled:', autoPlay);
@@ -114,6 +152,7 @@ export function PodcastPlayer() {
     return () => {
       audio.removeEventListener('timeupdate', updateTime);
       audio.removeEventListener('loadedmetadata', updateDuration);
+      audio.removeEventListener('error', handleError);
       audio.removeEventListener('ended', handleEnded);
     };
   }, [setCurrentTime, setDuration, playNext, autoPlay]);
@@ -155,7 +194,7 @@ export function PodcastPlayer() {
         }).catch((error) => {
           console.error('Play effect error:', error);
           
-          // Handle autoplay restrictions more gracefully
+          // Handle different types of errors gracefully
           if (error.name === 'NotAllowedError') {
             console.log('Autoplay blocked by browser - user interaction required');
             setAutoplayBlocked(true);
@@ -174,7 +213,20 @@ export function PodcastPlayer() {
                 setIsPlaying(false);
               }
             }
-          } else if (!error.message.includes('aborted')) {
+          } else if (error.name === 'AbortError' || error.message.includes('aborted')) {
+            // Handle fetch aborted errors - this is often normal when switching tracks
+            console.log('Audio fetch was aborted (likely due to track switching)');
+            // Don't change playing state for abort errors as they're usually intentional
+          } else if (error.name === 'NetworkError' || error.message.includes('network')) {
+            console.error('Network error loading audio:', error.message);
+            setIsPlaying(false);
+            // Could show a toast notification here
+          } else if (error.name === 'NotSupportedError') {
+            console.error('Audio format not supported:', error.message);
+            setIsPlaying(false);
+            // Could show a toast notification here
+          } else {
+            console.error('Unexpected audio error:', error.name, error.message);
             setIsPlaying(false);
           }
         });
