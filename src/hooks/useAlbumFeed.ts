@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { PodcastIndexEpisode } from './usePodcastIndex';
+import { fetchAndParseFeed } from '@/lib/feed-parser';
 
 export interface AlbumTrack extends PodcastIndexEpisode {
   trackNumber?: number;
@@ -35,67 +36,66 @@ export interface AlbumFeedData {
 
 async function fetchAlbumFeed(feedUrl: string): Promise<AlbumFeedData> {
   try {
-    // Use the existing RSS parsing server endpoint
-    const proxyUrl = import.meta.env.DEV 
-      ? `/api/rss`
-      : 'https://api.podtardstr.com/rss';
-    
-    const response = await fetch(proxyUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ url: feedUrl }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch RSS feed: ${response.status}`);
-    }
-
-    const data = await response.json();
+    // Use the existing fetchAndParseFeed function which handles CORS and fallbacks
+    const parsedFeed = await fetchAndParseFeed(feedUrl);
     
     // Transform the RSS data into our album format
     const albumData: AlbumFeedData = {
-      title: data.title || 'Unknown Album',
-      artist: data.author || data.itunes?.author || 'Unknown Artist',
-      description: data.description || '',
-      artwork: data.image?.url || data.itunes?.image || '',
+      title: parsedFeed.title || 'Unknown Album',
+      artist: parsedFeed.author || 'Unknown Artist',
+      description: parsedFeed.description || '',
+      artwork: parsedFeed.image || '',
       tracks: [],
-      value: data.value,
-      funding: data.funding,
+      value: parsedFeed.value,
+      funding: undefined, // The parser doesn't extract funding info yet
     };
 
     // Process episodes as tracks
-    if (data.items && Array.isArray(data.items)) {
-      albumData.tracks = data.items.map((item: any, index: number) => ({
-        id: item.guid || `track-${index}`,
-        title: item.title || `Track ${index + 1}`,
-        link: item.link || '',
-        description: item.description || '',
-        guid: item.guid || `track-${index}`,
-        datePublished: new Date(item.pubDate || Date.now()).getTime() / 1000,
-        datePublishedPretty: item.pubDate || new Date().toISOString(),
-        dateCrawled: Date.now() / 1000,
-        enclosureUrl: item.enclosures?.[0]?.url || '',
-        enclosureType: item.enclosures?.[0]?.type || 'audio/mpeg',
-        enclosureLength: item.enclosures?.[0]?.length || 0,
-        duration: item.itunes?.duration || 0,
-        explicit: 0,
-        episodeType: 'full',
-        image: item.itunes?.image || albumData.artwork,
-        feedImage: albumData.artwork,
-        feedId: 0,
-        feedTitle: albumData.title,
-        feedLanguage: 'en',
-        feedUrl: feedUrl,
-        feedAuthor: albumData.artist,
-        feedDescription: albumData.description,
-        value: item.value || data.value,
-        trackNumber: index + 1,
-        albumTitle: albumData.title,
-        albumArtist: albumData.artist,
-        albumArt: albumData.artwork,
-      }));
+    if (parsedFeed.episodes && Array.isArray(parsedFeed.episodes)) {
+      albumData.tracks = parsedFeed.episodes.map((episode, index) => {
+        // Parse duration from string format (e.g., "3:45" to seconds)
+        let durationInSeconds = 0;
+        if (episode.duration) {
+          const parts = episode.duration.split(':');
+          if (parts.length === 2) {
+            durationInSeconds = parseInt(parts[0]) * 60 + parseInt(parts[1]);
+          } else if (parts.length === 3) {
+            durationInSeconds = parseInt(parts[0]) * 3600 + parseInt(parts[1]) * 60 + parseInt(parts[2]);
+          } else if (!isNaN(parseInt(episode.duration))) {
+            durationInSeconds = parseInt(episode.duration);
+          }
+        }
+        
+        return {
+          id: episode.guid || `track-${index}`,
+          title: episode.title || `Track ${index + 1}`,
+          link: episode.link || '',
+          description: episode.description || '',
+          guid: episode.guid || `track-${index}`,
+          datePublished: episode.pubDate ? new Date(episode.pubDate).getTime() / 1000 : Date.now() / 1000,
+          datePublishedPretty: episode.pubDate || new Date().toISOString(),
+          dateCrawled: Date.now() / 1000,
+          enclosureUrl: episode.enclosure?.url || '',
+          enclosureType: episode.enclosure?.type || 'audio/mpeg',
+          enclosureLength: episode.enclosure?.length || 0,
+          duration: durationInSeconds,
+          explicit: 0,
+          episodeType: 'full',
+          image: albumData.artwork,
+          feedImage: albumData.artwork,
+          feedId: 0,
+          feedTitle: albumData.title,
+          feedLanguage: 'en',
+          feedUrl: feedUrl,
+          feedAuthor: albumData.artist,
+          feedDescription: albumData.description,
+          value: episode.value || parsedFeed.value,
+          trackNumber: index + 1,
+          albumTitle: albumData.title,
+          albumArtist: albumData.artist,
+          albumArt: albumData.artwork,
+        };
+      });
     }
 
     return albumData;

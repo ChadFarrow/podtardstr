@@ -2,11 +2,11 @@
 
 ---
 
-## 🔖 Quick Reference for Future Sessions (as of July 16, 2025)
+## 🔖 Quick Reference for Future Sessions (as of July 17, 2025)
 
 ### **Current Status**
-- **Version:** 1.112 (auto-increments on commits)
-- **Status:** 🟢 Production Ready - All core features complete + Audio Playback Fixed
+- **Version:** 1.116 (auto-increments on commits)
+- **Status:** 🟢 Production Ready - All core features complete + UI/UX Improvements
 - **Production URL:** https://app.podtards.com (main branch - production)
 - **Preview URL:** https://podtardstr.vercel.app (main branch - preview)
 - **Repo:** https://github.com/ChadFarrow/podtardstr
@@ -30,6 +30,15 @@
 ✅ **Mobile Optimized** - Fixed viewport, single-click play, loading states  
 
 ### **Recent Critical Changes (Reference for Context)**
+- **Bitcoin Connect Modal Fix:** Fixed stuck connection modal requiring page refresh with Alby extension (July 17, 2025)
+- **Payment Error State Fix:** Resolved persistent "NO_ROUTE" and other payment errors not clearing (July 17, 2025)
+- **Progress Bar Click Fix:** Fixed progress bar click to seek properly instead of opening modal (July 17, 2025)
+- **Mobile Safe Area Support:** Added safe area insets to prevent status bar collisions on mobile (July 17, 2025)
+- **Platform Link Reordering:** Moved LNBeats links above Wavlake links in Now Playing modal (July 17, 2025)
+- **Major Code Refactoring:** Broke down TrendingMusic.tsx into 6 focused components/hooks for better maintainability (July 17, 2025)
+- **Component Architecture:** Extracted MusicCard, V4VPaymentButton, MusicGrid, PlayAllButton components (July 17, 2025)
+- **Custom Hooks:** Created useMusicPlayback and usePlayAll hooks for better separation of concerns (July 17, 2025)
+- **Reduced Coupling:** Changes to payment logic no longer affect playback functionality (July 17, 2025)
 - **Audio Playback Fixed:** Created Vercel serverless function to fix CORS issues preventing track playback (July 17, 2025)
 - **API Security Enhancement:** Moved Podcast Index API credentials to server-side only for security (July 17, 2025)
 - **Mobile Bitcoin Connect Disabled:** Temporary workaround to prevent refresh loops on mobile (July 17, 2025)
@@ -53,15 +62,24 @@
 - **Version Auto-increment:** Commits automatically bump version number
 
 ### **Important Implementation Details**
+- **Component Architecture:** Modular design with single-responsibility components
 - **Payment Flow:** BoostModal component handles all V4V interactions
 - **Audio State:** usePodcastPlayer hook with Zustand for global state
+- **Music Playback:** useMusicPlayback hook for play/pause logic, usePlayAll for queue management
 - **Platform URLs:** Extract UUIDs from feed URLs to generate proper album links
 - **TLV Records:** Use 7629169 for Podcast Index 2.0 compliance with all required fields
 - **Loading Prevention:** Track loading states to prevent rapid-click conflicts
 - **Mobile PWA:** Service worker, manifest, proper viewport settings prevent zoom issues
 
 ### **File Structure Notes**
-- **Components:** Modular design with V4V payment buttons in each component
+- **Components:** Modular design with single-responsibility components
+  - `MusicCard.tsx` - Individual music card with play button
+  - `V4VPaymentButton.tsx` - Payment logic and boost modal
+  - `MusicGrid.tsx` - Grid layout and rendering
+  - `PlayAllButton.tsx` - Play all functionality
+- **Custom Hooks:** Separated business logic from UI components
+  - `useMusicPlayback.ts` - Play/pause logic and state management
+  - `usePlayAll.ts` - Queue management and batch playback
 - **Payment Utils:** `src/lib/payment-utils.ts` handles all Lightning payment logic
 - **Player State:** `src/hooks/usePodcastPlayer.ts` for global audio management
 - **Platform Detection:** In NowPlayingModal.tsx for Wavlake/LNBeats linking
@@ -73,17 +91,22 @@
 - **PWA:** Installable with proper manifest and service worker ✅
 
 ### **Common Issues & Solutions (Quick Reference)**
+- **Bitcoin Connect modal stuck:** FIXED - Event-driven connection with onConnected listener
+- **Payment errors not clearing:** FIXED - Auto-clear error state on modal open/close
+- **Progress bar not seeking:** FIXED - Removed invisible button overlay blocking clicks
+- **Mobile status bar collision:** FIXED - Added safe area insets for proper mobile display
 - **Album play buttons not working:** FIXED - Use onMouseDown instead of onClick, ensure z-index < 50
 - **Audio fetch abort errors:** FIXED - Simplified audio loading, let browser handle timing naturally  
 - **Track switching not working:** FIXED - Use podcast ID comparison instead of URL comparison
 - **Play buttons showing through bottom player:** FIXED - Reduced z-index from 999 to 10
-- **Double-click required:** Check loadingTrackId state in TrendingMusic.tsx
+- **Double-click required:** Check loadingTrackId state in useMusicPlayback hook
 - **Bottom player not visible:** Ensure fixed positioning with z-50 in PodcastPlayer.tsx
 - **Mobile zoom issues:** Check viewport meta tag has minimum-scale=1.0
 - **Platform links not working:** Verify UUID extraction regex patterns in NowPlayingModal.tsx
 - **V4V payments failing:** Check TLV metadata format matches Podcast Index 2.0 spec
 - **Loading states stuck:** Ensure setTimeout clears loadingTrackId after 1000ms
 - **Production not updating:** Ensure changes are pushed to stable branch, not just main
+- **Component coupling issues:** REFACTORED - Separated concerns into focused components/hooks
 
 ### **Key Commands**
 - **Development:** `npm run dev`
@@ -230,6 +253,38 @@
 ---
 
 ## 🎯 Recent Achievements
+
+### **July 17, 2025 - Version 1.116 - UI/UX Improvements**
+- ✅ **Bitcoin Connect Modal Fix**: Fixed stuck connection modal requiring page refresh with Alby extension
+- ✅ **Event-Driven Connection**: Replaced polling with onConnected event listener for immediate modal close
+- ✅ **Payment Error State Fix**: Resolved persistent "NO_ROUTE" and other payment errors not clearing
+- ✅ **Auto-Clear Error State**: Added useEffect to clear error state when modal opens for fresh experience
+- ✅ **Progress Bar Click Fix**: Fixed progress bar to seek properly instead of opening modal
+- ✅ **Mobile Safe Area Support**: Added CSS safe area insets to prevent status bar collisions
+- ✅ **Platform Link Reordering**: Moved LNBeats links above Wavlake links in Now Playing modal
+- ✅ **Consistent Modal Cleanup**: All modal closing methods now properly clear error states
+- ✅ **Better Cancellation**: Added proper cancellation support for Bitcoin Connect modal
+- ✅ **Enhanced Mobile UX**: Improved mobile viewport handling with safe area insets
+
+### **July 17, 2025 - Version 1.115 - Progress Bar & Mobile Fixes**
+- ✅ **Progress Bar Interaction**: Fixed progress bar click to seek to clicked position
+- ✅ **Mobile Viewport Fix**: Added safe area insets for proper mobile display
+- ✅ **Platform Link Reordering**: LNBeats now appears above Wavlake in platform links
+- ✅ **Removed Overlay Button**: Eliminated invisible button blocking progress bar interactions
+- ✅ **Mobile Bottom Spacing**: Improved bottom spacing for home indicator clearance
+- ✅ **Mobile Top Spacing**: Fixed status bar collision with safe area top padding
+
+### **July 17, 2025 - Version 1.114 - Major Code Refactoring**
+- ✅ **Component Architecture**: Broke down TrendingMusic.tsx (477 lines) into 6 focused components/hooks
+- ✅ **MusicCard Component**: Extracted individual music card with play button and payment integration
+- ✅ **V4VPaymentButton Component**: Separated payment logic and boost modal functionality
+- ✅ **MusicGrid Component**: Created grid layout component for better organization
+- ✅ **PlayAllButton Component**: Extracted play all functionality into dedicated component
+- ✅ **useMusicPlayback Hook**: Created custom hook for play/pause logic and state management
+- ✅ **usePlayAll Hook**: Separated queue management and batch playback logic
+- ✅ **Reduced Coupling**: Changes to payment logic no longer affect playback functionality
+- ✅ **Improved Maintainability**: Each component has single responsibility and can be tested independently
+- ✅ **Enhanced Reusability**: Components can be used in other parts of the application
 
 ### **July 17, 2025 - Version 1.112 - Audio Playback Fix**
 - ✅ **Audio Playback Fixed**: Created Vercel serverless function to resolve CORS issues preventing track playback
@@ -378,6 +433,8 @@
 - [x] Message support in Lightning payments
 - [x] Single-click play functionality
 - [x] Fixed bottom player positioning
+- [x] Modular component architecture with single responsibilities
+- [x] Reduced coupling between features
 
 ### **Feature Goals**
 - [x] Top 100 V4V music discovery
@@ -399,6 +456,7 @@
 - [x] Single-click play functionality
 - [x] Fixed player positioning
 - [x] Enhanced message support
+- [x] Maintainable codebase for future improvements
 
 ---
 
@@ -417,16 +475,21 @@
 
 - **Last Test Run**: All 15 tests passing ✅
 - **Last Build**: Successful production build ✅
-- **Last Deployment**: Version 1.85 deployed to production ✅
+- **Last Deployment**: Version 1.116 deployed to production ✅
 - **APK Status**: Ready for generation (requires Java JDK) ✅
-- **Version**: 1.112 (auto-increments on commits) ✅
+- **Version**: 1.116 (auto-increments on commits) ✅
 - **Audio Playback**: ✅ FIXED - Tracks now play on both mobile and web via server-side proxy
 - **API Security**: ✅ ENHANCED - Podcast Index credentials moved to server-side only
 - **CORS Issues**: ✅ RESOLVED - Server-side proxy eliminates browser CORS restrictions
+- **Bitcoin Connect Modal**: ✅ FIXED - Event-driven connection, no page refresh needed with Alby extension
+- **Payment Error State**: ✅ FIXED - Auto-clear error state on modal open/close, no persistent errors
+- **Progress Bar Seeking**: ✅ FIXED - Click to seek works properly, removed blocking overlay
+- **Mobile Safe Area**: ✅ ADDED - Safe area insets prevent status bar collisions
+- **Platform Link Order**: ✅ UPDATED - LNBeats now appears above Wavlake in Now Playing modal
 - **Mobile Refresh Loop**: ✅ FIXED - Bitcoin Connect disabled on mobile, service worker less aggressive
 - **Payment Progress**: ✅ ADDED - Real-time visual progress tracking for boost payments
 - **Mobile UX**: ✅ IMPROVED - Clear messaging about desktop-only Lightning payments
 - **Autoplay**: ✅ COMPLETELY FIXED - Working with sequential queue ordering
 - **Queue Ordering**: ✅ FIXED - "Play All" maintains proper 1→2→3 sequence
 
-**Project Health**: 🟢 **Excellent** - Production ready! All core features complete, audio playback working on all platforms, CORS issues resolved via server-side proxy, API security enhanced, mobile refresh loop fixed, payment progress tracking added, Lightning payments working on desktop, Bitcoin Connect temporarily disabled on mobile as workaround, autoplay working perfectly, sequential queue ordering fixed, PWA fully functional, LNBeats & Wavlake integration, message support, user name customization implemented. Ready for user testing and broader deployment. 
+**Project Health**: 🟢 **Excellent** - Production ready! All core features complete with major UI/UX improvements, Bitcoin Connect modal fixed (no more page refresh needed with Alby extension), payment error state properly managed (no persistent errors), progress bar seeking working correctly, mobile safe area support added for proper display, modular component architecture implemented, audio playback working on all platforms, CORS issues resolved via server-side proxy, API security enhanced, autoplay working perfectly, sequential queue ordering fixed, PWA fully functional, LNBeats & Wavlake integration, message support, user name customization implemented, reduced coupling between features for better maintainability. Enhanced user experience with seamless wallet connections and proper error handling. Ready for user testing and broader deployment. 

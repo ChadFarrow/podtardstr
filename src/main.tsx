@@ -8,13 +8,7 @@ import './lib/polyfills.ts';
 import App from './App.tsx';
 import './index.css';
 
-// Listen for OAuth callback messages from popups
-window.addEventListener('message', (event) => {
-  if (event.data && event.data.type === 'getalby-auth-success') {
-    console.log('GetAlby OAuth success:', event.data.user);
-    // The popup will close itself, and the main app will detect the stored tokens
-  }
-});
+
 
 // Custom font can be added here if needed:
 // import '@fontsource-variable/<font-name>';

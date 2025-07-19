@@ -18,7 +18,6 @@ export function WalletStatus() {
     isConnected, 
     walletProvider, 
     disconnectWallet, 
-    getalbyUser, 
     isConnecting, 
     connectionAttemptInProgress, 
     resetConnectionState 
@@ -70,9 +69,6 @@ export function WalletStatus() {
   }
 
   const getWalletName = () => {
-    if (walletProvider === 'getalby-web' && getalbyUser) {
-      return `GetAlby (${getalbyUser.email})`;
-    }
     return walletProvider === 'bitcoin-connect' ? 'Bitcoin Connect' : 'Lightning Wallet';
   };
 

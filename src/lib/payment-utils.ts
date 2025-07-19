@@ -40,7 +40,7 @@ export type PaymentProgressCallback = (progress: PaymentProgress[], currentIndex
 export interface LightningProvider {
   sendPayment: (invoice: string) => Promise<void>;
   keysend?: (args: { destination: string; amount: number; customRecords?: Record<string, string> }) => Promise<void>;
-  provider?: 'bitcoin-connect' | 'getalby-web';
+  provider?: 'bitcoin-connect';
 }
 
 export interface TLVMetadata {
@@ -323,7 +323,7 @@ export async function processSinglePayment(
             value_msat: (amount || 0) * 1000,
             value_msat_total: metadata?.totalAmount ? metadata.totalAmount * 1000 : (amount || 0) * 1000,
             uuid: metadata?.uuid || crypto.randomUUID(),
-            name: '', // This would be the sender's Lightning address (e.g., user@getalby.com)
+            name: '', // This would be the sender's Lightning address
             sender_name: metadata?.senderName || 'random podtardstr',
             message: metadata?.message || '',
             url: metadata?.feedUrl || '',
@@ -601,7 +601,7 @@ export function formatPaymentStatus(
 export function getDemoRecipient(): PaymentRecipient {
   return {
     name: 'Demo Artist',
-    address: 'demo@getalby.com',
+    address: 'demo@lightning.com',
     type: 'lud16',
     split: 100
   };
