@@ -195,7 +195,7 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
   return (
     <div className="min-h-screen bg-black relative">
       {/* Top Navigation Bar */}
-      <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between p-6 bg-gradient-to-b from-black to-transparent">
+      <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between p-6 bg-gradient-to-b from-black/80 to-transparent">
         <div className="flex items-center space-x-4">
           <button 
             onClick={() => setShowMenu(!showMenu)}

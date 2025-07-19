@@ -363,7 +363,7 @@ export function PodcastPlayer() {
 
   if (!currentPodcast) {
     return (
-      <Card className="border-t border-gray-800 rounded-none fixed bottom-0 left-0 right-0 bg-black/90 backdrop-blur-lg z-50 safe-area-bottom">
+      <Card className="border-t border-gray-800 rounded-none fixed bottom-0 left-0 right-0 bg-black/75 backdrop-blur-lg z-50 safe-area-bottom">
         <div className="p-3 sm:p-4 text-center text-gray-400 text-sm">
           No track selected. Click play on any track to start listening.
         </div>
@@ -372,7 +372,7 @@ export function PodcastPlayer() {
   }
 
   return (
-    <Card className="border-t border-gray-800 rounded-none fixed bottom-0 left-0 right-0 bg-black/90 backdrop-blur-lg z-50 safe-area-bottom">
+    <Card className="border-t border-gray-800 rounded-none fixed bottom-0 left-0 right-0 bg-black/75 backdrop-blur-lg z-50 safe-area-bottom">
       <div className="p-3 sm:p-4">
         <audio
           ref={audioRef}
