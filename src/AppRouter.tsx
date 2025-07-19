@@ -33,6 +33,19 @@ export function AppRouter() {
         <Route path="/albums/empty-passenger-seat" element={<Albums feedUrl="https://whiterabbitrecords.org/wp-content/uploads/2023/04/Empty-Passenger-Seat.xml" />} />
         <Route path="/albums/aged-friends-old-whiskey" element={<Albums feedUrl="https://music.behindthesch3m3s.com/wp-content/uploads/Delta_OG/Aged_Friends_and_Old_Whiskey/aged_friends_old_whiskey.xml" />} />
         <Route path="/albums/cosmodrome" element={<Albums feedUrl="https://feed.falsefinish.club/Temples/Temples - Cosmodrome/cosmodrome.xml" />} />
+        <Route path="/albums/live-at-the-fickle-pickle" element={<Albums feedUrl="https://headstarts.uk/msp/live-at-the-fickle-pickle/live-at-the-fickle-pickle-into-the-valueverse.xml" />} />
+        
+        {/* Producer Picks Albums */}
+        <Route path="/albums/east-to-west" element={<Albums feedUrl="https://music.behindthesch3m3s.com/wp-content/uploads/Empath Eyes/East To West/east to west.xml" />} />
+        <Route path="/albums/tripodacus" element={<Albums feedUrl="https://music.behindthesch3m3s.com/wp-content/uploads/Tripodacus/tripodacus.xml" />} />
+        <Route path="/albums/pilot" element={<Albums feedUrl="https://music.behindthesch3m3s.com/wp-content/uploads/Mellow Cassette/Pilot/pilot.xml" />} />
+        <Route path="/albums/if-we-stayed-alive" element={<Albums feedUrl="https://music.behindthesch3m3s.com/wp-content/uploads/12 Rods/If We Stayed Alive/if we stayed alive.xml" />} />
+        <Route path="/albums/radio-brigade" element={<Albums feedUrl="https://music.behindthesch3m3s.com/wp-content/uploads/Mellow Cassette/Radio_Brigade/radio_brigade.xml" />} />
+        <Route path="/albums/way-to-go" element={<Albums feedUrl="https://static.staticsave.com/mspfiles/waytogo.xml" />} />
+        <Route path="/albums/now-i-feel-it" element={<Albums feedUrl="https://music.behindthesch3m3s.com/wp-content/uploads/c_kostra/now i feel it.xml" />} />
+        <Route path="/albums/midnight-breakheart" element={<Albums feedUrl="https://rocknrollbreakheart.com/msp/MidnightBreakheart/midnight breakheart.xml" />} />
+        <Route path="/albums/rocknroll-breakheart" element={<Albums feedUrl="https://rocknrollbreakheart.com/msp/RNRBH/rock'n'roll%20breakheart.xml" />} />
+        <Route path="/albums/nate-and-cole-find-a-radio" element={<Albums feedUrl="https://wavlake.com/feed/music/47bc7992-48ad-4a4b-907c-9972490bcdba" />} />
         
         {/* Doerfels Podroll Albums */}
         <Route path="/albums/ben-doerfel" element={<Albums feedUrl="https://www.doerfelverse.com/feeds/ben-doerfel.xml" />} />

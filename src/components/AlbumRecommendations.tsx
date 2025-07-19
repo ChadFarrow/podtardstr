@@ -97,7 +97,18 @@ export function AlbumRecommendations({ podroll, currentFeedUrl }: AlbumRecommend
       'https://www.thisisjdog.com/media/ring-that-bell.xml': '/albums/ring-that-bell',
       'https://wavlake.com/feed/music/997060e3-9dc1-4cd8-b3c1-3ae06d54bb03': '/albums/wavlake-album',
       'https://music.behindthesch3m3s.com/wp-content/uploads/Delta_OG/Aged_Friends_and_Old_Whiskey/aged_friends_old_whiskey.xml': '/albums/aged-friends-old-whiskey',
-      'https://feed.falsefinish.club/Temples/Temples - Cosmodrome/cosmodrome.xml': '/albums/cosmodrome'
+      'https://feed.falsefinish.club/Temples/Temples - Cosmodrome/cosmodrome.xml': '/albums/cosmodrome',
+      'https://headstarts.uk/msp/live-at-the-fickle-pickle/live-at-the-fickle-pickle-into-the-valueverse.xml': '/albums/live-at-the-fickle-pickle',
+      'https://music.behindthesch3m3s.com/wp-content/uploads/Empath Eyes/East To West/east to west.xml': '/albums/east-to-west',
+      'https://music.behindthesch3m3s.com/wp-content/uploads/Tripodacus/tripodacus.xml': '/albums/tripodacus',
+      'https://music.behindthesch3m3s.com/wp-content/uploads/Mellow Cassette/Pilot/pilot.xml': '/albums/pilot',
+      'https://music.behindthesch3m3s.com/wp-content/uploads/12 Rods/If We Stayed Alive/if we stayed alive.xml': '/albums/if-we-stayed-alive',
+      'https://music.behindthesch3m3s.com/wp-content/uploads/Mellow Cassette/Radio_Brigade/radio_brigade.xml': '/albums/radio-brigade',
+      'https://static.staticsave.com/mspfiles/waytogo.xml': '/albums/way-to-go',
+      'https://music.behindthesch3m3s.com/wp-content/uploads/c_kostra/now i feel it.xml': '/albums/now-i-feel-it',
+      'https://rocknrollbreakheart.com/msp/MidnightBreakheart/midnight breakheart.xml': '/albums/midnight-breakheart',
+      'https://rocknrollbreakheart.com/msp/RNRBH/rock\'n\'roll%20breakheart.xml': '/albums/rocknroll-breakheart',
+      'https://wavlake.com/feed/music/47bc7992-48ad-4a4b-907c-9972490bcdba': '/albums/nate-and-cole-find-a-radio'
     };
 
     // Return clean route if found, otherwise fall back to query parameter

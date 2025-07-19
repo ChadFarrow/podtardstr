@@ -240,6 +240,94 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
       artwork: 'https://feed.falsefinish.club/Temples/Temples%20-%20Cosmodrome/cover.jpg',
       feedUrl: 'https://feed.falsefinish.club/Temples/Temples - Cosmodrome/cosmodrome.xml',
       description: 'Psychedelic rock journey through cosmic soundscapes'
+    },
+    {
+      id: 'live-at-the-fickle-pickle',
+      title: 'Live at the Fickle Pickle - Into the Valueverse',
+      artist: 'Longy - Joe Martin - Nathan Abbott',
+      artwork: 'https://headstarts.uk/msp/live-at-the-fickle-pickle/live-at-the-fickle-pickle-album-cover-into-the-valueverse.jpg',
+      feedUrl: 'https://headstarts.uk/msp/live-at-the-fickle-pickle/live-at-the-fickle-pickle-into-the-valueverse.xml',
+      description: 'Live performance capturing the energy of the Valueverse community'
+    },
+    {
+      id: 'east-to-west',
+      title: 'East To West',
+      artist: 'Empath Eyes',
+      artwork: 'https://music.behindthesch3m3s.com/wp-content/uploads/Empath%20Eyes/East%20To%20West/Empath%20Eyes%20East%20To%20West.jpg',
+      feedUrl: 'https://music.behindthesch3m3s.com/wp-content/uploads/Empath Eyes/East To West/east to west.xml',
+      description: 'A musical journey from coast to coast'
+    },
+    {
+      id: 'tripodacus',
+      title: 'Tripodacus',
+      artist: 'Tripodacus',
+      artwork: 'https://music.behindthesch3m3s.com/wp-content/uploads/Tripodacus/tripodcaus.jpg',
+      feedUrl: 'https://music.behindthesch3m3s.com/wp-content/uploads/Tripodacus/tripodacus.xml',
+      description: 'Experimental sounds from Tripodacus'
+    },
+    {
+      id: 'pilot',
+      title: 'Pilot',
+      artist: 'Mellow Cassette',
+      artwork: 'https://f4.bcbits.com/img/a2986149142_16.jpg',
+      feedUrl: 'https://music.behindthesch3m3s.com/wp-content/uploads/Mellow Cassette/Pilot/pilot.xml',
+      description: 'Taking flight with Mellow Cassette'
+    },
+    {
+      id: 'if-we-stayed-alive',
+      title: 'If We Stayed Alive',
+      artist: '12 Rods',
+      artwork: 'https://static.wixstatic.com/media/6f2e4f_f2e97dec9df74a46b0b9e120a6222a1e~mv2.jpg',
+      feedUrl: 'https://music.behindthesch3m3s.com/wp-content/uploads/12 Rods/If We Stayed Alive/if we stayed alive.xml',
+      description: 'Reflections on existence and survival'
+    },
+    {
+      id: 'radio-brigade',
+      title: 'Radio Brigade',
+      artist: 'Mellow Cassette',
+      artwork: 'https://f4.bcbits.com/img/a3037583348_16.jpg',
+      feedUrl: 'https://music.behindthesch3m3s.com/wp-content/uploads/Mellow Cassette/Radio_Brigade/radio_brigade.xml',
+      description: 'Broadcasting frequencies of sound'
+    },
+    {
+      id: 'way-to-go',
+      title: 'Way to Go',
+      artist: 'Survival Guide',
+      artwork: 'https://static.wixstatic.com/media/484406_1db02ef030c640db8a7fe3a79ec413e4~mv2.png',
+      feedUrl: 'https://static.staticsave.com/mspfiles/waytogo.xml',
+      description: 'Navigating life\'s journey with Survival Guide'
+    },
+    {
+      id: 'now-i-feel-it',
+      title: 'now i feel it',
+      artist: 'c.Kostra',
+      artwork: 'https://music.behindthesch3m3s.com/wp-content/uploads/c_kostra/now%20i%20feel%20it.jpg',
+      feedUrl: 'https://music.behindthesch3m3s.com/wp-content/uploads/c_kostra/now i feel it.xml',
+      description: 'Emotional landscapes in sound'
+    },
+    {
+      id: 'midnight-breakheart',
+      title: 'Midnight Breakheart',
+      artist: 'Rock\'n\'Roll Breakheart',
+      artwork: 'https://rocknrollbreakheart.com/msp/MidnightBreakheart/album-art.png',
+      feedUrl: 'https://rocknrollbreakheart.com/msp/MidnightBreakheart/midnight breakheart.xml',
+      description: 'Rock\'n\'roll after dark'
+    },
+    {
+      id: 'rocknroll-breakheart',
+      title: 'Rock\'n\'Roll Breakheart',
+      artist: 'Rock\'n\'Roll Breakheart',
+      artwork: 'http://rocknrollbreakheart.com/msp/RNRBH/album-art.png',
+      feedUrl: 'https://rocknrollbreakheart.com/msp/RNRBH/rock\'n\'roll%20breakheart.xml',
+      description: 'Pure rock\'n\'roll energy'
+    },
+    {
+      id: 'nate-and-cole-find-a-radio',
+      title: 'Nate and Cole Find a Radio',
+      artist: 'Drawing Monsters',
+      artwork: 'https://d12wklypp119aj.cloudfront.net/image/47bc7992-48ad-4a4b-907c-9972490bcdba.jpg',
+      feedUrl: 'https://wavlake.com/feed/music/47bc7992-48ad-4a4b-907c-9972490bcdba',
+      description: 'An adventure in sound discovery'
     }
   ];
 
@@ -264,7 +352,7 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
     'heycitizen-experience'
   ];
 
-  // Listeners suggestions (curated by listeners)
+  // Producers Picks (curated by producers)
   const LISTENER_SUGGESTIONS_ALBUMS = [
     'empty-passenger-seat',
     'pony-up-daddy', 
@@ -273,14 +361,25 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
     'tinderbox',
     'wavlake-album',
     'aged-friends-old-whiskey',
-    'cosmodrome'
+    'cosmodrome',
+    'east-to-west',
+    'tripodacus',
+    'pilot',
+    'if-we-stayed-alive',
+    'radio-brigade',
+    'way-to-go',
+    'now-i-feel-it',
+    'midnight-breakheart',
+    'rocknroll-breakheart',
+    'nate-and-cole-find-a-radio'
   ];
 
   // Live concert folder (audio-only, optimized for performance)
   const LIVE_CONCERTS_ALBUMS: string[] = [
     'the-satellite-skirmish-album',
     'autumn-rust',
-    'polar-embrace'
+    'polar-embrace',
+    'live-at-the-fickle-pickle'
   ];
 
   // Get albums that belong to The Doerfels section
@@ -536,7 +635,7 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
                   }`}
                 >
                   <Folder size={20} />
-                  <span className="font-medium flex-1">Listeners Suggestions</span>
+                  <span className="font-medium flex-1">Producers Picks</span>
                   {showListenerSuggestions ? (
                     <ChevronDown size={16} />
                   ) : (
