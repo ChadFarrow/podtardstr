@@ -210,13 +210,6 @@ export function AlbumViewEnhanced({ feedUrl }: AlbumViewEnhancedProps) {
                       </button>
                     </div>
                   </div>
-                  
-                  {/* Vinyl Record Effect */}
-                  <div className="absolute -right-4 top-4 w-32 h-32 bg-black rounded-full border-8 border-gray-800 opacity-70 group-hover:rotate-180 transition-transform duration-1000">
-                    <div className="w-full h-full bg-gradient-to-br from-gray-700 to-black rounded-full flex items-center justify-center">
-                      <div className="w-6 h-6 bg-red-600 rounded-full"></div>
-                    </div>
-                  </div>
                 </div>
               </div>
               
