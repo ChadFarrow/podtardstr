@@ -33,7 +33,7 @@ export function AlbumRecommendations({ podroll, currentFeedUrl }: AlbumRecommend
   }
 
   return (
-    <div className="p-8">
+    <div className="p-8 pb-16">
       <div className="max-w-6xl mx-auto">
         <h3 className="text-2xl font-bold mb-6 text-center">
           Recommended
