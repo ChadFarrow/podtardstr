@@ -23,6 +23,48 @@ const FEATURED_ALBUMS = [
     artist: 'HeyCitizen',
     feedUrl: 'https://files.heycitizen.xyz/Songs/Albums/The-Heycitizen-Experience/the heycitizen experience.xml',
   },
+  {
+    id: 'think-ep',
+    title: 'Think EP',
+    artist: 'The Doerfels',
+    feedUrl: 'https://www.doerfelverse.com/feeds/think-ep.xml',
+  },
+  {
+    id: 'music-from-the-doerfelverse',
+    title: 'Music From The Doerfel-Verse',
+    artist: 'The Doerfels',
+    feedUrl: 'https://www.doerfelverse.com/feeds/music-from-the-doerfelverse.xml',
+  },
+  {
+    id: 'stay-awhile',
+    title: 'Stay Awhile',
+    artist: 'Able and The Wolf',
+    feedUrl: 'https://ableandthewolf.com/static/media/feed.xml',
+  },
+  {
+    id: 'spectral-hiding',
+    title: 'Spectral Hiding',
+    artist: 'Bitpunk.fm',
+    feedUrl: 'https://zine.bitpunk.fm/feeds/spectral-hiding.xml',
+  },
+  {
+    id: 'polar-embrace',
+    title: 'Polar Embrace',
+    artist: 'The Satellite Skirmish',
+    feedUrl: 'https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/polarembrace/rss/videofeed/feed.xml',
+  },
+  {
+    id: 'autumn-rust',
+    title: 'Autumn Rust',
+    artist: 'The Satellite Skirmish',
+    feedUrl: 'https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/autumnrust/mp3s/album_feed/feed.xml',
+  },
+  {
+    id: 'the-satellite-skirmish-album',
+    title: 'The Satellite Skirmish',
+    artist: 'Various Artists',
+    feedUrl: 'https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/the_satellite_skirmish_album.xml',
+  },
 ];
 
 export function AlbumViewEnhanced({ feedUrl }: AlbumViewEnhancedProps) {
@@ -141,6 +183,8 @@ export function AlbumViewEnhanced({ feedUrl }: AlbumViewEnhancedProps) {
         onTrackPlay={controls.handleTrackPlay}
         isTrackPlaying={controls.isTrackPlaying}
       />
+
+      <div className="pb-8"></div>
 
       <AlbumRecommendations
         podroll={albumData.podroll}

@@ -177,6 +177,78 @@ const FEATURED_ALBUMS = [
     artist: 'HeyCitizen',
     feedUrl: 'https://files.heycitizen.xyz/Songs/Albums/The-Heycitizen-Experience/the heycitizen experience.xml',
   },
+  {
+    id: 'think-ep',
+    title: 'Think EP',
+    artist: 'The Doerfels',
+    feedUrl: 'https://www.doerfelverse.com/feeds/think-ep.xml',
+  },
+  {
+    id: 'music-from-the-doerfelverse',
+    title: 'Music From The Doerfel-Verse',
+    artist: 'The Doerfels',
+    feedUrl: 'https://www.doerfelverse.com/feeds/music-from-the-doerfelverse.xml',
+  },
+  {
+    id: 'stay-awhile',
+    title: 'Stay Awhile',
+    artist: 'Able and The Wolf',
+    feedUrl: 'https://ableandthewolf.com/static/media/feed.xml',
+  },
+  {
+    id: 'spectral-hiding',
+    title: 'Spectral Hiding',
+    artist: 'Bitpunk.fm',
+    feedUrl: 'https://zine.bitpunk.fm/feeds/spectral-hiding.xml',
+  },
+  {
+    id: 'polar-embrace',
+    title: 'Polar Embrace',
+    artist: 'The Satellite Skirmish',
+    feedUrl: 'https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/polarembrace/rss/videofeed/feed.xml',
+  },
+  {
+    id: 'autumn-rust',
+    title: 'Autumn Rust',
+    artist: 'The Satellite Skirmish',
+    feedUrl: 'https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/autumnrust/mp3s/album_feed/feed.xml',
+  },
+  {
+    id: 'the-satellite-skirmish-album',
+    title: 'The Satellite Skirmish',
+    artist: 'Various Artists',
+    feedUrl: 'https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/the_satellite_skirmish_album.xml',
+  },
+  {
+    id: 'lofi-experience',
+    title: 'HeyCitizen\'s Lo-Fi Hip-Hop Beats to Study and Relax to',
+    artist: 'HeyCitizen',
+    feedUrl: 'https://files.heycitizen.xyz/Songs/Albums/Lofi-Experience/lofi.xml',
+  },
+  {
+    id: 'tinderbox',
+    title: 'Tinderbox',
+    artist: 'Nate Johnivan',
+    feedUrl: 'https://wavlake.com/feed/music/d677db67-0310-4813-970e-e65927c689f1',
+  },
+  {
+    id: 'deathdreams',
+    title: 'deathdreams',
+    artist: 'Survival Guide (Emily Whitehurst)',
+    feedUrl: 'https://static.staticsave.com/mspfiles/deathdreams.xml',
+  },
+  {
+    id: 'pony-up-daddy',
+    title: 'Pony Up Daddy',
+    artist: '$2 Holla',
+    feedUrl: 'https://music.behindthesch3m3s.com/wp-content/uploads/Mike_Epting/$2Holla/pony%20up%20daddy.xml',
+  },
+  {
+    id: 'empty-passenger-seat',
+    title: 'Empty Passenger Seat',
+    artist: 'White Rabbit Records',
+    feedUrl: 'https://whiterabbitrecords.org/wp-content/uploads/2023/04/Empty-Passenger-Seat.xml',
+  },
 ];
 
 // Prefetch common albums for better performance

@@ -1,5 +1,6 @@
-import { Play, Music } from 'lucide-react';
+import { Play, Music, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useRef, useState, useEffect } from 'react';
 
 interface PodRollItem {
   feedGuid?: string;
@@ -17,6 +18,9 @@ interface AlbumRecommendationsProps {
 
 export function AlbumRecommendations({ podroll, currentFeedUrl }: AlbumRecommendationsProps) {
   const navigate = useNavigate();
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
   const hasPodroll = podroll && podroll.length > 0;
   
   console.log('🎯 AlbumRecommendations: Received props:', {
@@ -25,6 +29,40 @@ export function AlbumRecommendations({ podroll, currentFeedUrl }: AlbumRecommend
     podrollLength: podroll?.length || 0,
     podrollItems: podroll
   });
+
+  // Check scroll position to show/hide arrows
+  const checkScrollPosition = () => {
+    if (scrollContainerRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
+      setCanScrollLeft(scrollLeft > 0);
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 1);
+    }
+  };
+
+  // Update scroll position on mount and when podroll changes
+  useEffect(() => {
+    checkScrollPosition();
+    window.addEventListener('resize', checkScrollPosition);
+    return () => window.removeEventListener('resize', checkScrollPosition);
+  }, [podroll]);
+
+  const scrollLeft = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({
+        left: -240, // Width of one album card plus gap
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  const scrollRight = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({
+        left: 240, // Width of one album card plus gap
+        behavior: 'smooth'
+      });
+    }
+  };
 
   // Don't render anything if there's no PodRoll data
   if (!hasPodroll) {
@@ -47,12 +85,35 @@ export function AlbumRecommendations({ podroll, currentFeedUrl }: AlbumRecommend
 
   return (
     <div className="p-8 pb-16">
-      <div className="max-w-6xl mx-auto">
-        <h3 className="text-2xl font-bold mb-6 text-center">
-          Recommended
-        </h3>
+      <div className="max-w-6xl mx-auto relative">
         
-        <div className="flex space-x-6 overflow-x-auto pb-4 scrollbar-hide">
+        {/* Left scroll arrow */}
+        {canScrollLeft && (
+          <button
+            onClick={scrollLeft}
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-black/70 hover:bg-black/90 text-white rounded-full p-2 shadow-lg transition-all duration-200"
+            aria-label="Scroll left"
+          >
+            <ChevronLeft size={24} />
+          </button>
+        )}
+
+        {/* Right scroll arrow */}
+        {canScrollRight && (
+          <button
+            onClick={scrollRight}
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-black/70 hover:bg-black/90 text-white rounded-full p-2 shadow-lg transition-all duration-200"
+            aria-label="Scroll right"
+          >
+            <ChevronRight size={24} />
+          </button>
+        )}
+
+        <div 
+          ref={scrollContainerRef}
+          className="flex space-x-6 overflow-x-auto pb-4 scrollbar-hide"
+          onScroll={checkScrollPosition}
+        >
           {podroll.map((recommendation, index) => (
             <div
               key={recommendation.feedGuid || recommendation.feedUrl || index}
