@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { PodcastIndexEpisode } from './usePodcastIndex';
-import { fetchAndParseFeed } from '@/lib/feed-parser';
+import { fetchAndParseFeed, PodRollItem } from '@/lib/feed-parser';
 
 export interface AlbumTrack extends PodcastIndexEpisode {
   trackNumber?: number;
@@ -15,6 +15,7 @@ export interface AlbumFeedData {
   description: string;
   artwork: string;
   tracks: AlbumTrack[];
+  podroll?: PodRollItem[];
   value?: {
     model: {
       type: string;
@@ -52,6 +53,7 @@ async function fetchAlbumFeed(feedUrl: string): Promise<AlbumFeedData> {
       description: parsedFeed.description || '',
       artwork: parsedFeed.image || '',
       tracks: [],
+      podroll: parsedFeed.podroll,
       value: parsedFeed.value ? {
         model: {
           type: parsedFeed.value.type || 'lightning',

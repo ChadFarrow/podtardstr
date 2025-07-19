@@ -18,6 +18,15 @@ export interface ValueBlock {
   recipients: ValueRecipient[];
 }
 
+export interface PodRollItem {
+  feedGuid?: string;
+  feedUrl?: string;
+  title: string;
+  description?: string;
+  image?: string;
+  author?: string;
+}
+
 export interface ParsedFeed {
   title?: string;
   description?: string;
@@ -25,6 +34,7 @@ export interface ParsedFeed {
   image?: string;
   author?: string;
   value?: ValueBlock;
+  podroll?: PodRollItem[];
   episodes: ParsedEpisode[];
 }
 
@@ -69,6 +79,7 @@ export function parseFeedXML(xmlText: string): ParsedFeed {
     image: getChannelImage(channel),
     author: getTextContent(channel, 'itunes\\:author') || getTextContent(channel, 'managingEditor'),
     value: parseValueBlock(channel),
+    podroll: parsePodRoll(channel),
     episodes: []
   };
 
@@ -142,6 +153,48 @@ function parseValueBlock(element: Element): ValueBlock | undefined {
 
   // Only return value block if it has recipients
   return valueBlock.recipients.length > 0 ? valueBlock : undefined;
+}
+
+/**
+ * Parses podcast:podroll elements and extracts podcast recommendations
+ */
+function parsePodRoll(element: Element): PodRollItem[] | undefined {
+  // Look for podcast:podroll element (with or without namespace prefix)
+  const podrollElement = element.querySelector('podcast\\:podroll, podroll');
+  if (!podrollElement) {
+    return undefined;
+  }
+
+  const podrollItems: PodRollItem[] = [];
+
+  // Parse all podcast:remoteItem elements within the podroll
+  const remoteItems = podrollElement.querySelectorAll('podcast\\:remoteItem, remoteItem');
+  remoteItems.forEach(item => {
+    const feedGuid = item.getAttribute('feedGuid') || undefined;
+    const feedUrl = item.getAttribute('feedUrl') || undefined;
+    const title = item.textContent?.trim() || item.getAttribute('title') || '';
+    
+    // Additional attributes that might be present
+    const description = item.getAttribute('description') || undefined;
+    const image = item.getAttribute('image') || undefined;
+    const author = item.getAttribute('author') || undefined;
+
+    // Only include items with at least a title and either feedGuid or feedUrl
+    if (title && (feedGuid || feedUrl)) {
+      podrollItems.push({
+        feedGuid,
+        feedUrl,
+        title,
+        description,
+        image,
+        author
+      });
+    }
+  });
+
+  console.log(`Parsed ${podrollItems.length} podroll recommendations:`, podrollItems);
+  
+  return podrollItems.length > 0 ? podrollItems : undefined;
 }
 
 /**

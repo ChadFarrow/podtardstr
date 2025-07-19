@@ -106,8 +106,22 @@ export const usePodcastPlayer = create<PodcastPlayerState>()(
         const state = get();
         const exists = state.queue.some(p => p.id === podcast.id);
         
+        console.log('🎵 addToQueue called:', {
+          podcastTitle: podcast.title,
+          podcastId: podcast.id,
+          alreadyExists: exists,
+          currentQueueLength: state.queue.length
+        });
+        
         if (!exists) {
-          set({ queue: [...state.queue, podcast] });
+          const newQueue = [...state.queue, podcast];
+          console.log('🎵 Added to queue:', {
+            newQueueLength: newQueue.length,
+            addedTrack: podcast.title
+          });
+          set({ queue: newQueue });
+        } else {
+          console.log('🎵 Track already in queue, skipping:', podcast.title);
         }
       },
 
@@ -150,17 +164,18 @@ export const usePodcastPlayer = create<PodcastPlayerState>()(
         const state = get();
         const nextIndex = state.currentIndex + 1;
         
-        console.log('playNext called:', {
+        console.log('🎵 playNext called:', {
           currentIndex: state.currentIndex,
           queueLength: state.queue.length,
           nextIndex,
           currentTrack: state.currentPodcast?.title,
-          autoPlay: state.autoPlay
+          autoPlay: state.autoPlay,
+          queueTracks: state.queue.map((q, i) => `${i}: ${q.title}`)
         });
         
         if (nextIndex < state.queue.length) {
           const nextPodcast = state.queue[nextIndex];
-          console.log('playNext: Playing next track:', nextPodcast.title);
+          console.log('🎵 playNext: Playing next track:', nextPodcast.title);
           
           // For iOS, we need to be more careful about autoplay
           const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
@@ -172,7 +187,7 @@ export const usePodcastPlayer = create<PodcastPlayerState>()(
             isPlaying: shouldAutoPlay,
           });
         } else {
-          console.log('playNext: No more tracks in queue');
+          console.log('🎵 playNext: No more tracks in queue');
         }
       },
 
@@ -180,23 +195,24 @@ export const usePodcastPlayer = create<PodcastPlayerState>()(
         const state = get();
         const prevIndex = state.currentIndex - 1;
         
-        console.log('playPrevious called:', {
+        console.log('🎵 playPrevious called:', {
           currentIndex: state.currentIndex,
           queueLength: state.queue.length,
           prevIndex,
-          currentTrack: state.currentPodcast?.title
+          currentTrack: state.currentPodcast?.title,
+          queueTracks: state.queue.map((q, i) => `${i}: ${q.title}`)
         });
         
         if (prevIndex >= 0) {
           const prevPodcast = state.queue[prevIndex];
-          console.log('playPrevious: Playing previous track:', prevPodcast.title);
+          console.log('🎵 playPrevious: Playing previous track:', prevPodcast.title);
           set({
             currentPodcast: prevPodcast,
             currentIndex: prevIndex,
             isPlaying: true,
           });
         } else {
-          console.log('playPrevious: No previous tracks in queue');
+          console.log('🎵 playPrevious: No previous tracks in queue');
         }
       },
     }),

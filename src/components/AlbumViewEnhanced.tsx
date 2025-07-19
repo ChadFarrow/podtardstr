@@ -157,6 +157,11 @@ export function AlbumViewEnhanced({ feedUrl }: AlbumViewEnhancedProps) {
   const handleAlbumPlay = () => {
     if (!albumData?.tracks || albumData.tracks.length === 0) return;
     
+    console.log('🎵 handleAlbumPlay called:', {
+      trackCount: albumData.tracks.length,
+      firstTrackTitle: albumData.tracks[0]?.title
+    });
+    
     // Clear existing queue
     clearQueue();
     
@@ -170,13 +175,20 @@ export function AlbumViewEnhanced({ feedUrl }: AlbumViewEnhancedProps) {
       duration: track.duration,
     }));
     
-    // Add all tracks to queue except the first one
-    tracksData.slice(1).forEach(track => {
+    console.log('🎵 Album play setup:', {
+      totalTracks: tracksData.length,
+      firstTrack: tracksData[0]?.title,
+      lastTrack: tracksData[tracksData.length - 1]?.title
+    });
+    
+    // Add ALL tracks to queue (including the first one)
+    tracksData.forEach(track => {
       addToQueue(track);
     });
     
     // Play the first track
     if (tracksData.length > 0) {
+      console.log('🎵 Playing first track:', tracksData[0].title);
       playPodcast(tracksData[0]);
     }
   };
@@ -350,6 +362,58 @@ export function AlbumViewEnhanced({ feedUrl }: AlbumViewEnhancedProps) {
             </div>
           </div>
         </div>
+
+        {/* PodRoll Recommendations */}
+        {albumData.podroll && albumData.podroll.length > 0 && (
+          <div className="p-8">
+            <div className="max-w-6xl mx-auto">
+              <h3 className="text-2xl font-bold mb-6 text-center">Recommended Podcasts</h3>
+              <div className="flex space-x-6 overflow-x-auto pb-4 scrollbar-hide">
+                {albumData.podroll.map((recommendation, index) => (
+                  <div
+                    key={recommendation.feedGuid || recommendation.feedUrl || index}
+                    className="flex-none group cursor-pointer"
+                    onClick={() => {
+                      if (recommendation.feedUrl) {
+                        window.open(`/albums?feed=${encodeURIComponent(recommendation.feedUrl)}`, '_blank');
+                      }
+                    }}
+                  >
+                    <div className="relative w-48">
+                      <div className="w-48 h-48 bg-gray-800 rounded-xl shadow-lg group-hover:shadow-2xl transition-all duration-300 group-hover:scale-105 flex items-center justify-center">
+                        {recommendation.image ? (
+                          <img
+                            src={recommendation.image}
+                            alt={recommendation.title}
+                            className="w-full h-full object-cover rounded-xl"
+                          />
+                        ) : (
+                          <Music className="h-16 w-16 text-gray-400" />
+                        )}
+                      </div>
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300 rounded-xl flex items-center justify-center">
+                        <button className="opacity-0 group-hover:opacity-100 transform scale-75 group-hover:scale-100 transition-all duration-300 bg-red-600 hover:bg-red-500 text-white rounded-full p-3 shadow-lg">
+                          <Play size={20} className="ml-0.5" />
+                        </button>
+                      </div>
+                    </div>
+                    <div className="mt-3 space-y-1">
+                      <h4 className="font-semibold text-white group-hover:text-red-400 transition-colors truncate">
+                        {recommendation.title}
+                      </h4>
+                      {recommendation.author && (
+                        <p className="text-sm text-gray-400 truncate">{recommendation.author}</p>
+                      )}
+                      {recommendation.description && (
+                        <p className="text-xs text-gray-500 truncate">{recommendation.description}</p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Other Projects - Horizontal Scroll */}
         <div className="p-8">
