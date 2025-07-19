@@ -22,8 +22,11 @@ export function AlbumNavigation({ onMenuToggle, showMenu }: AlbumNavigationProps
             : 'bg-gradient-to-b from-white/95 to-white/60 backdrop-blur-sm shadow-sm'
       }`}
       style={albumColors.isActive ? {
-        background: `linear-gradient(to bottom, ${albumColors.primary}CC 0%, ${albumColors.secondary}80 50%, transparent 100%)`
-      } : {}}
+        background: `linear-gradient(to bottom, ${albumColors.primary}CC 0%, ${albumColors.secondary}80 50%, transparent 100%)`,
+        paddingTop: `max(0.5rem, env(safe-area-inset-top))`
+      } : {
+        paddingTop: `max(0.5rem, env(safe-area-inset-top))`
+      }}
     >
       <div className="flex items-center space-x-4">
         <button 

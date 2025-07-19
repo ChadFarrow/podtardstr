@@ -370,8 +370,11 @@ export function PodcastPlayer() {
           albumColors.isActive ? 'border-white/20' : 'border-gray-800'
         }`}
         style={albumColors.isActive ? {
-          background: `linear-gradient(to top, ${albumColors.primary}CC 0%, ${albumColors.secondary}80 100%)`
-        } : {}}
+          background: `linear-gradient(to top, ${albumColors.primary}CC 0%, ${albumColors.secondary}80 100%)`,
+          paddingBottom: `max(0.75rem, env(safe-area-inset-bottom))`
+        } : {
+          paddingBottom: `max(0.75rem, env(safe-area-inset-bottom))`
+        }}
       >
         <div className="p-3 sm:p-4 text-center text-gray-400 text-sm">
           No track selected. Click play on any track to start listening.
@@ -386,8 +389,11 @@ export function PodcastPlayer() {
         albumColors.isActive ? 'border-white/20' : 'border-gray-800 bg-black/75'
       }`}
       style={albumColors.isActive ? {
-        background: `linear-gradient(to top, ${albumColors.primary}CC 0%, ${albumColors.secondary}80 100%)`
-      } : {}}
+        background: `linear-gradient(to top, ${albumColors.primary}CC 0%, ${albumColors.secondary}80 100%)`,
+        paddingBottom: `max(0.75rem, env(safe-area-inset-bottom))`
+      } : {
+        paddingBottom: `max(0.75rem, env(safe-area-inset-bottom))`
+      }}
     >
       <div className="p-3 sm:p-4">
         <audio
