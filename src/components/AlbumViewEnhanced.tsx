@@ -186,7 +186,7 @@ export function AlbumViewEnhanced({ feedUrl }: AlbumViewEnhancedProps) {
         isTrackPlaying={controls.isTrackPlaying}
       />
 
-      <div className="pb-8"></div>
+      <div className="pb-32"></div>
 
       <AlbumRecommendations
         podroll={albumData.podroll}

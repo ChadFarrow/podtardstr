@@ -17,7 +17,7 @@ export function TrackList({ tracks, artist, onTrackPlay, isTrackPlaying }: Track
 
   return (
     <div 
-      className="py-8"
+      className="py-8 pb-16"
       style={{
         paddingLeft: `max(2rem, env(safe-area-inset-left))`,
         paddingRight: `max(2rem, env(safe-area-inset-right))`
