@@ -1,17 +1,17 @@
 import { useSeoMeta } from '@unhead/react';
-import { AlbumView } from '@/components/AlbumView';
+import { AlbumViewEnhanced } from '@/components/AlbumViewEnhanced';
 import { LoginArea } from '@/components/auth/LoginArea';
 import { WalletStatus } from '@/components/WalletStatus';
 import { PodcastPlayer } from '@/components/PodcastPlayer';
 import { VersionDisplay } from '@/components/VersionDisplay';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Home, Disc, Music, ExternalLink } from 'lucide-react';
+import { Home, Disc, Menu, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useSearchParams } from 'react-router-dom';
+import { useState } from 'react';
 
 const Albums = () => {
   const [searchParams] = useSearchParams();
+  const [showMenu, setShowMenu] = useState(false);
   
   // Get feed URL from query parameters
   const feedUrlFromParams = searchParams.get('feed');
@@ -26,59 +26,66 @@ const Albums = () => {
   });
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Link to="/" className="flex items-center gap-2 text-lg font-semibold hover:text-primary transition-colors">
-                <Home className="h-5 w-5" />
-                Podtardstr
-              </Link>
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Disc className="h-4 w-4" />
-                <span className="text-sm">Albums</span>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-4">
-              <WalletStatus />
-              <LoginArea className="max-w-60" />
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          
-
+    <div className="min-h-screen bg-black relative">
+      {/* Top Navigation Bar */}
+      <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between p-6 bg-gradient-to-b from-black to-transparent">
+        <div className="flex items-center space-x-4">
+          <button 
+            onClick={() => setShowMenu(!showMenu)}
+            className="p-3 rounded-full bg-black/50 backdrop-blur-sm hover:bg-black/70 transition-all"
+          >
+            {showMenu ? <X size={20} className="text-white" /> : <Menu size={20} className="text-white" />}
+          </button>
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-red-400 to-orange-400 bg-clip-text text-transparent">
+            Podtardstr Albums
+          </h1>
         </div>
         
-        <AlbumView feedUrl={feedUrlFromParams || undefined} />
-      </main>
+        <div className="flex items-center gap-4">
+          <WalletStatus />
+          <LoginArea className="max-w-60" />
+        </div>
+      </div>
 
-      {/* Footer */}
-      <footer className="border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 mt-16">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-between text-sm text-muted-foreground">
-            <div className="flex items-center gap-4">
-              <p>
+      {/* Slide-out Menu */}
+      {showMenu && (
+        <div className="absolute top-0 left-0 h-full w-80 bg-black/90 backdrop-blur-lg z-30 transform transition-transform duration-300">
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-xl font-bold text-white">Navigation</h2>
+              <button onClick={() => setShowMenu(false)}>
+                <X size={20} className="text-white" />
+              </button>
+            </div>
+            <nav className="space-y-2">
+              <Link
+                to="/"
+                className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-all duration-200"
+              >
+                <Home size={20} />
+                <span className="font-medium">Back to Main App</span>
+              </Link>
+              <Link
+                to="/albums"
+                className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-white bg-white/10"
+              >
+                <Disc size={20} />
+                <span className="font-medium">Albums</span>
+              </Link>
+            </nav>
+            
+            <div className="absolute bottom-6 left-6 right-6">
+              <VersionDisplay />
+              <p className="text-xs text-gray-500 mt-2">
                 Vibed with <a href="https://soapbox.pub/mkstack" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">MKStack</a>
               </p>
-              <VersionDisplay />
-            </div>
-            
-            <div className="flex items-center gap-4">
-              <Link to="/" className="hover:text-primary transition-colors">
-                Back to Main App
-              </Link>
             </div>
           </div>
         </div>
-      </footer>
+      )}
+
+      {/* Main Content */}
+      <AlbumViewEnhanced feedUrl={feedUrlFromParams || undefined} />
 
       {/* Audio Player */}
       <PodcastPlayer />
