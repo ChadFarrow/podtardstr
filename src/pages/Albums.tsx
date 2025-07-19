@@ -21,7 +21,6 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
   const [showMenu, setShowMenu] = useState(false);
   const [showListenerSuggestions, setShowListenerSuggestions] = useState(false);
   const [showLiveConcerts, setShowLiveConcerts] = useState(false);
-  const [showFriends, setShowFriends] = useState(false);
   const [showDoerfels, setShowDoerfels] = useState(false);
   const { pinnedAlbums, pinAlbum, isPinned } = usePinnedAlbums();
   const { theme, toggleTheme } = useTheme();
@@ -353,15 +352,8 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
     'ring-that-bell'
   ];
 
-  // Artist that are friends of the band
-  const FRIENDS_ALBUMS = [
-    'stay-awhile',
-    'lofi-experience',
-    'heycitizen-experience'
-  ];
-
-  // Producers Picks (curated by producers)
-  const LISTENER_SUGGESTIONS_ALBUMS = [
+  // Producers Picks (curated by producers and friends)
+  const PRODUCERS_PICKS_ALBUMS = [
     'empty-passenger-seat',
     'pony-up-daddy', 
     'deathdreams',
@@ -380,7 +372,10 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
     'midnight-breakheart',
     'rocknroll-breakheart',
     'nate-and-cole-find-a-radio',
-    'love-in-its-purest-form'
+    'love-in-its-purest-form',
+    'stay-awhile',
+    'lofi-experience',
+    'heycitizen-experience'
   ];
 
   // Live concert folder (audio-only, optimized for performance)
@@ -396,14 +391,9 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
     DOERFELS_ALBUMS.includes(album.id)
   );
 
-  // Get albums that belong to Friends section
-  const friendsAlbums = FEATURED_ALBUMS_WITH_DETAILS.filter(album => 
-    FRIENDS_ALBUMS.includes(album.id)
-  );
-
-  // Get albums that belong to Listener Suggestions section
-  const listenerSuggestionsAlbums = FEATURED_ALBUMS_WITH_DETAILS.filter(album => 
-    LISTENER_SUGGESTIONS_ALBUMS.includes(album.id)
+  // Get albums that belong to Producers Picks section
+  const producersPicksAlbums = FEATURED_ALBUMS_WITH_DETAILS.filter(album => 
+    PRODUCERS_PICKS_ALBUMS.includes(album.id)
   );
 
   // Get albums that belong to Live Concerts section
@@ -654,7 +644,7 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
                 
                 {showListenerSuggestions && (
                   <div className="ml-4 space-y-1 mt-1">
-                    {listenerSuggestionsAlbums.map((album) => (
+                    {producersPicksAlbums.map((album) => (
                       <Link
                         key={album.id}
                         to={`/albums/${album.id}`}
@@ -672,47 +662,10 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
                 )}
               </div>
 
-              {/* Friends Folder */}
-              <div>
-                <button
-                  onClick={() => setShowFriends(!showFriends)}
-                  className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 w-full ${
-                    theme === 'dark'
-                      ? 'text-gray-400 hover:text-white hover:bg-white/10'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                  }`}
-                >
-                  <Folder size={20} />
-                  <span className="font-medium flex-1">Friends Music</span>
-                  {showFriends ? (
-                    <ChevronDown size={16} />
-                  ) : (
-                    <ChevronRight size={16} />
-                  )}
-                </button>
-                
-                {showFriends && (
-                  <div className="ml-4 space-y-1 mt-1">
-                    {friendsAlbums.map((album) => (
-                      <Link
-                        key={album.id}
-                        to={`/albums/${album.id}`}
-                        className={`flex items-center space-x-3 px-4 py-2 rounded-lg transition-all duration-200 ${
-                          theme === 'dark'
-                            ? 'text-gray-500 hover:text-white hover:bg-white/5'
-                            : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-                        }`}
-                      >
-                        <Disc size={16} />
-                        <span className="font-medium text-sm">{album.title}</span>
-                      </Link>
-                    ))}
-                  </div>
-                )}
-              </div>
+
 
               {/* Pinned Albums (excluding organized folders) */}
-              {pinnedAlbums.filter(album => !LISTENER_SUGGESTIONS_ALBUMS.includes(album.id) && !LIVE_CONCERTS_ALBUMS.includes(album.id) && !FRIENDS_ALBUMS.includes(album.id) && !DOERFELS_ALBUMS.includes(album.id)).map((album) => (
+              {pinnedAlbums.filter(album => !PRODUCERS_PICKS_ALBUMS.includes(album.id) && !LIVE_CONCERTS_ALBUMS.includes(album.id) && !DOERFELS_ALBUMS.includes(album.id)).map((album) => (
                 <Link
                   key={album.id}
                   to={`/albums/${album.id}`}
