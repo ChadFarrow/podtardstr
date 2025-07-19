@@ -19,21 +19,10 @@ interface AlbumsProps {
 const Albums = ({ feedUrl }: AlbumsProps) => {
   const [searchParams] = useSearchParams();
   const [showMenu, setShowMenu] = useState(false);
-  const [showChadFFolder, setShowChadFFolder] = useState(false);
+  const [showListenerSuggestions, setShowListenerSuggestions] = useState(false);
   const [showLiveConcerts, setShowLiveConcerts] = useState(false);
   const [showFriends, setShowFriends] = useState(false);
   const [showDoerfels, setShowDoerfels] = useState(false);
-  const [showMikeNeumann, setShowMikeNeumann] = useState(false);
-  const [showSaltyCrayon, setShowSaltyCrayon] = useState(false);
-  const [showBooBury, setShowBooBury] = useState(false);
-  const [showTJ, setShowTJ] = useState(false);
-  const [showDuhlaurien, setShowDuhlaurien] = useState(false);
-  const [showMatyKateUltra, setShowMatyKateUltra] = useState(false);
-  const [showSirSpencer, setShowSirSpencer] = useState(false);
-  const [showEricpp, setShowEricpp] = useState(false);
-  const [showCottongin, setShowCottongin] = useState(false);
-  const [showLavish, setShowLavish] = useState(false);
-  const [showSirLibre, setShowSirLibre] = useState(false);
   const { pinnedAlbums, pinAlbum, isPinned } = usePinnedAlbums();
   const { theme, toggleTheme } = useTheme();
   
@@ -238,57 +227,47 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
     }
   ];
 
-  // ChadF folder albums
-  const CHADF_ALBUMS = [
-    'empty-passenger-seat',
-    'pony-up-daddy', 
-    'deathdreams',
-    'spectral-hiding',
-    'tinderbox',
-    'wavlake-album'
-  ];
-
-  // Live Concerts albums
-  const LIVE_CONCERTS_ALBUMS = [
-    'the-satellite-skirmish-album',
-    'autumn-rust',
-    'polar-embrace'
-  ];
-
-  // Friends folder albums
-  const FRIENDS_ALBUMS = [
-    'stay-awhile',
-    'lofi-experience',
-    'heycitizen-experience'
-  ];
-
-  // The Doerfels folder albums
+  // The Doerfels albums (main band)
   const DOERFELS_ALBUMS = [
     'bloodshot-lies',
     'music-from-the-doerfelverse',
     'think-ep',
     'ben-doerfel',
     'into-the-doerfelverse',
+    'wrath-of-banjo'
+  ];
+
+  // Artist that are friends of the band
+  const FRIENDS_ALBUMS = [
+    'stay-awhile',
+    'lofi-experience',
+    'heycitizen-experience'
+  ];
+
+  // Listeners suggestions (curated by listeners)
+  const LISTENER_SUGGESTIONS_ALBUMS = [
+    'empty-passenger-seat',
+    'pony-up-daddy', 
+    'deathdreams',
+    'spectral-hiding',
+    'tinderbox',
+    'wavlake-album',
     'kurtisdrums-v1',
     'nostalgic',
     'citybeach',
-    'wrath-of-banjo',
     'ring-that-bell'
   ];
 
-  // SirLibre folder albums
-  const SIRLIBRE_ALBUMS = [
-    // Add SirLibre albums here when available
+  // Live concert folder
+  const LIVE_CONCERTS_ALBUMS = [
+    'the-satellite-skirmish-album',
+    'autumn-rust',
+    'polar-embrace'
   ];
 
-  // Get albums that belong to ChadF folder
-  const chadFAlbums = FEATURED_ALBUMS_WITH_DETAILS.filter(album => 
-    CHADF_ALBUMS.includes(album.id)
-  );
-
-  // Get albums that belong to Live Concerts section
-  const liveConcertsAlbums = FEATURED_ALBUMS_WITH_DETAILS.filter(album => 
-    LIVE_CONCERTS_ALBUMS.includes(album.id)
+  // Get albums that belong to The Doerfels section
+  const doerfelsAlbums = FEATURED_ALBUMS_WITH_DETAILS.filter(album => 
+    DOERFELS_ALBUMS.includes(album.id)
   );
 
   // Get albums that belong to Friends section
@@ -296,14 +275,14 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
     FRIENDS_ALBUMS.includes(album.id)
   );
 
-  // Get albums that belong to The Doerfels section
-  const doerfelsAlbums = FEATURED_ALBUMS_WITH_DETAILS.filter(album => 
-    DOERFELS_ALBUMS.includes(album.id)
+  // Get albums that belong to Listener Suggestions section
+  const listenerSuggestionsAlbums = FEATURED_ALBUMS_WITH_DETAILS.filter(album => 
+    LISTENER_SUGGESTIONS_ALBUMS.includes(album.id)
   );
 
-  // Get albums that belong to SirLibre section
-  const sirLibreAlbums = FEATURED_ALBUMS_WITH_DETAILS.filter(album => 
-    SIRLIBRE_ALBUMS.includes(album.id)
+  // Get albums that belong to Live Concerts section
+  const liveConcertsAlbums = FEATURED_ALBUMS_WITH_DETAILS.filter(album => 
+    LIVE_CONCERTS_ALBUMS.includes(album.id)
   );
 
   // Create complete album list including all sidebar navigation items
@@ -512,10 +491,10 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
                  )}
                </div>
 
-              {/* ChadF Folder */}
+              {/* Listeners Suggestions */}
               <div>
                 <button
-                  onClick={() => setShowChadFFolder(!showChadFFolder)}
+                  onClick={() => setShowListenerSuggestions(!showListenerSuggestions)}
                   className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 w-full ${
                     theme === 'dark'
                       ? 'text-gray-400 hover:text-white hover:bg-white/10'
@@ -523,17 +502,17 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
                   }`}
                 >
                   <Folder size={20} />
-                  <span className="font-medium flex-1">ChadF</span>
-                  {showChadFFolder ? (
+                  <span className="font-medium flex-1">Listeners Suggestions</span>
+                  {showListenerSuggestions ? (
                     <ChevronDown size={16} />
                   ) : (
                     <ChevronRight size={16} />
                   )}
                 </button>
                 
-                {showChadFFolder && (
+                {showListenerSuggestions && (
                   <div className="ml-4 space-y-1 mt-1">
-                    {chadFAlbums.map((album) => (
+                    {listenerSuggestionsAlbums.map((album) => (
                       <Link
                         key={album.id}
                         to={`/albums/${album.id}`}
@@ -590,47 +569,8 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
                 )}
               </div>
 
-              {/* SirLibre Folder */}
-              <div>
-                <button
-                  onClick={() => setShowSirLibre(!showSirLibre)}
-                  className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 w-full ${
-                    theme === 'dark'
-                      ? 'text-gray-400 hover:text-white hover:bg-white/10'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                  }`}
-                >
-                  <Folder size={20} />
-                  <span className="font-medium flex-1">SirLibre</span>
-                  {showSirLibre ? (
-                    <ChevronDown size={16} />
-                  ) : (
-                    <ChevronRight size={16} />
-                  )}
-                </button>
-                
-                {showSirLibre && sirLibreAlbums.length > 0 && (
-                  <div className="ml-4 space-y-1 mt-1">
-                    {sirLibreAlbums.map((album) => (
-                      <Link
-                        key={album.id}
-                        to={`/albums/${album.id}`}
-                        className={`flex items-center space-x-3 px-4 py-2 rounded-lg transition-all duration-200 ${
-                          theme === 'dark'
-                            ? 'text-gray-500 hover:text-white hover:bg-white/5'
-                            : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-                        }`}
-                      >
-                        <Disc size={16} />
-                        <span className="font-medium text-sm">{album.title}</span>
-                      </Link>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Pinned Albums (excluding ChadF, Live Concerts, Friends, Doerfels, and SirLibre albums) */}
-              {pinnedAlbums.filter(album => !CHADF_ALBUMS.includes(album.id) && !LIVE_CONCERTS_ALBUMS.includes(album.id) && !FRIENDS_ALBUMS.includes(album.id) && !DOERFELS_ALBUMS.includes(album.id) && !SIRLIBRE_ALBUMS.includes(album.id)).map((album) => (
+              {/* Pinned Albums (excluding organized folders) */}
+              {pinnedAlbums.filter(album => !LISTENER_SUGGESTIONS_ALBUMS.includes(album.id) && !LIVE_CONCERTS_ALBUMS.includes(album.id) && !FRIENDS_ALBUMS.includes(album.id) && !DOERFELS_ALBUMS.includes(album.id)).map((album) => (
                 <Link
                   key={album.id}
                   to={`/albums/${album.id}`}
@@ -682,279 +622,6 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
                     ))}
                   </div>
                 )}
-              </div>
-
-              {/* Individual Artist Folders */}
-              <div className="mt-4 space-y-2">
-                {/* Mike Neumann */}
-                <div>
-                  <button
-                    onClick={() => setShowMikeNeumann(!showMikeNeumann)}
-                    className={`flex items-center space-x-3 px-4 py-2 rounded-lg transition-all duration-200 w-full ${
-                      theme === 'dark'
-                        ? 'text-gray-400 hover:text-white hover:bg-white/10'
-                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                    }`}
-                  >
-                    <Folder size={18} />
-                    <span className="font-medium flex-1 text-sm">Mike Neumann</span>
-                    {showMikeNeumann ? (
-                      <ChevronDown size={14} />
-                    ) : (
-                      <ChevronRight size={14} />
-                    )}
-                  </button>
-                  {showMikeNeumann && (
-                    <div className="ml-6 mt-1">
-                      <p className={`text-xs px-4 py-1 ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`}>
-                        No albums added yet
-                      </p>
-                    </div>
-                  )}
-                </div>
-
-                {/* Salty Crayon */}
-                <div>
-                  <button
-                    onClick={() => setShowSaltyCrayon(!showSaltyCrayon)}
-                    className={`flex items-center space-x-3 px-4 py-2 rounded-lg transition-all duration-200 w-full ${
-                      theme === 'dark'
-                        ? 'text-gray-400 hover:text-white hover:bg-white/10'
-                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                    }`}
-                  >
-                    <Folder size={18} />
-                    <span className="font-medium flex-1 text-sm">Salty Crayon</span>
-                    {showSaltyCrayon ? (
-                      <ChevronDown size={14} />
-                    ) : (
-                      <ChevronRight size={14} />
-                    )}
-                  </button>
-                  {showSaltyCrayon && (
-                    <div className="ml-6 mt-1">
-                      <p className={`text-xs px-4 py-1 ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`}>
-                        No albums added yet
-                      </p>
-                    </div>
-                  )}
-                </div>
-
-                {/* Boo-Bury */}
-                <div>
-                  <button
-                    onClick={() => setShowBooBury(!showBooBury)}
-                    className={`flex items-center space-x-3 px-4 py-2 rounded-lg transition-all duration-200 w-full ${
-                      theme === 'dark'
-                        ? 'text-gray-400 hover:text-white hover:bg-white/10'
-                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                    }`}
-                  >
-                    <Folder size={18} />
-                    <span className="font-medium flex-1 text-sm">Boo-Bury</span>
-                    {showBooBury ? (
-                      <ChevronDown size={14} />
-                    ) : (
-                      <ChevronRight size={14} />
-                    )}
-                  </button>
-                  {showBooBury && (
-                    <div className="ml-6 mt-1">
-                      <p className={`text-xs px-4 py-1 ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`}>
-                        No albums added yet
-                      </p>
-                    </div>
-                  )}
-                </div>
-
-                {/* TJ */}
-                <div>
-                  <button
-                    onClick={() => setShowTJ(!showTJ)}
-                    className={`flex items-center space-x-3 px-4 py-2 rounded-lg transition-all duration-200 w-full ${
-                      theme === 'dark'
-                        ? 'text-gray-400 hover:text-white hover:bg-white/10'
-                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                    }`}
-                  >
-                    <Folder size={18} />
-                    <span className="font-medium flex-1 text-sm">TJ</span>
-                    {showTJ ? (
-                      <ChevronDown size={14} />
-                    ) : (
-                      <ChevronRight size={14} />
-                    )}
-                  </button>
-                  {showTJ && (
-                    <div className="ml-6 mt-1">
-                      <p className={`text-xs px-4 py-1 ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`}>
-                        No albums added yet
-                      </p>
-                    </div>
-                  )}
-                </div>
-
-                {/* Duhlaurien */}
-                <div>
-                  <button
-                    onClick={() => setShowDuhlaurien(!showDuhlaurien)}
-                    className={`flex items-center space-x-3 px-4 py-2 rounded-lg transition-all duration-200 w-full ${
-                      theme === 'dark'
-                        ? 'text-gray-400 hover:text-white hover:bg-white/10'
-                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                    }`}
-                  >
-                    <Folder size={18} />
-                    <span className="font-medium flex-1 text-sm">Duhlaurien</span>
-                    {showDuhlaurien ? (
-                      <ChevronDown size={14} />
-                    ) : (
-                      <ChevronRight size={14} />
-                    )}
-                  </button>
-                  {showDuhlaurien && (
-                    <div className="ml-6 mt-1">
-                      <p className={`text-xs px-4 py-1 ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`}>
-                        No albums added yet
-                      </p>
-                    </div>
-                  )}
-                </div>
-
-                {/* MatyKateUltra */}
-                <div>
-                  <button
-                    onClick={() => setShowMatyKateUltra(!showMatyKateUltra)}
-                    className={`flex items-center space-x-3 px-4 py-2 rounded-lg transition-all duration-200 w-full ${
-                      theme === 'dark'
-                        ? 'text-gray-400 hover:text-white hover:bg-white/10'
-                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                    }`}
-                  >
-                    <Folder size={18} />
-                    <span className="font-medium flex-1 text-sm">MatyKateUltra</span>
-                    {showMatyKateUltra ? (
-                      <ChevronDown size={14} />
-                    ) : (
-                      <ChevronRight size={14} />
-                    )}
-                  </button>
-                  {showMatyKateUltra && (
-                    <div className="ml-6 mt-1">
-                      <p className={`text-xs px-4 py-1 ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`}>
-                        No albums added yet
-                      </p>
-                    </div>
-                  )}
-                </div>
-
-                {/* SirSpencer */}
-                <div>
-                  <button
-                    onClick={() => setShowSirSpencer(!showSirSpencer)}
-                    className={`flex items-center space-x-3 px-4 py-2 rounded-lg transition-all duration-200 w-full ${
-                      theme === 'dark'
-                        ? 'text-gray-400 hover:text-white hover:bg-white/10'
-                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                    }`}
-                  >
-                    <Folder size={18} />
-                    <span className="font-medium flex-1 text-sm">SirSpencer</span>
-                    {showSirSpencer ? (
-                      <ChevronDown size={14} />
-                    ) : (
-                      <ChevronRight size={14} />
-                    )}
-                  </button>
-                  {showSirSpencer && (
-                    <div className="ml-6 mt-1">
-                      <p className={`text-xs px-4 py-1 ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`}>
-                        No albums added yet
-                      </p>
-                    </div>
-                  )}
-                </div>
-
-                {/* ericpp */}
-                <div>
-                  <button
-                    onClick={() => setShowEricpp(!showEricpp)}
-                    className={`flex items-center space-x-3 px-4 py-2 rounded-lg transition-all duration-200 w-full ${
-                      theme === 'dark'
-                        ? 'text-gray-400 hover:text-white hover:bg-white/10'
-                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                    }`}
-                  >
-                    <Folder size={18} />
-                    <span className="font-medium flex-1 text-sm">ericpp</span>
-                    {showEricpp ? (
-                      <ChevronDown size={14} />
-                    ) : (
-                      <ChevronRight size={14} />
-                    )}
-                  </button>
-                  {showEricpp && (
-                    <div className="ml-6 mt-1">
-                      <p className={`text-xs px-4 py-1 ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`}>
-                        No albums added yet
-                      </p>
-                    </div>
-                  )}
-                </div>
-
-                {/* cottongin */}
-                <div>
-                  <button
-                    onClick={() => setShowCottongin(!showCottongin)}
-                    className={`flex items-center space-x-3 px-4 py-2 rounded-lg transition-all duration-200 w-full ${
-                      theme === 'dark'
-                        ? 'text-gray-400 hover:text-white hover:bg-white/10'
-                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                    }`}
-                  >
-                    <Folder size={18} />
-                    <span className="font-medium flex-1 text-sm">cottongin</span>
-                    {showCottongin ? (
-                      <ChevronDown size={14} />
-                    ) : (
-                      <ChevronRight size={14} />
-                    )}
-                  </button>
-                  {showCottongin && (
-                    <div className="ml-6 mt-1">
-                      <p className={`text-xs px-4 py-1 ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`}>
-                        No albums added yet
-                      </p>
-                    </div>
-                  )}
-                </div>
-
-                {/* lavish */}
-                <div>
-                  <button
-                    onClick={() => setShowLavish(!showLavish)}
-                    className={`flex items-center space-x-3 px-4 py-2 rounded-lg transition-all duration-200 w-full ${
-                      theme === 'dark'
-                        ? 'text-gray-400 hover:text-white hover:bg-white/10'
-                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                    }`}
-                  >
-                    <Folder size={18} />
-                    <span className="font-medium flex-1 text-sm">lavish</span>
-                    {showLavish ? (
-                      <ChevronDown size={14} />
-                    ) : (
-                      <ChevronRight size={14} />
-                    )}
-                  </button>
-                  {showLavish && (
-                    <div className="ml-6 mt-1">
-                      <p className={`text-xs px-4 py-1 ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`}>
-                        No albums added yet
-                      </p>
-                    </div>
-                  )}
-                </div>
               </div>
             </nav>
             
