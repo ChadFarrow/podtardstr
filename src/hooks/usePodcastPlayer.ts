@@ -51,16 +51,26 @@ export const usePodcastPlayer = create<PodcastPlayerState>()(
       playPodcast: (podcast) => {
         const state = get();
         
+        console.log('🎵 playPodcast called:', {
+          podcastId: podcast.id,
+          podcastTitle: podcast.title,
+          podcastUrl: podcast.url,
+          currentQueueLength: state.queue.length,
+          currentPodcastId: state.currentPodcast?.id
+        });
+        
         // If this podcast is already in the queue, just play it
         const existingIndex = state.queue.findIndex(p => p.id === podcast.id);
         
         if (existingIndex !== -1) {
+          console.log('🎵 Podcast already in queue at index:', existingIndex);
           set({
             currentPodcast: podcast,
             currentIndex: existingIndex,
             isPlaying: true,
           });
         } else {
+          console.log('🎵 Adding podcast to queue and playing');
           // Add to queue and play
           const newQueue = [...state.queue, podcast];
           set({

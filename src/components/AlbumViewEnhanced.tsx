@@ -93,18 +93,30 @@ export function AlbumViewEnhanced({ feedUrl }: AlbumViewEnhancedProps) {
   const handleTrackPlay = (track: AlbumTrack) => {
     const trackId = track.id.toString();
     
+    console.log('🎵 handleTrackPlay called:', {
+      trackId,
+      trackTitle: track.title,
+      isCurrentlyPlaying: isPlaying && currentPodcast?.id === trackId,
+      currentPodcastId: currentPodcast?.id,
+      currentPodcastTitle: currentPodcast?.title
+    });
+    
     // Check if this track is already playing
     if (isPlaying && currentPodcast?.id === trackId) {
+      console.log('🎵 Pausing current track');
       setIsPlaying(false);
       return;
     }
 
     // Check if we need to resume the same track
     if (!isPlaying && currentPodcast?.id === trackId) {
+      console.log('🎵 Resuming current track');
       setIsPlaying(true);
       return;
     }
 
+    console.log('🎵 Playing new track, setting up queue...');
+    
     // Clear existing queue and set up new queue with ALL tracks from the album
     clearQueue();
     
@@ -121,6 +133,13 @@ export function AlbumViewEnhanced({ feedUrl }: AlbumViewEnhancedProps) {
     // Find the index of the clicked track
     const clickedTrackIndex = albumData?.tracks.findIndex(t => t.id.toString() === trackId) || 0;
     
+    console.log('🎵 Queue setup:', {
+      totalTracks: allTracksData.length,
+      clickedTrackIndex,
+      clickedTrackTitle: allTracksData[clickedTrackIndex]?.title,
+      clickedTrackUrl: allTracksData[clickedTrackIndex]?.url
+    });
+    
     // Add all tracks to queue except the clicked one (which we'll play directly)
     allTracksData.forEach((trackData, index) => {
       if (index !== clickedTrackIndex) {
@@ -130,6 +149,7 @@ export function AlbumViewEnhanced({ feedUrl }: AlbumViewEnhancedProps) {
 
     // Play the clicked track
     if (allTracksData.length > 0) {
+      console.log('🎵 Calling playPodcast with:', allTracksData[clickedTrackIndex]);
       playPodcast(allTracksData[clickedTrackIndex]);
     }
   };
