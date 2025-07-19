@@ -44,8 +44,9 @@ export function AppRouter() {
         <Route path="/albums/way-to-go" element={<Albums feedUrl="https://static.staticsave.com/mspfiles/waytogo.xml" />} />
         <Route path="/albums/now-i-feel-it" element={<Albums feedUrl="https://music.behindthesch3m3s.com/wp-content/uploads/c_kostra/now i feel it.xml" />} />
         <Route path="/albums/midnight-breakheart" element={<Albums feedUrl="https://rocknrollbreakheart.com/msp/MidnightBreakheart/midnight breakheart.xml" />} />
-        <Route path="/albums/rocknroll-breakheart" element={<Albums feedUrl="https://rocknrollbreakheart.com/msp/RNRBH/rock'n'roll%20breakheart.xml" />} />
+        <Route path="/albums/rocknroll-breakheart" element={<Albums feedUrl="https://rocknrollbreakheart.com/msp/RNRBH/rock%27n%27roll%20breakheart.xml" />} />
         <Route path="/albums/nate-and-cole-find-a-radio" element={<Albums feedUrl="https://wavlake.com/feed/music/47bc7992-48ad-4a4b-907c-9972490bcdba" />} />
+        <Route path="/albums/love-in-its-purest-form" element={<Albums feedUrl="https://feed.falsefinish.club/Vance Latta/Vance Latta - Love In Its Purest Form/love in its purest form.xml" />} />
         
         {/* Doerfels Podroll Albums */}
         <Route path="/albums/ben-doerfel" element={<Albums feedUrl="https://www.doerfelverse.com/feeds/ben-doerfel.xml" />} />

@@ -318,7 +318,7 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
       title: 'Rock\'n\'Roll Breakheart',
       artist: 'Rock\'n\'Roll Breakheart',
       artwork: 'http://rocknrollbreakheart.com/msp/RNRBH/album-art.png',
-      feedUrl: 'https://rocknrollbreakheart.com/msp/RNRBH/rock\'n\'roll%20breakheart.xml',
+      feedUrl: 'https://rocknrollbreakheart.com/msp/RNRBH/rock%27n%27roll%20breakheart.xml',
       description: 'Pure rock\'n\'roll energy'
     },
     {
@@ -328,6 +328,14 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
       artwork: 'https://d12wklypp119aj.cloudfront.net/image/47bc7992-48ad-4a4b-907c-9972490bcdba.jpg',
       feedUrl: 'https://wavlake.com/feed/music/47bc7992-48ad-4a4b-907c-9972490bcdba',
       description: 'An adventure in sound discovery'
+    },
+    {
+      id: 'love-in-its-purest-form',
+      title: 'Love In Its Purest Form',
+      artist: 'Vance Latta',
+      artwork: 'https://feed.falsefinish.club/Vance%20Latta/Vance%20Latta%20-%20Love%20In%20Its%20Purest%20Form/cover.png',
+      feedUrl: 'https://feed.falsefinish.club/Vance Latta/Vance Latta - Love In Its Purest Form/love in its purest form.xml',
+      description: 'Heartfelt expressions of love in musical form'
     }
   ];
 
@@ -371,7 +379,8 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
     'now-i-feel-it',
     'midnight-breakheart',
     'rocknroll-breakheart',
-    'nate-and-cole-find-a-radio'
+    'nate-and-cole-find-a-radio',
+    'love-in-its-purest-form'
   ];
 
   // Live concert folder (audio-only, optimized for performance)

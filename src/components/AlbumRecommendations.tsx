@@ -107,8 +107,9 @@ export function AlbumRecommendations({ podroll, currentFeedUrl }: AlbumRecommend
       'https://static.staticsave.com/mspfiles/waytogo.xml': '/albums/way-to-go',
       'https://music.behindthesch3m3s.com/wp-content/uploads/c_kostra/now i feel it.xml': '/albums/now-i-feel-it',
       'https://rocknrollbreakheart.com/msp/MidnightBreakheart/midnight breakheart.xml': '/albums/midnight-breakheart',
-      'https://rocknrollbreakheart.com/msp/RNRBH/rock\'n\'roll%20breakheart.xml': '/albums/rocknroll-breakheart',
-      'https://wavlake.com/feed/music/47bc7992-48ad-4a4b-907c-9972490bcdba': '/albums/nate-and-cole-find-a-radio'
+      'https://rocknrollbreakheart.com/msp/RNRBH/rock%27n%27roll%20breakheart.xml': '/albums/rocknroll-breakheart',
+      'https://wavlake.com/feed/music/47bc7992-48ad-4a4b-907c-9972490bcdba': '/albums/nate-and-cole-find-a-radio',
+      'https://feed.falsefinish.club/Vance Latta/Vance Latta - Love In Its Purest Form/love in its purest form.xml': '/albums/love-in-its-purest-form'
     };
 
     // Return clean route if found, otherwise fall back to query parameter
