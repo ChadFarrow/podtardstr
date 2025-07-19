@@ -66,7 +66,7 @@ export function parseFeedXML(xmlText: string): ParsedFeed {
     title: getTextContent(channel, 'title'),
     description: getTextContent(channel, 'description'),
     link: getTextContent(channel, 'link'),
-    image: getTextContent(channel, 'image url') || getTextContent(channel, 'itunes\\:image', 'href'),
+    image: getChannelImage(channel),
     author: getTextContent(channel, 'itunes\\:author') || getTextContent(channel, 'managingEditor'),
     value: parseValueBlock(channel),
     episodes: []
@@ -153,6 +153,54 @@ function getTextContent(parent: Element, selector: string, attribute?: string): 
   }
   
   return element.textContent?.trim() || undefined;
+}
+
+/**
+ * Helper to extract channel image with better fallback handling
+ */
+function getChannelImage(channel: Element): string | undefined {
+  // Try multiple image sources in order of preference
+  const imageSources = [
+    // Standard RSS image with url child element
+    () => getTextContent(channel, 'image url'),
+    // iTunes image with href attribute
+    () => getTextContent(channel, 'itunes\\:image', 'href'),
+    // Image element with href attribute
+    () => getTextContent(channel, 'image', 'href'),
+    // Direct image element content
+    () => getTextContent(channel, 'image'),
+    // Artwork element
+    () => getTextContent(channel, 'artwork'),
+    // Check for any image-related element without namespace
+    () => {
+      const imageEl = channel.querySelector('image');
+      if (imageEl) {
+        // Try common attributes
+        const attrs = ['href', 'url', 'src'];
+        for (const attr of attrs) {
+          const value = imageEl.getAttribute(attr);
+          if (value) return value;
+        }
+        // Try text content
+        const text = imageEl.textContent?.trim();
+        if (text && (text.includes('http') || text.includes('.jpg') || text.includes('.png'))) {
+          return text;
+        }
+      }
+      return undefined;
+    }
+  ];
+
+  for (const getImageFn of imageSources) {
+    const image = getImageFn();
+    if (image) {
+      console.log('Found channel image:', image);
+      return image;
+    }
+  }
+
+  console.log('No channel image found');
+  return undefined;
 }
 
 /**
