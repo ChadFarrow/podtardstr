@@ -21,7 +21,7 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
   const [showMenu, setShowMenu] = useState(false);
   const [showChadFFolder, setShowChadFFolder] = useState(false);
   const [showLiveConcerts, setShowLiveConcerts] = useState(false);
-  const [showVariousArtists, setShowVariousArtists] = useState(false);
+  const [showFriends, setShowFriends] = useState(false);
   const [showDoerfels, setShowDoerfels] = useState(false);
   const { pinnedAlbums, pinAlbum, isPinned } = usePinnedAlbums();
   const { theme, toggleTheme } = useTheme();
@@ -187,8 +187,8 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
     'polar-embrace'
   ];
 
-  // Various Artists folder albums
-  const VARIOUS_ARTISTS_ALBUMS = [
+  // Friends folder albums
+  const FRIENDS_ALBUMS = [
     'stay-awhile',
     'lofi-experience',
     'heycitizen-experience'
@@ -211,9 +211,9 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
     LIVE_CONCERTS_ALBUMS.includes(album.id)
   );
 
-  // Get albums that belong to Various Artists section
-  const variousArtistsAlbums = FEATURED_ALBUMS_WITH_DETAILS.filter(album => 
-    VARIOUS_ARTISTS_ALBUMS.includes(album.id)
+  // Get albums that belong to Friends section
+  const friendsAlbums = FEATURED_ALBUMS_WITH_DETAILS.filter(album => 
+    FRIENDS_ALBUMS.includes(album.id)
   );
 
   // Get albums that belong to The Doerfels section
@@ -460,10 +460,10 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
                 )}
               </div>
 
-              {/* Various Artists Folder */}
+              {/* Friends Folder */}
               <div>
                 <button
-                  onClick={() => setShowVariousArtists(!showVariousArtists)}
+                  onClick={() => setShowFriends(!showFriends)}
                   className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 w-full ${
                     theme === 'dark'
                       ? 'text-gray-400 hover:text-white hover:bg-white/10'
@@ -471,17 +471,17 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
                   }`}
                 >
                   <Folder size={20} />
-                  <span className="font-medium flex-1">Various Artists</span>
-                  {showVariousArtists ? (
+                  <span className="font-medium flex-1">Friends</span>
+                  {showFriends ? (
                     <ChevronDown size={16} />
                   ) : (
                     <ChevronRight size={16} />
                   )}
                 </button>
                 
-                {showVariousArtists && (
+                {showFriends && (
                   <div className="ml-4 space-y-1 mt-1">
-                    {variousArtistsAlbums.map((album) => (
+                    {friendsAlbums.map((album) => (
                       <Link
                         key={album.id}
                         to={`/albums?feed=${encodeURIComponent(album.feedUrl)}`}
@@ -499,8 +499,8 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
                 )}
               </div>
 
-              {/* Pinned Albums (excluding ChadF, Live Concerts, Various Artists, and Doerfels albums) */}
-              {pinnedAlbums.filter(album => !CHADF_ALBUMS.includes(album.id) && !LIVE_CONCERTS_ALBUMS.includes(album.id) && !VARIOUS_ARTISTS_ALBUMS.includes(album.id) && !DOERFELS_ALBUMS.includes(album.id)).map((album) => (
+              {/* Pinned Albums (excluding ChadF, Live Concerts, Friends, and Doerfels albums) */}
+              {pinnedAlbums.filter(album => !CHADF_ALBUMS.includes(album.id) && !LIVE_CONCERTS_ALBUMS.includes(album.id) && !FRIENDS_ALBUMS.includes(album.id) && !DOERFELS_ALBUMS.includes(album.id)).map((album) => (
                 <Link
                   key={album.id}
                   to={`/albums?feed=${encodeURIComponent(album.feedUrl)}`}
