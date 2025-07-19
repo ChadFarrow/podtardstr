@@ -417,6 +417,42 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
                       <Disc size={16} />
                       <span className="font-medium text-sm">Nostalgic</span>
                     </Link>
+
+                    <Link
+                      to="/albums?feed=https://www.sirtjthewrathful.com/wp-content/uploads/2023/08/CityBeach.xml"
+                      className={`flex items-center space-x-3 px-4 py-2 rounded-lg transition-all duration-200 ${
+                        theme === 'dark'
+                          ? 'text-gray-500 hover:text-white hover:bg-white/5'
+                          : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      <Disc size={16} />
+                      <span className="font-medium text-sm">CityBeach</span>
+                    </Link>
+
+                    <Link
+                      to="/albums?feed=https://www.doerfelverse.com/feeds/wrath-of-banjo.xml"
+                      className={`flex items-center space-x-3 px-4 py-2 rounded-lg transition-all duration-200 ${
+                        theme === 'dark'
+                          ? 'text-gray-500 hover:text-white hover:bg-white/5'
+                          : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      <Disc size={16} />
+                      <span className="font-medium text-sm">Wrath of Banjo</span>
+                    </Link>
+
+                    <Link
+                      to="/albums?feed=https://www.thisisjdog.com/media/ring-that-bell.xml"
+                      className={`flex items-center space-x-3 px-4 py-2 rounded-lg transition-all duration-200 ${
+                        theme === 'dark'
+                          ? 'text-gray-500 hover:text-white hover:bg-white/5'
+                          : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      <Disc size={16} />
+                      <span className="font-medium text-sm">Ring That Bell</span>
+                    </Link>
                   </div>
                 )}
               </div>
