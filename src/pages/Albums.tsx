@@ -33,6 +33,7 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
   const [showEricpp, setShowEricpp] = useState(false);
   const [showCottongin, setShowCottongin] = useState(false);
   const [showLavish, setShowLavish] = useState(false);
+  const [showSirLibre, setShowSirLibre] = useState(false);
   const { pinnedAlbums, pinAlbum, isPinned } = usePinnedAlbums();
   const { theme, toggleTheme } = useTheme();
   
@@ -243,7 +244,8 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
     'pony-up-daddy', 
     'deathdreams',
     'spectral-hiding',
-    'tinderbox'
+    'tinderbox',
+    'wavlake-album'
   ];
 
   // Live Concerts albums
@@ -274,6 +276,11 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
     'ring-that-bell'
   ];
 
+  // SirLibre folder albums
+  const SIRLIBRE_ALBUMS = [
+    // Add SirLibre albums here when available
+  ];
+
   // Get albums that belong to ChadF folder
   const chadFAlbums = FEATURED_ALBUMS_WITH_DETAILS.filter(album => 
     CHADF_ALBUMS.includes(album.id)
@@ -294,6 +301,11 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
     DOERFELS_ALBUMS.includes(album.id)
   );
 
+  // Get albums that belong to SirLibre section
+  const sirLibreAlbums = FEATURED_ALBUMS_WITH_DETAILS.filter(album => 
+    SIRLIBRE_ALBUMS.includes(album.id)
+  );
+
   // Create complete album list including all sidebar navigation items
   const getAllNavigationAlbums = () => {
     // Start with featured albums
@@ -303,11 +315,11 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
     const sidebarAlbums = [
       {
         id: 'wavlake-album',
-        title: 'Wavlake Album',
-        artist: 'ChadF',
+        title: 'THEY RIDE',
+        artist: 'IROH',
         artwork: '/placeholder-album.png',
         feedUrl: 'https://wavlake.com/feed/music/997060e3-9dc1-4cd8-b3c1-3ae06d54bb03',
-        description: 'Album from Wavlake platform'
+        description: 'A literal ride in a 1972 Dodge Demon, presented as a Post Pandemic Zombie Rock Opera through a car radio'
       }
     ];
 
@@ -535,19 +547,6 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
                         <span className="font-medium text-sm">{album.title}</span>
                       </Link>
                     ))}
-                    
-                    {/* Additional ChadF album */}
-                    <Link
-                      to="/albums/wavlake-album"
-                      className={`flex items-center space-x-3 px-4 py-2 rounded-lg transition-all duration-200 ${
-                        theme === 'dark'
-                          ? 'text-gray-500 hover:text-white hover:bg-white/5'
-                          : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-                      }`}
-                    >
-                      <Disc size={16} />
-                      <span className="font-medium text-sm">Wavlake Album</span>
-                    </Link>
                   </div>
                 )}
               </div>
@@ -591,8 +590,47 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
                 )}
               </div>
 
-              {/* Pinned Albums (excluding ChadF, Live Concerts, Friends, and Doerfels albums) */}
-              {pinnedAlbums.filter(album => !CHADF_ALBUMS.includes(album.id) && !LIVE_CONCERTS_ALBUMS.includes(album.id) && !FRIENDS_ALBUMS.includes(album.id) && !DOERFELS_ALBUMS.includes(album.id)).map((album) => (
+              {/* SirLibre Folder */}
+              <div>
+                <button
+                  onClick={() => setShowSirLibre(!showSirLibre)}
+                  className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 w-full ${
+                    theme === 'dark'
+                      ? 'text-gray-400 hover:text-white hover:bg-white/10'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  }`}
+                >
+                  <Folder size={20} />
+                  <span className="font-medium flex-1">SirLibre</span>
+                  {showSirLibre ? (
+                    <ChevronDown size={16} />
+                  ) : (
+                    <ChevronRight size={16} />
+                  )}
+                </button>
+                
+                {showSirLibre && sirLibreAlbums.length > 0 && (
+                  <div className="ml-4 space-y-1 mt-1">
+                    {sirLibreAlbums.map((album) => (
+                      <Link
+                        key={album.id}
+                        to={`/albums/${album.id}`}
+                        className={`flex items-center space-x-3 px-4 py-2 rounded-lg transition-all duration-200 ${
+                          theme === 'dark'
+                            ? 'text-gray-500 hover:text-white hover:bg-white/5'
+                            : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                        }`}
+                      >
+                        <Disc size={16} />
+                        <span className="font-medium text-sm">{album.title}</span>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Pinned Albums (excluding ChadF, Live Concerts, Friends, Doerfels, and SirLibre albums) */}
+              {pinnedAlbums.filter(album => !CHADF_ALBUMS.includes(album.id) && !LIVE_CONCERTS_ALBUMS.includes(album.id) && !FRIENDS_ALBUMS.includes(album.id) && !DOERFELS_ALBUMS.includes(album.id) && !SIRLIBRE_ALBUMS.includes(album.id)).map((album) => (
                 <Link
                   key={album.id}
                   to={`/albums/${album.id}`}
