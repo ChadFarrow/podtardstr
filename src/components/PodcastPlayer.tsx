@@ -381,7 +381,14 @@ export function PodcastPlayer() {
   }
 
   return (
-    <Card className="border-t border-gray-800 rounded-none fixed bottom-0 left-0 right-0 bg-black/75 backdrop-blur-lg z-50 safe-area-bottom">
+    <Card 
+      className={`border-t rounded-none fixed bottom-0 left-0 right-0 backdrop-blur-lg z-50 safe-area-bottom transition-all duration-300 ${
+        albumColors.isActive ? 'border-white/20' : 'border-gray-800 bg-black/75'
+      }`}
+      style={albumColors.isActive ? {
+        background: `linear-gradient(to top, ${albumColors.primary}CC 0%, ${albumColors.secondary}80 100%)`
+      } : {}}
+    >
       <div className="p-3 sm:p-4">
         <audio
           ref={audioRef}
