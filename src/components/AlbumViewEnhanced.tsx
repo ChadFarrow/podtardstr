@@ -4,6 +4,7 @@ import { AlbumHero } from '@/components/AlbumHero';
 import { TrackList } from '@/components/TrackList';
 import { AlbumRecommendations } from '@/components/AlbumRecommendations';
 import { useAlbumControls } from '@/components/AlbumControls';
+import { AlbumNavigation } from '@/components/AlbumNavigation';
 import { Skeleton } from '@/components/ui/skeleton';
 
 interface AlbumViewEnhancedProps {
@@ -164,6 +165,7 @@ export function AlbumViewEnhanced({ feedUrl }: AlbumViewEnhancedProps) {
 
   return (
     <AlbumBackground artwork={albumData.artwork}>
+      <AlbumNavigation />
       <AlbumHero
         title={albumData.title}
         artist={albumData.artist}

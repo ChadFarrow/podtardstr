@@ -368,14 +368,15 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
 
   return (
     <div className={`min-h-screen relative ${theme === 'dark' ? 'bg-black' : 'bg-gray-50'}`}>
-      {/* Top Navigation Bar */}
-      <div 
-        className={`absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-4 py-2 backdrop-blur-lg transition-all duration-300 ${
-          theme === 'dark' 
-            ? 'bg-gradient-to-b from-black/80 to-transparent' 
-            : 'bg-gradient-to-b from-white/95 to-white/60 backdrop-blur-sm shadow-sm'
-        }`}
-      >
+      {/* Top Navigation Bar - Only show when not viewing individual album */}
+      {!currentFeedUrl && (
+        <div 
+          className={`absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-4 py-2 backdrop-blur-lg transition-all duration-300 ${
+            theme === 'dark' 
+              ? 'bg-gradient-to-b from-black/80 to-transparent' 
+              : 'bg-gradient-to-b from-white/95 to-white/60 backdrop-blur-sm shadow-sm'
+          }`}
+        >
         <div className="flex items-center space-x-4">
           <button 
             onClick={() => setShowMenu(!showMenu)}
