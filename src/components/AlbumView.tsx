@@ -7,7 +7,7 @@ import { AlbumTrackList } from '@/components/AlbumTrackList';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { Music, ExternalLink, ChevronDown, Pin, PinOff } from 'lucide-react';
+import { Music, ExternalLink, ChevronDown, Pin, PinOff, Disc } from 'lucide-react';
 import { htmlToText } from '@/lib/html-utils';
 import {
   DropdownMenu,
@@ -122,6 +122,35 @@ export function AlbumView({ feedUrl }: AlbumViewProps) {
   return (
     <div className="space-y-6 p-4 max-w-6xl mx-auto">
 
+      {/* Album Selector - Left Aligned */}
+      {!feedUrl && (
+        <div className="flex justify-start">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="flex items-center gap-2">
+                <Disc className="h-4 w-4" />
+                {selectedAlbum?.title || 'Select Album'}
+                <ChevronDown className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-64">
+              {FEATURED_ALBUMS.map((album) => (
+                <DropdownMenuItem
+                  key={album.id}
+                  onClick={() => setSelectedAlbumId(album.id)}
+                  className="flex items-center gap-3"
+                >
+                  <Disc className="h-4 w-4" />
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium truncate">{album.title}</div>
+                    <div className="text-xs text-muted-foreground truncate">{album.artist}</div>
+                  </div>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      )}
 
       {/* Custom Feed Info */}
       {feedUrl && (
