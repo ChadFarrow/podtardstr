@@ -59,7 +59,13 @@ export function useLightningWallet() {
     
     try {
       // Import Bitcoin Connect functions - use dynamic import
-      const { launchModal, onConnected } = await import('@getalby/bitcoin-connect');
+      const { init, launchModal, onConnected } = await import('@getalby/bitcoin-connect');
+      
+      // Always initialize Bitcoin Connect before using it
+      console.log('Initializing Bitcoin Connect...');
+      await init({
+        appName: 'Podtardstr',
+      });
       
       console.log('Launching Bitcoin Connect modal...');
       
