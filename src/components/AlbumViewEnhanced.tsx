@@ -1,5 +1,6 @@
 import { useAlbumFeed } from '@/hooks/useAlbumFeed';
 import { AlbumBackground } from '@/components/AlbumBackground';
+import { AlbumBackgroundExamples } from '@/components/AlbumBackgroundExamples';
 import { AlbumHero } from '@/components/AlbumHero';
 import { TrackList } from '@/components/TrackList';
 import { AlbumRecommendations } from '@/components/AlbumRecommendations';
@@ -76,7 +77,7 @@ export function AlbumViewEnhanced({ feedUrl }: AlbumViewEnhancedProps) {
   }
 
   return (
-    <AlbumBackground artwork={albumData.artwork}>
+    <AlbumBackgroundExamples artwork={albumData.artwork}>
       <AlbumHero
         title={albumData.title}
         artist={albumData.artist}
@@ -101,6 +102,6 @@ export function AlbumViewEnhanced({ feedUrl }: AlbumViewEnhancedProps) {
         podroll={albumData.podroll}
         currentFeedUrl={currentFeedUrl}
       />
-    </AlbumBackground>
+    </AlbumBackgroundExamples>
   );
 }
