@@ -20,7 +20,7 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
   const [searchParams] = useSearchParams();
   const [showMenu, setShowMenu] = useState(false);
   const [showChadFFolder, setShowChadFFolder] = useState(false);
-  const { pinnedAlbums, unpinAlbum, pinAlbum, isPinned } = usePinnedAlbums();
+  const { pinnedAlbums, pinAlbum, isPinned } = usePinnedAlbums();
   const { theme, toggleTheme } = useTheme();
   
   // Get feed URL from props first, then from query parameters
@@ -342,28 +342,14 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
                 <Link
                   key={album.id}
                   to={`/albums?feed=${encodeURIComponent(album.feedUrl)}`}
-                  className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 group ${
+                  className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 ${
                     theme === 'dark'
                       ? 'text-gray-400 hover:text-white hover:bg-white/10'
                       : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                   }`}
                 >
                   <Disc size={20} />
-                  <span className="font-medium flex-1">{album.title}</span>
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      unpinAlbum(album.id);
-                    }}
-                    className={`opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded ${
-                      theme === 'dark' ? 'hover:bg-white/10' : 'hover:bg-gray-200'
-                    }`}
-                  >
-                    <X size={12} className={`text-gray-500 ${
-                      theme === 'dark' ? 'hover:text-white' : 'hover:text-gray-700'
-                    }`} />
-                  </button>
+                  <span className="font-medium">{album.title}</span>
                 </Link>
               ))}
             </nav>
