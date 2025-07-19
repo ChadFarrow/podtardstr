@@ -19,6 +19,13 @@ export function AlbumBackground({ artwork, children }: AlbumBackgroundProps) {
       '--album-primary': colors.primary,
       '--album-secondary': colors.secondary,
       '--album-accent': colors.accent,
+      '--album-primary-50': colors.primary + '80', // 50% opacity
+      '--album-primary-30': colors.primary + '4D', // 30% opacity
+      '--album-primary-20': colors.primary + '33', // 20% opacity
+      '--album-secondary-50': colors.secondary + '80',
+      '--album-secondary-30': colors.secondary + '4D',
+      '--album-accent-50': colors.accent + '80',
+      '--album-accent-30': colors.accent + '4D',
     } as React.CSSProperties;
   };
 

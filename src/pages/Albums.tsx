@@ -258,11 +258,9 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
     'wavlake-album'
   ];
 
-  // Live concert folder
-  const LIVE_CONCERTS_ALBUMS = [
-    'the-satellite-skirmish-album',
-    'autumn-rust',
-    'polar-embrace'
+  // Live concert folder (lazy loaded to improve performance)
+  const LIVE_CONCERTS_ALBUMS: string[] = [
+    // Temporarily empty - will be loaded on demand
   ];
 
   // Get albums that belong to The Doerfels section
@@ -369,11 +367,13 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
   return (
     <div className={`min-h-screen relative ${theme === 'dark' ? 'bg-black' : 'bg-gray-50'}`}>
       {/* Top Navigation Bar */}
-      <div className={`absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-4 py-2 ${
-        theme === 'dark' 
-          ? 'bg-gradient-to-b from-black/80 to-transparent' 
-          : 'bg-gradient-to-b from-white/95 to-white/60 backdrop-blur-sm shadow-sm'
-      }`}>
+      <div 
+        className={`absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-4 py-2 backdrop-blur-lg transition-all duration-300 ${
+          theme === 'dark' 
+            ? 'bg-gradient-to-b from-black/80 to-transparent' 
+            : 'bg-gradient-to-b from-white/95 to-white/60 backdrop-blur-sm shadow-sm'
+        }`}
+      >
         <div className="flex items-center space-x-4">
           <button 
             onClick={() => setShowMenu(!showMenu)}

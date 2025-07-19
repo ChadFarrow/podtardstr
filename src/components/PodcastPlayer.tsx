@@ -6,6 +6,7 @@ import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX } from 'lucide-rea
 import { usePodcastPlayer } from '@/hooks/usePodcastPlayer';
 import { NowPlayingModal } from '@/components/NowPlayingModal';
 import { Switch } from '@/components/ui/switch';
+import { useAlbumColors } from '@/hooks/useAlbumColors';
 
 export function PodcastPlayer() {
   const { 
@@ -34,6 +35,7 @@ export function PodcastPlayer() {
   const abortControllerRef = useRef<AbortController | null>(null);
   const [isIOS, setIsIOS] = useState(false);
   const [autoplayBlocked, setAutoplayBlocked] = useState(false);
+  const albumColors = useAlbumColors();
 
   // Detect iOS and initialize audio context for autoplay
   useEffect(() => {
@@ -363,7 +365,14 @@ export function PodcastPlayer() {
 
   if (!currentPodcast) {
     return (
-      <Card className="border-t border-gray-800 rounded-none fixed bottom-0 left-0 right-0 bg-black/75 backdrop-blur-lg z-50 safe-area-bottom">
+      <Card 
+        className={`border-t rounded-none fixed bottom-0 left-0 right-0 backdrop-blur-lg z-50 safe-area-bottom transition-all duration-300 ${
+          albumColors.isActive ? 'border-white/20' : 'border-gray-800'
+        }`}
+        style={albumColors.isActive ? {
+          background: `linear-gradient(to top, ${albumColors.primary}CC 0%, ${albumColors.secondary}80 100%)`
+        } : {}}
+      >
         <div className="p-3 sm:p-4 text-center text-gray-400 text-sm">
           No track selected. Click play on any track to start listening.
         </div>
