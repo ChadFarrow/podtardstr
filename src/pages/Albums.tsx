@@ -234,7 +234,11 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
     'think-ep',
     'ben-doerfel',
     'into-the-doerfelverse',
-    'wrath-of-banjo'
+    'wrath-of-banjo',
+    'kurtisdrums-v1',
+    'nostalgic',
+    'citybeach',
+    'ring-that-bell'
   ];
 
   // Artist that are friends of the band
@@ -251,11 +255,7 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
     'deathdreams',
     'spectral-hiding',
     'tinderbox',
-    'wavlake-album',
-    'kurtisdrums-v1',
-    'nostalgic',
-    'citybeach',
-    'ring-that-bell'
+    'wavlake-album'
   ];
 
   // Live concert folder
