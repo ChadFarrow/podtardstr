@@ -198,30 +198,50 @@ function parsePodRoll(element: Element): PodRollItem[] | undefined {
     const feedUrl = item.getAttribute('feedUrl') || undefined;
     const title = item.textContent?.trim() || item.getAttribute('title') || '';
     
+    // Additional attributes that might be present
+    const description = item.getAttribute('description') || undefined;
+    const image = item.getAttribute('image') || undefined;
+    const author = item.getAttribute('author') || undefined;
+    
     console.log(`🎯 parsePodRoll: Processing remoteItem ${index + 1}:`, {
       feedGuid: feedGuid?.substring(0, 20) + '...',
       feedUrl: feedUrl?.substring(0, 50) + '...',
       title,
       hasTextContent: !!item.textContent?.trim(),
-      tagName: item.tagName
+      tagName: item.tagName,
+      image: image || 'none',
+      description: description || 'none',
+      author: author || 'none'
     });
-    
-    // Additional attributes that might be present
-    const description = item.getAttribute('description') || undefined;
-    const image = item.getAttribute('image') || undefined;
-    const author = item.getAttribute('author') || undefined;
 
     // Include items with either feedGuid or feedUrl, even if no title
     // Use a fallback title if none is provided
     if (feedGuid || feedUrl) {
       const fallbackTitle = title || `Recommended Podcast ${index + 1}`;
+      
+      // Generate fallback artwork if no image is provided
+      let finalImage = image;
+      if (!finalImage) {
+        // Use a variety of music-themed stock images as fallbacks
+        const fallbackImages = [
+          'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop&auto=format', // Banjo
+          'https://images.unsplash.com/photo-1471478331149-c72f17e33c73?w=300&h=300&fit=crop&auto=format', // Drums
+          'https://images.unsplash.com/photo-1415201364774-f6f0bb35f28f?w=300&h=300&fit=crop&auto=format', // Guitar
+          'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=300&fit=crop&auto=format', // Beach/indie
+          'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop&auto=format', // String instrument
+          'https://images.unsplash.com/photo-1571330735066-03aaa9429d89?w=300&h=300&fit=crop&auto=format'  // Microphone
+        ];
+        finalImage = fallbackImages[index % fallbackImages.length];
+        console.log(`🎵 Using fallback image ${index % fallbackImages.length + 1} for: "${fallbackTitle}"`);
+      }
+      
       console.log(`✅ parsePodRoll: Adding item ${index + 1} with title: "${fallbackTitle}"`);
       podrollItems.push({
         feedGuid,
         feedUrl,
         title: fallbackTitle,
         description,
-        image,
+        image: finalImage,
         author
       });
     } else {

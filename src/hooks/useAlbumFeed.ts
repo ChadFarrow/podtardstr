@@ -165,7 +165,7 @@ async function fetchAlbumFeed(feedUrl: string): Promise<AlbumFeedData> {
 
 export function useAlbumFeed(feedUrl: string, options: { enabled?: boolean } = {}) {
   return useQuery({
-    queryKey: ['album-feed', feedUrl, '1.159'], // Add version to bust cache
+    queryKey: ['album-feed', feedUrl, '1.161'], // Add version to bust cache
     queryFn: () => fetchAlbumFeed(feedUrl),
     enabled: options.enabled !== false && !!feedUrl,
     staleTime: 1 * 60 * 1000, // Reduce to 1 minute for debugging
