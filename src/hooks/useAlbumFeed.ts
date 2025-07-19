@@ -34,6 +34,12 @@ export interface AlbumFeedData {
   };
 }
 
+const formatDuration = (seconds: number) => {
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+  return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+};
+
 async function fetchAlbumFeed(feedUrl: string): Promise<AlbumFeedData> {
   try {
     // Use the existing fetchAndParseFeed function which handles CORS and fallbacks
@@ -80,6 +86,7 @@ async function fetchAlbumFeed(feedUrl: string): Promise<AlbumFeedData> {
             durationInSeconds = parseInt(episode.duration);
             console.log(`Parsed as seconds: ${durationInSeconds} seconds`);
           }
+          console.log(`Final duration for track ${index + 1}: ${durationInSeconds} seconds (${formatDuration(durationInSeconds)})`);
         } else {
           console.log(`Track ${index + 1} has no duration`);
         }

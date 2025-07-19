@@ -103,12 +103,10 @@ export function AlbumTrackList({ tracks, albumTitle, albumArtist, defaultValue }
               </div>
 
               {/* Duration */}
-              {track.duration > 0 && (
-                <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                  <Clock className="h-3 w-3" />
-                  {formatDuration(track.duration)}
-                </div>
-              )}
+              <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                <Clock className="h-3 w-3" />
+                {formatDuration(track.duration)}
+              </div>
 
 
             </div>
