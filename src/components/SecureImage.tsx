@@ -18,6 +18,17 @@ export function SecureImage({ src, alt, fallback, ...props }: SecureImageProps) 
   const getSecureImageUrl = (url: string) => {
     if (!url) return fallback || '';
     
+    // Debug logging for HeyCitizen images
+    if (url.includes('heycitizen')) {
+      console.log('HeyCitizen image URL:', url);
+    }
+    
+    // For HeyCitizen domain, use proxy to avoid potential CORS issues
+    if (url.includes('files.heycitizen.xyz')) {
+      console.log('Using proxy for HeyCitizen image:', url);
+      return `https://images.weserv.nl/?url=${encodeURIComponent(url)}`;
+    }
+    
     // For any HTTP URL, immediately use proxy to avoid mixed content issues
     if (url.startsWith('http://')) {
       return `https://images.weserv.nl/?url=${encodeURIComponent(url)}`;
@@ -32,6 +43,11 @@ export function SecureImage({ src, alt, fallback, ...props }: SecureImageProps) 
   };
 
   const handleImageError = () => {
+    // Debug logging for HeyCitizen images
+    if (currentSrc?.includes('heycitizen')) {
+      console.log('HeyCitizen image error:', currentSrc);
+    }
+    
     if (!imageError && currentSrc && currentSrc.startsWith('https://') && src?.startsWith('http://')) {
       // If HTTPS version failed and we have an HTTP original, try a different approach
       

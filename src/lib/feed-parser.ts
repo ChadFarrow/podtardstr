@@ -163,8 +163,30 @@ function getChannelImage(channel: Element): string | undefined {
   const imageSources = [
     // Standard RSS image with url child element
     () => getTextContent(channel, 'image url'),
-    // iTunes image with href attribute
+    // iTunes image with href attribute - try multiple selector formats
     () => getTextContent(channel, 'itunes\\:image', 'href'),
+    () => {
+      // Alternative iTunes selector approach for better namespace handling
+      const itunesImage = channel.querySelector('[href]');
+      if (itunesImage && itunesImage.tagName.includes('image')) {
+        return itunesImage.getAttribute('href') || undefined;
+      }
+      return undefined;
+    },
+    () => {
+      // Direct search for any element with iTunes namespace
+      const allElements = channel.querySelectorAll('*');
+      for (const element of Array.from(allElements)) {
+        if (element.tagName.toLowerCase().includes('image') && element.hasAttribute('href')) {
+          const href = element.getAttribute('href');
+          if (href && (href.includes('http') || href.includes('.jpg') || href.includes('.png'))) {
+            console.log('Found iTunes image via fallback method:', href);
+            return href;
+          }
+        }
+      }
+      return undefined;
+    },
     // Image element with href attribute
     () => getTextContent(channel, 'image', 'href'),
     // Direct image element content
@@ -195,6 +217,10 @@ function getChannelImage(channel: Element): string | undefined {
     const image = getImageFn();
     if (image) {
       console.log('Found channel image:', image);
+      // Special logging for HeyCitizen feeds
+      if (image.includes('heycitizen')) {
+        console.log('HeyCitizen artwork found:', image);
+      }
       return image;
     }
   }
