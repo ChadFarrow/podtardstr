@@ -412,7 +412,8 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
           </button>
           <LoginArea className="max-w-60" />
         </div>
-      </div>
+        </div>
+      )}
 
       {/* Slide-out Menu */}
       {showMenu && (
@@ -648,7 +649,7 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
       )}
 
       {/* Main Content */}
-      <div className="relative z-10 pt-16">
+      <div className={`relative z-10 ${currentFeedUrl ? '' : 'pt-16'}`}>
         {currentFeedUrl ? (
           <AlbumViewEnhanced feedUrl={currentFeedUrl} />
         ) : (
