@@ -54,9 +54,51 @@ export interface ParsedEpisode {
 }
 
 /**
+ * Fetches artwork from a PodRoll RSS feed URL
+ */
+async function fetchPodRollArtwork(feedUrl: string): Promise<string | undefined> {
+  try {
+    console.log(`🎨 fetchPodRollArtwork: Fetching ${feedUrl}`);
+    
+    // Use our existing RSS proxy to fetch the feed
+    const proxyUrl = `/api/rss-proxy?url=${encodeURIComponent(feedUrl)}`;
+    const response = await fetch(proxyUrl);
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch feed: ${response.status}`);
+    }
+    
+    const xmlText = await response.text();
+    
+    // Parse the XML to extract iTunes image
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(xmlText, 'text/xml');
+    
+    const channel = doc.querySelector('channel');
+    if (!channel) {
+      throw new Error('No channel element found');
+    }
+    
+    // Use our existing getChannelImage function
+    const artwork = getChannelImage(channel);
+    
+    if (artwork) {
+      console.log(`🎨 Found artwork: ${artwork}`);
+      return artwork;
+    } else {
+      console.log(`🎨 No artwork found in feed`);
+      return undefined;
+    }
+  } catch (error) {
+    console.error(`🎨 Error fetching PodRoll artwork from ${feedUrl}:`, error);
+    return undefined;
+  }
+}
+
+/**
  * Parses XML text and extracts podcast namespace value recipients
  */
-export function parseFeedXML(xmlText: string): ParsedFeed {
+export async function parseFeedXML(xmlText: string): Promise<ParsedFeed> {
   const parser = new DOMParser();
   const doc = parser.parseFromString(xmlText, 'text/xml');
   
@@ -79,7 +121,7 @@ export function parseFeedXML(xmlText: string): ParsedFeed {
     image: getChannelImage(channel),
     author: getTextContent(channel, 'itunes\\:author') || getTextContent(channel, 'managingEditor'),
     value: parseValueBlock(channel),
-    podroll: parsePodRoll(channel),
+    podroll: await parsePodRoll(channel),
     episodes: []
   };
 
@@ -158,7 +200,7 @@ function parseValueBlock(element: Element): ValueBlock | undefined {
 /**
  * Parses podcast:podroll elements and extracts podcast recommendations
  */
-function parsePodRoll(element: Element): PodRollItem[] | undefined {
+async function parsePodRoll(element: Element): Promise<PodRollItem[] | undefined> {
   console.log('🎯 parsePodRoll: Starting PodRoll parsing...');
   
   // Look for podcast:podroll element (with or without namespace prefix)
@@ -193,7 +235,9 @@ function parsePodRoll(element: Element): PodRollItem[] | undefined {
   // Parse all podcast:remoteItem elements within the podroll
   const remoteItems = actualPodrollElement.querySelectorAll('podcast\\:remoteItem, remoteItem');
   console.log('🎯 parsePodRoll: Found', remoteItems.length, 'remoteItem elements');
-  remoteItems.forEach((item, index) => {
+  
+  for (let index = 0; index < remoteItems.length; index++) {
+    const item = remoteItems[index];
     const feedGuid = item.getAttribute('feedGuid') || undefined;
     const feedUrl = item.getAttribute('feedUrl') || undefined;
     const title = item.textContent?.trim() || item.getAttribute('title') || '';
@@ -219,8 +263,27 @@ function parsePodRoll(element: Element): PodRollItem[] | undefined {
     if (feedGuid || feedUrl) {
       const fallbackTitle = title || `Recommended Podcast ${index + 1}`;
       
-      // Generate fallback artwork if no image is provided
+      // Try to fetch actual artwork from the RSS feed
       let finalImage = image;
+      
+      // If we have a feedUrl, try to fetch the actual iTunes artwork
+      if (feedUrl && !finalImage) {
+        console.log(`🎯 Attempting to fetch iTunes artwork for: "${fallbackTitle}" from ${feedUrl}`);
+        try {
+          // Fetch the RSS feed and extract iTunes image
+          const artworkUrl = await fetchPodRollArtwork(feedUrl);
+          if (artworkUrl) {
+            finalImage = artworkUrl;
+            console.log(`✅ Found iTunes artwork for "${fallbackTitle}": ${artworkUrl}`);
+          } else {
+            console.log(`❌ No iTunes artwork found for "${fallbackTitle}"`);
+          }
+        } catch (error) {
+          console.log(`❌ Failed to fetch artwork for "${fallbackTitle}":`, error);
+        }
+      }
+      
+      // Generate fallback artwork if still no image
       if (!finalImage) {
         // Use a variety of music-themed stock images as fallbacks
         const fallbackImages = [
@@ -247,7 +310,7 @@ function parsePodRoll(element: Element): PodRollItem[] | undefined {
     } else {
       console.log(`❌ parsePodRoll: Skipping item ${index + 1} - no feedGuid or feedUrl`);
     }
-  });
+  }
 
   console.log(`🎯 PodRoll parsing result: Found ${podrollItems.length} items`);
   if (podrollItems.length > 0) {
@@ -494,7 +557,7 @@ export async function fetchAndParseFeed(feedUrl: string): Promise<ParsedFeed> {
     
     console.log('📋 Parsing RSS feed XML...', trimmedXml.substring(0, 200) + '...');
     
-    const parsedFeed = parseFeedXML(trimmedXml);
+    const parsedFeed = await parseFeedXML(trimmedXml);
     console.log('✅ Parsed feed successfully:', {
       title: parsedFeed.title,
       hasValue: !!parsedFeed.value,
