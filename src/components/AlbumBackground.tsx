@@ -10,9 +10,10 @@ export function AlbumBackground({ artwork, children }: AlbumBackgroundProps) {
     <div className="min-h-screen bg-black text-white overflow-hidden relative">
       {/* Album Art Background */}
       <div 
-        className="absolute inset-0 bg-contain bg-center bg-no-repeat"
+        className="absolute inset-0 bg-repeat bg-top"
         style={{
           backgroundImage: `url(${artwork})`,
+          backgroundSize: '300px 300px',
           filter: 'brightness(0.3) blur(1px)',
         }}
       />
