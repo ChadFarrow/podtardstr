@@ -95,7 +95,9 @@ export function AlbumRecommendations({ podroll, currentFeedUrl }: AlbumRecommend
       'https://www.sirtjthewrathful.com/wp-content/uploads/2023/08/CityBeach.xml': '/albums/citybeach',
       'https://www.doerfelverse.com/feeds/wrath-of-banjo.xml': '/albums/wrath-of-banjo',
       'https://www.thisisjdog.com/media/ring-that-bell.xml': '/albums/ring-that-bell',
-      'https://wavlake.com/feed/music/997060e3-9dc1-4cd8-b3c1-3ae06d54bb03': '/albums/wavlake-album'
+      'https://wavlake.com/feed/music/997060e3-9dc1-4cd8-b3c1-3ae06d54bb03': '/albums/wavlake-album',
+      'https://music.behindthesch3m3s.com/wp-content/uploads/Delta_OG/Aged_Friends_and_Old_Whiskey/aged_friends_old_whiskey.xml': '/albums/aged-friends-old-whiskey',
+      'https://feed.falsefinish.club/Temples/Temples - Cosmodrome/cosmodrome.xml': '/albums/cosmodrome'
     };
 
     // Return clean route if found, otherwise fall back to query parameter

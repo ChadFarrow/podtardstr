@@ -31,6 +31,8 @@ export function AppRouter() {
         <Route path="/albums/deathdreams" element={<Albums feedUrl="https://static.staticsave.com/mspfiles/deathdreams.xml" />} />
         <Route path="/albums/pony-up-daddy" element={<Albums feedUrl="https://music.behindthesch3m3s.com/wp-content/uploads/Mike_Epting/$2Holla/pony%20up%20daddy.xml" />} />
         <Route path="/albums/empty-passenger-seat" element={<Albums feedUrl="https://whiterabbitrecords.org/wp-content/uploads/2023/04/Empty-Passenger-Seat.xml" />} />
+        <Route path="/albums/aged-friends-old-whiskey" element={<Albums feedUrl="https://music.behindthesch3m3s.com/wp-content/uploads/Delta_OG/Aged_Friends_and_Old_Whiskey/aged_friends_old_whiskey.xml" />} />
+        <Route path="/albums/cosmodrome" element={<Albums feedUrl="https://feed.falsefinish.club/Temples/Temples - Cosmodrome/cosmodrome.xml" />} />
         
         {/* Doerfels Podroll Albums */}
         <Route path="/albums/ben-doerfel" element={<Albums feedUrl="https://www.doerfelverse.com/feeds/ben-doerfel.xml" />} />

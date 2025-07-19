@@ -224,6 +224,22 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
       artwork: 'https://www.thisisjdog.com/media/ring-that-bell.jpg',
       feedUrl: 'https://www.thisisjdog.com/media/ring-that-bell.xml',
       description: 'Bell-themed musical collection'
+    },
+    {
+      id: 'aged-friends-old-whiskey',
+      title: 'Aged Friends & Old Whiskey',
+      artist: 'Delta OG',
+      artwork: 'https://music.behindthesch3m3s.com/wp-content/uploads/Delta_OG/Aged_Friends_and_Old_Whiskey/deltaog-bg.png',
+      feedUrl: 'https://music.behindthesch3m3s.com/wp-content/uploads/Delta_OG/Aged_Friends_and_Old_Whiskey/aged_friends_old_whiskey.xml',
+      description: 'A collection of soulful tracks about friendship and memories'
+    },
+    {
+      id: 'cosmodrome',
+      title: 'Cosmodrome',
+      artist: 'Temples',
+      artwork: 'https://feed.falsefinish.club/Temples/Temples%20-%20Cosmodrome/cover.jpg',
+      feedUrl: 'https://feed.falsefinish.club/Temples/Temples - Cosmodrome/cosmodrome.xml',
+      description: 'Psychedelic rock journey through cosmic soundscapes'
     }
   ];
 
@@ -255,7 +271,9 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
     'deathdreams',
     'spectral-hiding',
     'tinderbox',
-    'wavlake-album'
+    'wavlake-album',
+    'aged-friends-old-whiskey',
+    'cosmodrome'
   ];
 
   // Live concert folder (audio-only, optimized for performance)
@@ -557,7 +575,7 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
                   }`}
                 >
                   <Folder size={20} />
-                  <span className="font-medium flex-1">Friends</span>
+                  <span className="font-medium flex-1">Friends Music</span>
                   {showFriends ? (
                     <ChevronDown size={16} />
                   ) : (
