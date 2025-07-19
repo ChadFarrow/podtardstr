@@ -166,9 +166,9 @@ export function AlbumView({ feedUrl }: AlbumViewProps) {
           <div className="flex flex-col md:flex-row gap-8">
             {/* Album Artwork */}
             <div className="flex-shrink-0">
-              <div className="relative group">
+              <div className="relative group cursor-pointer" onClick={controls.handleAlbumPlay}>
                 <div 
-                  className="w-64 h-64 rounded-lg shadow-2xl object-cover"
+                  className="w-64 h-64 rounded-lg shadow-2xl object-cover overflow-hidden"
                   style={{
                     boxShadow: '0 20px 40px rgba(0,0,0,0.3), 0 0 40px rgba(139,69,19,0.2)'
                   }}
@@ -176,10 +176,20 @@ export function AlbumView({ feedUrl }: AlbumViewProps) {
                   <SecureImage
                     src={albumData.artwork}
                     alt={albumData.title}
-                    className="w-full h-full object-cover rounded-lg"
+                    className="w-full h-full object-cover rounded-lg group-hover:scale-110 transition-transform duration-700"
                   />
                 </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-lg" />
+                <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-all duration-300 flex items-center justify-center rounded-lg">
+                  <button 
+                    className="opacity-0 group-hover:opacity-100 transform scale-50 group-hover:scale-100 transition-all duration-500 text-white rounded-full p-4 shadow-2xl bg-red-600 hover:bg-red-500"
+                  >
+                    {controls.isAlbumPlaying() ? (
+                      <Pause size={32} />
+                    ) : (
+                      <Play size={32} className="ml-1" />
+                    )}
+                  </button>
+                </div>
               </div>
             </div>
 
