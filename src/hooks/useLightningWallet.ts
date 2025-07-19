@@ -18,35 +18,15 @@ export function useLightningWallet() {
   const [connectionAttemptInProgress, setConnectionAttemptInProgress] = useState(false);
   const [connectionCancelRef, setConnectionCancelRef] = useState<{ cancel: () => void } | null>(null);
 
-  // Check for existing wallet connection on mount
+  // Listen for wallet events from other components
   useEffect(() => {
-    const checkExistingConnection = async () => {
-      // Check Bitcoin Connect provider - only on desktop
-      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-      if (!isMobile) {
-        try {
-          const { requestProvider } = await import('@getalby/bitcoin-connect');
-          const provider = await requestProvider();
-          if (provider) {
-            console.log('Existing Bitcoin Connect provider found:', {
-              provider,
-              type: typeof provider,
-              keys: Object.keys(provider),
-              hasSendPayment: 'sendPayment' in provider
-            });
-            setIsConnected(true);
-            setWalletProvider('bitcoin-connect');
-          }
-        } catch {
-          // No provider connected, which is fine
-        }
-      }
-    };
-
-    checkExistingConnection();
-
-    // Listen for wallet events from other components
-    const unsubscribeConnected = onWalletEvent('CONNECTED', checkExistingConnection);
+    // Only listen for wallet events, don't check for existing connection
+    // This prevents the Bitcoin Connect modal from popping up on page load
+    const unsubscribeConnected = onWalletEvent('CONNECTED', () => {
+      setIsConnected(true);
+      setWalletProvider('bitcoin-connect');
+    });
+    
     const unsubscribeDisconnected = onWalletEvent('DISCONNECTED', () => {
       setIsConnected(false);
       setWalletProvider(null);
@@ -78,19 +58,14 @@ export function useLightningWallet() {
     setError(null);
     
     try {
-      // Try to get existing Bitcoin Connect provider with timeout - use dynamic import
-      const { requestProvider, launchModal, onConnected } = await import('@getalby/bitcoin-connect');
+      // Import Bitcoin Connect functions - use dynamic import
+      const { launchModal, onConnected } = await import('@getalby/bitcoin-connect');
       
-      let provider = await Promise.race([
-        requestProvider(),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('Provider request timeout')), 5000))
-      ]);
+      console.log('Launching Bitcoin Connect modal...');
       
-      if (!provider) {
-        console.log('No existing provider, launching Bitcoin Connect modal...');
-        
-        // Use Promise to wait for actual connection
-        provider = await new Promise((resolve, reject) => {
+      // Always launch the modal directly without checking for existing provider
+      // This ensures the modal only appears when user explicitly clicks connect
+      const provider = await new Promise((resolve, reject) => {
           const timeout = setTimeout(() => {
             reject(new Error('Connection timeout after 30 seconds'));
           }, 30000);
@@ -126,7 +101,6 @@ export function useLightningWallet() {
             reject(err);
           });
         });
-      }
 
       if (provider) {
         console.log('Bitcoin Connect provider obtained:', {
