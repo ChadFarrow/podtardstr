@@ -5,6 +5,7 @@ import { AlbumTrackList } from '@/components/AlbumTrackList';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Music, ExternalLink } from 'lucide-react';
+import { htmlToText } from '@/lib/html-utils';
 
 interface AlbumViewProps {
   feedUrl?: string;
@@ -77,8 +78,8 @@ export function AlbumView({ feedUrl = 'https://www.doerfelverse.com/feeds/bloods
               </div>
 
               {albumData.description && (
-                <p className="text-muted-foreground leading-relaxed">
-                  {albumData.description}
+                <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
+                  {htmlToText(albumData.description)}
                 </p>
               )}
 

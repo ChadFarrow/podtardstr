@@ -3,6 +3,7 @@ import { Play, Pause, Clock } from 'lucide-react';
 import { V4VPaymentButton } from '@/components/V4VPaymentButton';
 import { usePodcastPlayer } from '@/hooks/usePodcastPlayer';
 import { useMusicPlayback } from '@/hooks/useMusicPlayback';
+import { htmlToText } from '@/lib/html-utils';
 import type { AlbumTrack } from '@/hooks/useAlbumFeed';
 import type { PodcastIndexPodcast } from '@/hooks/usePodcastIndex';
 
@@ -93,7 +94,9 @@ export function AlbumTrackList({ tracks, albumTitle, albumArtist, defaultValue }
               <div className="flex-1 min-w-0">
                 <h4 className="font-medium truncate">{track.title}</h4>
                 {track.description && track.description !== track.title && (
-                  <p className="text-sm text-muted-foreground truncate">{track.description}</p>
+                  <p className="text-sm text-muted-foreground truncate">
+                    {htmlToText(track.description)}
+                  </p>
                 )}
               </div>
 
