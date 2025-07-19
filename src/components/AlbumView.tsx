@@ -26,12 +26,6 @@ const FEATURED_ALBUMS = [
     artist: 'The Doerfels',
     feedUrl: 'https://www.doerfelverse.com/feeds/bloodshot-lies-album.xml',
   },
-  {
-    id: 'heycitizen-experience',
-    title: 'The HeyCitizen Experience',
-    artist: 'HeyCitizen',
-    feedUrl: 'https://files.heycitizen.xyz/Songs/Albums/The-Heycitizen-Experience/the heycitizen experience.xml',
-  },
 ];
 
 export function AlbumView({ feedUrl }: AlbumViewProps) {
