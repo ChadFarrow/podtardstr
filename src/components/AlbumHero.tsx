@@ -48,7 +48,7 @@ export function AlbumHero({
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           
           {/* Album Art - Large Display */}
-          <div className="flex justify-center">
+          <div className="flex flex-col items-center space-y-6">
             <div className="relative group cursor-pointer" onClick={onPlayAlbum}>
               <div className="w-80 h-80 lg:w-96 lg:h-96 rounded-2xl shadow-2xl overflow-hidden relative">
                 <SecureImage
@@ -67,6 +67,18 @@ export function AlbumHero({
                 </div>
               </div>
             </div>
+            
+            {/* Play Album Button under artwork */}
+            <button 
+              onClick={onPlayAlbum}
+              className="bg-red-600 hover:bg-red-500 text-white font-bold px-12 py-4 rounded-full transition-all duration-300 hover:scale-105 hover:shadow-2xl flex items-center space-x-3 text-lg"
+            >
+              {isPlaying ? (
+                <><Pause size={24} /><span>Pause Album</span></>
+              ) : (
+                <><Play size={24} className="ml-1" /><span>Play Album</span></>
+              )}
+            </button>
           </div>
           
           {/* Album Details */}
@@ -89,22 +101,11 @@ export function AlbumHero({
               <span className="bg-black/50 px-3 py-1 rounded-full">{formatTotalDuration(totalDuration)}</span>
             </div>
             
-            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-4">
-              <button 
-                onClick={onPlayAlbum}
-                className="bg-red-600 hover:bg-red-500 text-white font-bold px-12 py-4 rounded-full transition-all duration-300 hover:scale-105 hover:shadow-2xl flex items-center space-x-3 text-lg"
-              >
-                {isPlaying ? (
-                  <><Pause size={24} /><span>Pause Album</span></>
-                ) : (
-                  <><Play size={24} className="ml-1" /><span>Play Album</span></>
-                )}
-              </button>
-              
-              {funding && (
+            {funding && (
+              <div className="flex justify-center lg:justify-start pt-4">
                 <FundingButton funding={funding} />
-              )}
-            </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
