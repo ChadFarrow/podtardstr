@@ -356,7 +356,7 @@ async function parsePodRoll(element: Element): Promise<PodRollItem[] | undefined
         index,
         feedGuid,
         feedUrl,
-        title: title || `Recommended Podcast ${index + 1}`,
+        title: title || '',
         description,
         image,
         author

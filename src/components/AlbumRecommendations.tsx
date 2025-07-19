@@ -145,17 +145,21 @@ export function AlbumRecommendations({ podroll, currentFeedUrl }: AlbumRecommend
                   </button>
                 </div>
               </div>
-              <div className="mt-3 space-y-1">
-                <h4 className="font-semibold text-white group-hover:text-red-400 transition-colors truncate">
-                  {recommendation.title}
-                </h4>
-                {recommendation.author && (
-                  <p className="text-sm text-gray-400 truncate">{recommendation.author}</p>
-                )}
-                {recommendation.description && (
-                  <p className="text-xs text-gray-500 truncate">{recommendation.description}</p>
-                )}
-              </div>
+              {(recommendation.title || recommendation.author || recommendation.description) && (
+                <div className="mt-3 space-y-1">
+                  {recommendation.title && (
+                    <h4 className="font-semibold text-white group-hover:text-red-400 transition-colors truncate">
+                      {recommendation.title}
+                    </h4>
+                  )}
+                  {recommendation.author && (
+                    <p className="text-sm text-gray-400 truncate">{recommendation.author}</p>
+                  )}
+                  {recommendation.description && (
+                    <p className="text-xs text-gray-500 truncate">{recommendation.description}</p>
+                  )}
+                </div>
+              )}
             </div>
           ))}
         </div>
