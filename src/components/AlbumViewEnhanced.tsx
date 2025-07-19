@@ -5,6 +5,7 @@ import { TrackList } from '@/components/TrackList';
 import { AlbumRecommendations } from '@/components/AlbumRecommendations';
 import { useAlbumControls } from '@/components/AlbumControls';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Play, Pause } from 'lucide-react';
 
 interface AlbumViewEnhancedProps {
   feedUrl?: string;
@@ -89,6 +90,20 @@ export function AlbumViewEnhanced({ feedUrl }: AlbumViewEnhancedProps) {
         funding={albumData.funding}
         onPlayAlbum={controls.handleAlbumPlay}
       />
+
+      {/* Centered Play Album Button */}
+      <div className="flex justify-center py-8">
+        <button 
+          onClick={controls.handleAlbumPlay}
+          className="bg-red-600 hover:bg-red-500 text-white font-bold px-16 py-5 rounded-full transition-all duration-300 hover:scale-105 hover:shadow-2xl flex items-center space-x-4 text-xl"
+        >
+          {controls.isAlbumPlaying() ? (
+            <><Pause size={28} /><span>Pause Album</span></>
+          ) : (
+            <><Play size={28} className="ml-1" /><span>Play Album</span></>
+          )}
+        </button>
+      </div>
 
       <TrackList
         tracks={albumData.tracks}
