@@ -140,13 +140,17 @@ export const usePodcastPlayer = create<PodcastPlayerState>()(
         const state = get();
         const nextIndex = state.currentIndex + 1;
         
+        console.log('playNext called:', {
+          currentIndex: state.currentIndex,
+          queueLength: state.queue.length,
+          nextIndex,
+          currentTrack: state.currentPodcast?.title,
+          autoPlay: state.autoPlay
+        });
+        
         if (nextIndex < state.queue.length) {
           const nextPodcast = state.queue[nextIndex];
-          console.log('playNext called:', {
-            autoPlay: state.autoPlay,
-            nextTrack: nextPodcast.title,
-            willPlay: state.autoPlay
-          });
+          console.log('playNext: Playing next track:', nextPodcast.title);
           
           // For iOS, we need to be more careful about autoplay
           const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
@@ -166,13 +170,23 @@ export const usePodcastPlayer = create<PodcastPlayerState>()(
         const state = get();
         const prevIndex = state.currentIndex - 1;
         
+        console.log('playPrevious called:', {
+          currentIndex: state.currentIndex,
+          queueLength: state.queue.length,
+          prevIndex,
+          currentTrack: state.currentPodcast?.title
+        });
+        
         if (prevIndex >= 0) {
           const prevPodcast = state.queue[prevIndex];
+          console.log('playPrevious: Playing previous track:', prevPodcast.title);
           set({
             currentPodcast: prevPodcast,
             currentIndex: prevIndex,
             isPlaying: true,
           });
+        } else {
+          console.log('playPrevious: No previous tracks in queue');
         }
       },
     }),

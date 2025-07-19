@@ -105,14 +105,11 @@ export function AlbumViewEnhanced({ feedUrl }: AlbumViewEnhancedProps) {
       return;
     }
 
-    // Clear existing queue and set up new queue starting from this track
+    // Clear existing queue and set up new queue with ALL tracks from the album
     clearQueue();
     
-    // Find the index of the clicked track
-    const clickedTrackIndex = albumData?.tracks.findIndex(t => t.id.toString() === trackId) || 0;
-    
-    // Convert all tracks starting from the clicked track to the format expected by the player
-    const tracksFromThisPoint = albumData?.tracks.slice(clickedTrackIndex).map(t => ({
+    // Convert ALL tracks to the format expected by the player
+    const allTracksData = albumData?.tracks.map(t => ({
       id: t.id.toString(),
       title: t.title,
       author: t.albumArtist || albumData?.artist || '',
@@ -121,14 +118,19 @@ export function AlbumViewEnhanced({ feedUrl }: AlbumViewEnhancedProps) {
       duration: t.duration,
     })) || [];
     
-    // Add remaining tracks to queue (excluding the first one which we'll play directly)
-    tracksFromThisPoint.slice(1).forEach(trackData => {
-      addToQueue(trackData);
+    // Find the index of the clicked track
+    const clickedTrackIndex = albumData?.tracks.findIndex(t => t.id.toString() === trackId) || 0;
+    
+    // Add all tracks to queue except the clicked one (which we'll play directly)
+    allTracksData.forEach((trackData, index) => {
+      if (index !== clickedTrackIndex) {
+        addToQueue(trackData);
+      }
     });
 
     // Play the clicked track
-    if (tracksFromThisPoint.length > 0) {
-      playPodcast(tracksFromThisPoint[0]);
+    if (allTracksData.length > 0) {
+      playPodcast(allTracksData[clickedTrackIndex]);
     }
   };
 
