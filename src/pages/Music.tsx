@@ -3,12 +3,14 @@ import { AlbumGallery } from '@/components/AlbumGallery';
 import { LoginArea } from '@/components/auth/LoginArea';
 import { PodcastPlayer } from '@/components/PodcastPlayer';
 import { VersionDisplay } from '@/components/VersionDisplay';
-import { Home, Disc, Menu, X, Music as MusicIcon } from 'lucide-react';
+import { Home, Disc, Menu, X, Music as MusicIcon, Sun, Moon } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
+import { useTheme } from '@/contexts/ThemeContext';
 
 const Music = () => {
   const [showMenu, setShowMenu] = useState(false);
+  const { theme, toggleTheme } = useTheme();
 
   const FEATURED_ALBUMS_WITH_DETAILS = [
     {
@@ -135,37 +137,73 @@ const Music = () => {
   });
 
   return (
-    <div className="min-h-screen bg-black relative">
+    <div className={`min-h-screen relative ${theme === 'dark' ? 'bg-black' : 'bg-gray-50'}`}>
       {/* Top Navigation Bar */}
-      <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-4 py-2 bg-gradient-to-b from-black/80 to-transparent">
+      <div className={`absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-4 py-2 ${
+        theme === 'dark' 
+          ? 'bg-gradient-to-b from-black/80 to-transparent' 
+          : 'bg-gradient-to-b from-white/95 to-white/60 backdrop-blur-sm shadow-sm'
+      }`}>
         <div className="flex items-center space-x-4">
           <button 
             onClick={() => setShowMenu(!showMenu)}
-            className="p-2 rounded-full bg-black/50 backdrop-blur-sm hover:bg-black/70 transition-all"
+            className={`p-2 rounded-full backdrop-blur-sm transition-all ${
+              theme === 'dark'
+                ? 'bg-black/50 hover:bg-black/70'
+                : 'bg-white/80 hover:bg-white/95 shadow-sm border border-gray-200'
+            }`}
           >
-            {showMenu ? <X size={20} className="text-white" /> : <Menu size={20} className="text-white" />}
+            {showMenu ? (
+              <X size={20} className={theme === 'dark' ? 'text-white' : 'text-gray-700'} />
+            ) : (
+              <Menu size={20} className={theme === 'dark' ? 'text-white' : 'text-gray-700'} />
+            )}
           </button>
         </div>
         
         <div className="flex items-center gap-4">
+          <button
+            onClick={toggleTheme}
+            className={`p-2 rounded-full backdrop-blur-sm transition-all ${
+              theme === 'dark'
+                ? 'bg-black/50 hover:bg-black/70'
+                : 'bg-white/80 hover:bg-white/95 shadow-sm border border-gray-200'
+            }`}
+          >
+            {theme === 'dark' ? (
+              <Sun size={20} className="text-white" />
+            ) : (
+              <Moon size={20} className="text-gray-700" />
+            )}
+          </button>
           <LoginArea className="max-w-60" />
         </div>
       </div>
 
       {/* Slide-out Menu */}
       {showMenu && (
-        <div className="absolute top-0 left-0 h-full w-80 bg-black/90 backdrop-blur-lg z-30 transform transition-transform duration-300">
+        <div className={`absolute top-0 left-0 h-full w-80 backdrop-blur-lg z-30 transform transition-transform duration-300 ${
+          theme === 'dark' 
+            ? 'bg-black/90' 
+            : 'bg-white/95 shadow-xl border-r border-gray-200'
+        }`}>
           <div className="p-6">
             <div className="flex items-center justify-between mb-8">
-              <h2 className="text-xl font-bold text-white">Navigation</h2>
+              <h2 className={`text-xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                Navigation
+              </h2>
               <button onClick={() => setShowMenu(false)}>
-                <X size={20} className="text-white" />
+                <X size={20} className={theme === 'dark' ? 'text-white' : 'text-gray-600'} />
               </button>
             </div>
             <nav className="space-y-2">
               <Link
                 to="/"
-                className="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-all duration-200"
+                className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 ${
+                  theme === 'dark'
+                    ? 'text-gray-400 hover:text-white hover:bg-white/10'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                }`}
               >
                 <Home size={20} />
                 <span className="font-medium">Back to Main App</span>
@@ -173,7 +211,11 @@ const Music = () => {
               
               <Link
                 to="/music"
-                className="flex items-center space-x-3 px-4 py-3 rounded-lg text-white bg-white/10"
+                className={`flex items-center space-x-3 px-4 py-3 rounded-lg ${
+                  theme === 'dark'
+                    ? 'text-white bg-white/10'
+                    : 'text-blue-600 bg-blue-50 border border-blue-200'
+                }`}
               >
                 <MusicIcon size={20} />
                 <span className="font-medium">Music</span>
@@ -181,7 +223,11 @@ const Music = () => {
               
               <Link
                 to="/albums"
-                className="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-all duration-200"
+                className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 ${
+                  theme === 'dark'
+                    ? 'text-gray-400 hover:text-white hover:bg-white/10'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                }`}
               >
                 <Disc size={20} />
                 <span className="font-medium">Albums</span>
@@ -189,7 +235,11 @@ const Music = () => {
               
               <Link
                 to="/albums/bloodshot-lies"
-                className="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-all duration-200"
+                className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 ${
+                  theme === 'dark'
+                    ? 'text-gray-400 hover:text-white hover:bg-white/10'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                }`}
               >
                 <Disc size={20} />
                 <span className="font-medium">Bloodshot Lies</span>
@@ -197,7 +247,11 @@ const Music = () => {
               
               <Link
                 to="/albums/heycitizen-experience"
-                className="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-all duration-200"
+                className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 ${
+                  theme === 'dark'
+                    ? 'text-gray-400 hover:text-white hover:bg-white/10'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                }`}
               >
                 <Disc size={20} />
                 <span className="font-medium">HeyCitizen Experience</span>
@@ -206,8 +260,17 @@ const Music = () => {
             
             <div className="absolute bottom-6 left-6 right-6">
               <VersionDisplay />
-              <p className="text-xs text-gray-500 mt-2">
-                Vibed with <a href="https://soapbox.pub/mkstack" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">MKStack</a>
+              <p className={`text-xs mt-2 ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`}>
+                Vibed with <a 
+                  href="https://soapbox.pub/mkstack" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className={`hover:underline ${
+                    theme === 'dark' ? 'text-primary' : 'text-blue-600 hover:text-blue-800'
+                  }`}
+                >
+                  MKStack
+                </a>
               </p>
             </div>
           </div>
@@ -216,29 +279,47 @@ const Music = () => {
 
       {/* Hero Section */}
       <div className="relative z-10 pt-16">
-        <div className="text-center py-16 px-4">
+        <div className={`text-center py-16 px-4 ${
+          theme === 'dark' ? '' : 'bg-gradient-to-b from-white via-gray-50 to-gray-100'
+        }`}>
           <div className="max-w-4xl mx-auto">
             <div className="flex justify-center mb-6">
-              <div className="p-4 rounded-full bg-gradient-to-r from-purple-500 to-pink-500">
+              <div className={`p-4 rounded-full ${
+                theme === 'dark' 
+                  ? 'bg-gradient-to-r from-purple-500 to-pink-500' 
+                  : 'bg-gradient-to-r from-blue-500 to-purple-500 shadow-lg'
+              }`}>
                 <MusicIcon size={48} className="text-white" />
               </div>
             </div>
-            <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
+            <h1 className={`text-4xl md:text-6xl font-bold mb-6 ${
+              theme === 'dark' ? 'text-white' : 'text-gray-900'
+            }`}>
               Discover Music
             </h1>
-            <p className="text-xl md:text-2xl text-gray-300 mb-8">
+            <p className={`text-xl md:text-2xl mb-8 ${
+              theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
+            }`}>
               Stream and support independent artists with Value4Value Lightning payments
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
                 to="/albums/bloodshot-lies"
-                className="px-8 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all"
+                className={`px-8 py-3 text-white font-semibold rounded-lg transition-all ${
+                  theme === 'dark'
+                    ? 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600'
+                    : 'bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 shadow-lg hover:shadow-xl'
+                }`}
               >
                 Featured Album
               </Link>
               <Link
                 to="/albums"
-                className="px-8 py-3 border border-white/20 text-white font-semibold rounded-lg hover:bg-white/10 transition-all"
+                className={`px-8 py-3 font-semibold rounded-lg transition-all ${
+                  theme === 'dark'
+                    ? 'border border-white/20 text-white hover:bg-white/10'
+                    : 'border border-gray-300 text-gray-700 hover:bg-gray-100 hover:border-gray-400 shadow-sm'
+                }`}
               >
                 Browse All Albums
               </Link>
@@ -247,7 +328,9 @@ const Music = () => {
         </div>
 
         {/* Featured Albums */}
-        <AlbumGallery albums={FEATURED_ALBUMS_WITH_DETAILS} />
+        <div className={theme === 'dark' ? '' : 'bg-white'}>
+          <AlbumGallery albums={FEATURED_ALBUMS_WITH_DETAILS} />
+        </div>
       </div>
 
       {/* Audio Player */}
