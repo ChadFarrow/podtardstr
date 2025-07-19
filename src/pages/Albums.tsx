@@ -53,10 +53,6 @@ const Albums = () => {
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Featured Albums</h1>
-          <p className="text-muted-foreground mb-6">
-            Discover and stream featured albums with Value4Value Lightning payments
-          </p>
           
 
         </div>
