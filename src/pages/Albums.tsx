@@ -109,15 +109,15 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
       id: 'polar-embrace',
       title: 'Polar Embrace',
       artist: 'The Satellite Skirmish',
-      artwork: 'https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/polarembrace/art/Polar-Embrace-Feed-art-hires.gif',
-      feedUrl: 'https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/polarembrace/rss/videofeed/feed.xml',
+      artwork: '/placeholder-album.png',
+      feedUrl: 'https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/polarembrace/mp3s/album_feed/feed.xml',
       description: 'Ambient soundscapes inspired by arctic solitude and cosmic wonder.'
     },
     {
       id: 'autumn-rust',
       title: 'Autumn Rust',
       artist: 'The Satellite Skirmish',
-      artwork: 'https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/autumnrust/art/Autumn-Rust-Feed-Art.gif',
+      artwork: '/placeholder-album.png',
       feedUrl: 'https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/autumnrust/mp3s/album_feed/feed.xml',
       description: 'Melancholic melodies capturing the beauty of seasonal transformation.'
     },
@@ -125,7 +125,7 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
       id: 'the-satellite-skirmish-album',
       title: 'The Satellite Skirmish',
       artist: 'Various Artists',
-      artwork: 'https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/art/the%20satellite%20skirmish%20mku.gif',
+      artwork: '/placeholder-album.png',
       feedUrl: 'https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/the_satellite_skirmish_album.xml',
       description: 'A collaborative collection featuring diverse artists from the Satellite Skirmish collective.'
     },
@@ -258,9 +258,11 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
     'wavlake-album'
   ];
 
-  // Live concert folder (lazy loaded to improve performance)
+  // Live concert folder (audio-only, optimized for performance)
   const LIVE_CONCERTS_ALBUMS: string[] = [
-    // Temporarily empty - will be loaded on demand
+    'the-satellite-skirmish-album',
+    'autumn-rust',
+    'polar-embrace'
   ];
 
   // Get albums that belong to The Doerfels section
