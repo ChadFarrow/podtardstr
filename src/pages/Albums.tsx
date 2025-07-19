@@ -1,6 +1,5 @@
 import { useSeoMeta } from '@unhead/react';
 import { AlbumViewEnhanced } from '@/components/AlbumViewEnhanced';
-import { AlbumSelector } from '@/components/AlbumSelector';
 import { LoginArea } from '@/components/auth/LoginArea';
 
 import { PodcastPlayer } from '@/components/PodcastPlayer';
@@ -126,13 +125,10 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
         </div>
       )}
 
-      {/* Album Selector */}
-      <div className="relative z-10 pt-24">
-        <AlbumSelector />
-      </div>
-
       {/* Main Content */}
-      <AlbumViewEnhanced feedUrl={currentFeedUrl} />
+      <div className="relative z-10 pt-24">
+        <AlbumViewEnhanced feedUrl={currentFeedUrl} />
+      </div>
 
       {/* Audio Player */}
       <PodcastPlayer />
