@@ -1,18 +1,48 @@
+import { useState } from 'react';
 import { useAlbumFeed } from '@/hooks/useAlbumFeed';
 import { SecureImage } from '@/components/SecureImage';
 import { V4VPaymentButton } from '@/components/V4VPaymentButton';
 import { AlbumTrackList } from '@/components/AlbumTrackList';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Music, ExternalLink } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Music, ExternalLink, ChevronDown } from 'lucide-react';
 import { htmlToText } from '@/lib/html-utils';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface AlbumViewProps {
   feedUrl?: string;
 }
 
-export function AlbumView({ feedUrl = 'https://www.doerfelverse.com/feeds/bloodshot-lies-album.xml' }: AlbumViewProps) {
-  const { data: albumData, isLoading, error } = useAlbumFeed(feedUrl);
+const FEATURED_ALBUMS = [
+  {
+    id: 'bloodshot-lies',
+    title: 'Bloodshot Lies - The Album',
+    artist: 'The Doerfels',
+    feedUrl: 'https://www.doerfelverse.com/feeds/bloodshot-lies-album.xml',
+  },
+  {
+    id: 'heycitizen-experience',
+    title: 'The HeyCitizen Experience',
+    artist: 'HeyCitizen',
+    feedUrl: 'https://files.heycitizen.xyz/Songs/Albums/The-Heycitizen-Experience/the heycitizen experience.xml',
+  },
+];
+
+export function AlbumView({ feedUrl }: AlbumViewProps) {
+  const [selectedAlbumId, setSelectedAlbumId] = useState(feedUrl ? 'custom' : 'bloodshot-lies');
+  const [customFeedUrl, setCustomFeedUrl] = useState(feedUrl || '');
+  
+  const currentFeedUrl = selectedAlbumId === 'custom' ? customFeedUrl : 
+    FEATURED_ALBUMS.find(album => album.id === selectedAlbumId)?.feedUrl || 
+    FEATURED_ALBUMS[0].feedUrl;
+  
+  const { data: albumData, isLoading, error } = useAlbumFeed(currentFeedUrl);
 
   if (isLoading) {
     return (
@@ -49,8 +79,39 @@ export function AlbumView({ feedUrl = 'https://www.doerfelverse.com/feeds/bloods
     );
   }
 
+  const selectedAlbum = FEATURED_ALBUMS.find(album => album.id === selectedAlbumId);
+
   return (
     <div className="space-y-6 p-4 max-w-6xl mx-auto">
+      {/* Album Selector */}
+      <Card className="border shadow-sm">
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold">Featured Albums</h2>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="min-w-[200px] justify-between">
+                  {selectedAlbum ? `${selectedAlbum.title}` : 'Select Album'}
+                  <ChevronDown className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-[300px]">
+                {FEATURED_ALBUMS.map((album) => (
+                  <DropdownMenuItem
+                    key={album.id}
+                    onClick={() => setSelectedAlbumId(album.id)}
+                    className="flex flex-col items-start gap-1"
+                  >
+                    <span className="font-medium">{album.title}</span>
+                    <span className="text-sm text-muted-foreground">{album.artist}</span>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Album Header */}
       <Card className="border-0 shadow-xl bg-gradient-to-b from-background to-muted/20 overflow-hidden">
         <CardContent className="p-8">
