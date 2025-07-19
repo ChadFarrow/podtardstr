@@ -73,6 +73,15 @@ const Index = () => {
                     <Disc className="h-4 w-4 mr-2" />
                     Albums
                   </Button>
+                  <a
+                    href="/albums"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:text-primary transition-colors rounded-md hover:bg-accent"
+                  >
+                    <Disc className="h-4 w-4" />
+                    Standalone Albums Site
+                  </a>
                   {/* <Button
                     variant={activeTab === 'discover' ? 'secondary' : 'ghost'}
                     className="w-full justify-start text-sm"

@@ -46,7 +46,19 @@ async function fetchAlbumFeed(feedUrl: string): Promise<AlbumFeedData> {
       description: parsedFeed.description || '',
       artwork: parsedFeed.image || '',
       tracks: [],
-      value: parsedFeed.value,
+      value: parsedFeed.value ? {
+        model: {
+          type: parsedFeed.value.type || 'lightning',
+          method: parsedFeed.value.method || 'keysend',
+          suggested: parsedFeed.value.suggested || '1000',
+        },
+        destinations: parsedFeed.value.recipients.map(recipient => ({
+          name: recipient.name || 'Unknown',
+          address: recipient.address,
+          type: recipient.type,
+          split: recipient.split,
+        })),
+      } : undefined,
       funding: undefined, // The parser doesn't extract funding info yet
     };
 
@@ -67,7 +79,7 @@ async function fetchAlbumFeed(feedUrl: string): Promise<AlbumFeedData> {
         }
         
         return {
-          id: episode.guid || `track-${index}`,
+          id: index + 1, // Use numeric ID for compatibility
           title: episode.title || `Track ${index + 1}`,
           link: episode.link || '',
           description: episode.description || '',
@@ -89,7 +101,31 @@ async function fetchAlbumFeed(feedUrl: string): Promise<AlbumFeedData> {
           feedUrl: feedUrl,
           feedAuthor: albumData.artist,
           feedDescription: albumData.description,
-          value: episode.value || parsedFeed.value,
+          value: episode.value ? {
+            model: {
+              type: episode.value.type || 'lightning',
+              method: episode.value.method || 'keysend',
+              suggested: episode.value.suggested || '1000',
+            },
+            destinations: episode.value.recipients.map(recipient => ({
+              name: recipient.name || 'Unknown',
+              address: recipient.address,
+              type: recipient.type,
+              split: recipient.split,
+            })),
+          } : parsedFeed.value ? {
+            model: {
+              type: parsedFeed.value.type || 'lightning',
+              method: parsedFeed.value.method || 'keysend',
+              suggested: parsedFeed.value.suggested || '1000',
+            },
+            destinations: parsedFeed.value.recipients.map(recipient => ({
+              name: recipient.name || 'Unknown',
+              address: recipient.address,
+              type: recipient.type,
+              split: recipient.split,
+            })),
+          } : undefined,
           trackNumber: index + 1,
           albumTitle: albumData.title,
           albumArtist: albumData.artist,

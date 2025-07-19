@@ -3,6 +3,7 @@ import { ScrollToTop } from "./components/ScrollToTop";
 
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+import Albums from "./pages/Albums";
 
 
 export function AppRouter() {
@@ -11,6 +12,7 @@ export function AppRouter() {
       <ScrollToTop />
       <Routes>
         <Route path="/" element={<Index />} />
+        <Route path="/albums" element={<Albums />} />
   
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />

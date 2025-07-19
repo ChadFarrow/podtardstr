@@ -25,21 +25,23 @@ export function AlbumTrackList({ tracks, albumTitle, albumArtist, defaultValue }
   };
 
   const handleTrackPlay = (track: AlbumTrack) => {
+    const trackId = track.id.toString();
+    
     // Check if this track is already playing
-    if (isPlaying && currentPodcast?.id === track.id) {
+    if (isPlaying && currentPodcast?.id === trackId) {
       setIsPlaying(false);
       return;
     }
 
     // Check if we need to resume the same track
-    if (!isPlaying && currentPodcast?.id === track.id) {
+    if (!isPlaying && currentPodcast?.id === trackId) {
       setIsPlaying(true);
       return;
     }
 
     // Play the new track
     const podcastEpisode = {
-      id: track.id,
+      id: trackId,
       title: track.title,
       author: track.albumArtist || albumArtist,
       url: track.enclosureUrl,
@@ -51,11 +53,11 @@ export function AlbumTrackList({ tracks, albumTitle, albumArtist, defaultValue }
   };
 
   const isTrackPlaying = (track: AlbumTrack) => {
-    return isPlaying && currentPodcast?.id === track.id;
+    return isPlaying && currentPodcast?.id === track.id.toString();
   };
 
   const isTrackLoading = (track: AlbumTrack) => {
-    return loadingTrackId === track.id;
+    return loadingTrackId === track.id.toString();
   };
 
   return (
@@ -115,9 +117,7 @@ export function AlbumTrackList({ tracks, albumTitle, albumArtist, defaultValue }
                   feedUrl={track.feedUrl}
                   totalAmount={21}
                   contentTitle={`${track.title} - ${albumTitle}`}
-                  feedId={track.id}
-                  size="sm"
-                  variant="ghost"
+                  feedId={track.id.toString()}
                 />
               )}
             </div>

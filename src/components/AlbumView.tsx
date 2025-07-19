@@ -83,34 +83,56 @@ export function AlbumView({ feedUrl }: AlbumViewProps) {
 
   return (
     <div className="space-y-6 p-4 max-w-6xl mx-auto">
-      {/* Album Selector */}
-      <Card className="border shadow-sm">
-        <CardContent className="p-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold">Featured Albums</h2>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="min-w-[200px] justify-between">
-                  {selectedAlbum ? `${selectedAlbum.title}` : 'Select Album'}
-                  <ChevronDown className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-[300px]">
-                {FEATURED_ALBUMS.map((album) => (
-                  <DropdownMenuItem
-                    key={album.id}
-                    onClick={() => setSelectedAlbumId(album.id)}
-                    className="flex flex-col items-start gap-1"
-                  >
-                    <span className="font-medium">{album.title}</span>
-                    <span className="text-sm text-muted-foreground">{album.artist}</span>
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Album Selector - Only show if not loading a custom feed */}
+      {!feedUrl && (
+        <Card className="border shadow-sm">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold">Featured Albums</h2>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="min-w-[200px] justify-between">
+                    {selectedAlbum ? `${selectedAlbum.title}` : 'Select Album'}
+                    <ChevronDown className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-[300px]">
+                  {FEATURED_ALBUMS.map((album) => (
+                    <DropdownMenuItem
+                      key={album.id}
+                      onClick={() => setSelectedAlbumId(album.id)}
+                      className="flex flex-col items-start gap-1"
+                    >
+                      <span className="font-medium">{album.title}</span>
+                      <span className="text-sm text-muted-foreground">{album.artist}</span>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Custom Feed Info */}
+      {feedUrl && (
+        <Card className="border shadow-sm">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-semibold">Custom Album</h2>
+                <p className="text-sm text-muted-foreground">Loaded from RSS feed</p>
+              </div>
+              <a
+                href="/albums"
+                className="text-sm text-primary hover:underline"
+              >
+                Back to Featured Albums
+              </a>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Album Header */}
       <Card className="border-0 shadow-xl bg-gradient-to-b from-background to-muted/20 overflow-hidden">
@@ -157,14 +179,15 @@ export function AlbumView({ feedUrl }: AlbumViewProps) {
               <div className="flex flex-wrap gap-3 pt-4">
                 {/* V4V Payment Button */}
                 {albumData.value?.destinations && (
-                  <V4VPaymentButton
-                    valueDestinations={albumData.value.destinations}
-                    feedUrl={feedUrl}
-                    totalAmount={100}
-                    contentTitle={albumData.title}
-                    feedId={`album-${albumData.title}`}
-                    className="flex-1 sm:flex-initial"
-                  />
+                  <div className="flex-1 sm:flex-initial">
+                    <V4VPaymentButton
+                      valueDestinations={albumData.value.destinations}
+                      feedUrl={feedUrl}
+                      totalAmount={100}
+                      contentTitle={albumData.title}
+                      feedId={`album-${albumData.title}`}
+                    />
+                  </div>
                 )}
 
                 {/* Funding Link */}
