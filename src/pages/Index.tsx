@@ -22,8 +22,8 @@ import { usePrefetchAlbums } from '@/hooks/useAlbumFeed';
 const Index = () => {
   const [activeTab, setActiveTab] = useState('top100');
 
-  // Prefetch albums for better performance
-  usePrefetchAlbums();
+  // Removed aggressive prefetching to improve initial page load performance
+  // Albums will be fetched on-demand when users navigate to album pages
 
   useSeoMeta({
     title: 'Podtardstr',

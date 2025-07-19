@@ -251,12 +251,14 @@ const FEATURED_ALBUMS = [
   },
 ];
 
-// Prefetch common albums for better performance
+// Optimized prefetching - only prefetch when explicitly requested
 export function usePrefetchAlbums() {
   const queryClient = useQueryClient();
   
-  // Prefetch the featured albums when the hook is called
-  FEATURED_ALBUMS.forEach(album => {
+  // Only prefetch a few key albums to avoid overwhelming the network
+  const keyAlbums = FEATURED_ALBUMS.slice(0, 3); // Only prefetch first 3 albums
+  
+  keyAlbums.forEach(album => {
     queryClient.prefetchQuery({
       queryKey: ['album-feed', album.feedUrl, '1.172'],
       queryFn: () => fetchAlbumFeed(album.feedUrl),
@@ -271,9 +273,11 @@ export function useAlbumFeed(feedUrl: string, options: { enabled?: boolean } = {
     queryKey: ['album-feed', feedUrl, '1.172'], // Add version to bust cache
     queryFn: () => fetchAlbumFeed(feedUrl),
     enabled: options.enabled !== false && !!feedUrl,
-    staleTime: 10 * 60 * 1000, // 10 minutes - data is fresh for 10 minutes
-    gcTime: 60 * 60 * 1000, // 1 hour - keep in cache for 1 hour
+    staleTime: 30 * 60 * 1000, // 30 minutes - data is fresh for 30 minutes
+    gcTime: 2 * 60 * 60 * 1000, // 2 hours - keep in cache for 2 hours
     refetchOnWindowFocus: false, // Don't refetch when window regains focus
     refetchOnReconnect: false, // Don't refetch on network reconnect
+    retry: 2, // Only retry twice to avoid excessive requests
+    retryDelay: 1000, // Wait 1 second between retries
   });
 }
