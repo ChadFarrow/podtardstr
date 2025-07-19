@@ -368,13 +368,17 @@ export function AlbumViewEnhanced({ feedUrl }: AlbumViewEnhancedProps) {
           </div>
         </div>
 
-        {/* PodRoll Recommendations */}
-        {albumData.podroll && albumData.podroll.length > 0 && (
-          <div className="p-8">
-            <div className="max-w-6xl mx-auto">
-              <h3 className="text-2xl font-bold mb-6 text-center">Recommended Podcasts</h3>
-              <div className="flex space-x-6 overflow-x-auto pb-4 scrollbar-hide">
-                {albumData.podroll.map((recommendation, index) => (
+
+        {/* Other Projects - Show PodRoll if available, fallback to static albums */}
+        <div className="p-8">
+          <div className="max-w-6xl mx-auto">
+            <h3 className="text-2xl font-bold mb-6 text-center">
+              {albumData.podroll && albumData.podroll.length > 0 ? 'Recommended Podcasts' : 'More from The Doerfel-Verse'}
+            </h3>
+            <div className="flex space-x-6 overflow-x-auto pb-4 scrollbar-hide">
+              {/* Show PodRoll recommendations if available */}
+              {albumData.podroll && albumData.podroll.length > 0 ? (
+                albumData.podroll.map((recommendation, index) => (
                   <div
                     key={recommendation.feedGuid || recommendation.feedUrl || index}
                     className="flex-none group cursor-pointer"
@@ -414,43 +418,36 @@ export function AlbumViewEnhanced({ feedUrl }: AlbumViewEnhancedProps) {
                       )}
                     </div>
                   </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Other Projects - Horizontal Scroll */}
-        <div className="p-8">
-          <div className="max-w-6xl mx-auto">
-            <h3 className="text-2xl font-bold mb-6 text-center">More from The Doerfel-Verse</h3>
-            <div className="flex space-x-6 overflow-x-auto pb-4 scrollbar-hide">
-              {OTHER_ALBUMS.map((album) => (
-                <div
-                  key={album.id}
-                  className="flex-none group cursor-pointer"
-                >
-                  <div className="relative w-48">
-                    <img
-                      src={album.cover}
-                      alt={album.title}
-                      className="w-full h-48 object-cover rounded-xl shadow-lg group-hover:shadow-2xl transition-all duration-300 group-hover:scale-105"
-                    />
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300 rounded-xl flex items-center justify-center">
-                      <button className="opacity-0 group-hover:opacity-100 transform scale-75 group-hover:scale-100 transition-all duration-300 bg-red-600 hover:bg-red-500 text-white rounded-full p-3 shadow-lg">
-                        <Play size={20} className="ml-0.5" />
-                      </button>
+                ))
+              ) : (
+                /* Fallback to static albums if no PodRoll */
+                OTHER_ALBUMS.map((album) => (
+                  <div
+                    key={album.id}
+                    className="flex-none group cursor-pointer"
+                  >
+                    <div className="relative w-48">
+                      <img
+                        src={album.cover}
+                        alt={album.title}
+                        className="w-full h-48 object-cover rounded-xl shadow-lg group-hover:shadow-2xl transition-all duration-300 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300 rounded-xl flex items-center justify-center">
+                        <button className="opacity-0 group-hover:opacity-100 transform scale-75 group-hover:scale-100 transition-all duration-300 bg-red-600 hover:bg-red-500 text-white rounded-full p-3 shadow-lg">
+                          <Play size={20} className="ml-0.5" />
+                        </button>
+                      </div>
+                    </div>
+                    <div className="mt-3 space-y-1">
+                      <h4 className="font-semibold text-white group-hover:text-red-400 transition-colors truncate">
+                        {album.title}
+                      </h4>
+                      <p className="text-sm text-gray-400 truncate">{album.artist}</p>
+                      <p className="text-xs text-gray-500">{album.year} • {album.tracks} tracks</p>
                     </div>
                   </div>
-                  <div className="mt-3 space-y-1">
-                    <h4 className="font-semibold text-white group-hover:text-red-400 transition-colors truncate">
-                      {album.title}
-                    </h4>
-                    <p className="text-sm text-gray-400 truncate">{album.artist}</p>
-                    <p className="text-xs text-gray-500">{album.year} • {album.tracks} tracks</p>
-                  </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </div>
         </div>
