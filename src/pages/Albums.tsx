@@ -173,7 +173,8 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
     'empty-passenger-seat',
     'pony-up-daddy', 
     'deathdreams',
-    'spectral-hiding'
+    'spectral-hiding',
+    'tinderbox'
   ];
 
   // Get albums that belong to ChadF folder
