@@ -388,13 +388,24 @@ export function PodcastPlayer() {
             onClick={() => setShowNowPlaying(true)}
             className="flex items-center gap-3 min-w-0 flex-1 hover:bg-white/10 active:bg-white/20 -m-2 p-2 rounded-lg transition-colors touch-manipulation"
           >
-            {currentPodcast.imageUrl && (
+            {currentPodcast.imageUrl ? (
               <div className="h-12 w-12 sm:h-12 sm:w-12 rounded object-cover flex-shrink-0">
                 <img 
                   src={currentPodcast.imageUrl} 
                   alt={currentPodcast.title}
                   className="h-12 w-12 sm:h-12 sm:w-12 rounded object-cover"
+                  onError={(e) => {
+                    console.error('Failed to load track artwork:', currentPodcast.imageUrl);
+                    e.currentTarget.style.display = 'none';
+                  }}
+                  onLoad={() => {
+                    console.log('Track artwork loaded successfully:', currentPodcast.imageUrl);
+                  }}
                 />
+              </div>
+            ) : (
+              <div className="h-12 w-12 sm:h-12 sm:w-12 rounded bg-gray-800 flex items-center justify-center flex-shrink-0">
+                <Play className="h-6 w-6 text-gray-400" />
               </div>
             )}
             <div className="min-w-0 text-left">

@@ -14,115 +14,16 @@ import { WalletStatus } from '@/components/WalletStatus';
 import { Sidebar, SidebarContent, SidebarHeader, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Code, Star, Shield, Disc, Pin, X } from 'lucide-react';
-import { usePinnedAlbums } from '@/hooks/usePinnedAlbums';
-import { SecureImage } from '@/components/SecureImage';
+import { Code, Star, Shield, Disc } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { VersionDisplay } from '@/components/VersionDisplay';
 import { usePrefetchAlbums } from '@/hooks/useAlbumFeed';
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState('top100');
-  const { pinnedAlbums, unpinAlbum, pinAlbum, isPinned } = usePinnedAlbums();
 
   // Prefetch albums for better performance
   usePrefetchAlbums();
-
-  // Auto-pin featured albums if not already pinned
-  useEffect(() => {
-    const albumsToPin = [
-      {
-        id: 'think-ep',
-        title: 'Think EP',
-        artist: 'The Doerfels',
-        artwork: 'https://www.doerfelverse.com/art/think-ep.png',
-        feedUrl: 'https://www.doerfelverse.com/feeds/think-ep.xml',
-      },
-      {
-        id: 'music-from-the-doerfelverse',
-        title: 'Music From The Doerfel-Verse',
-        artist: 'The Doerfels',
-        artwork: 'https://www.doerfelverse.com/art/carol-of-the-bells.png',
-        feedUrl: 'https://www.doerfelverse.com/feeds/music-from-the-doerfelverse.xml',
-      },
-      {
-        id: 'stay-awhile',
-        title: 'Stay Awhile',
-        artist: 'Able and The Wolf',
-        artwork: 'https://ableandthewolf.com/static/media/01_MakinBeans.6dfb9c8e18b0f28adf4d.jpg',
-        feedUrl: 'https://ableandthewolf.com/static/media/feed.xml',
-      },
-      {
-        id: 'spectral-hiding',
-        title: 'Spectral Hiding',
-        artist: 'Bitpunk.fm',
-        artwork: 'https://files.bitpunk.fm/spectral_hiding.png',
-        feedUrl: 'https://zine.bitpunk.fm/feeds/spectral-hiding.xml',
-      },
-      {
-        id: 'polar-embrace',
-        title: 'Polar Embrace',
-        artist: 'The Satellite Skirmish',
-        artwork: 'https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/polarembrace/art/Polar-Embrace-Feed-art-hires.gif',
-        feedUrl: 'https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/polarembrace/rss/videofeed/feed.xml',
-      },
-      {
-        id: 'autumn-rust',
-        title: 'Autumn Rust',
-        artist: 'The Satellite Skirmish',
-        artwork: 'https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/autumnrust/art/Autumn-Rust-Feed-Art.gif',
-        feedUrl: 'https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/autumnrust/mp3s/album_feed/feed.xml',
-      },
-      {
-        id: 'the-satellite-skirmish-album',
-        title: 'The Satellite Skirmish',
-        artist: 'Various Artists',
-        artwork: 'https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/art/the%20satellite%20skirmish%20mku.gif',
-        feedUrl: 'https://music.behindthesch3m3s.com/wp-content/uploads/Sat_Skirmish/the_satellite_skirmish_album.xml',
-      },
-      {
-        id: 'lofi-experience',
-        title: 'HeyCitizen\'s Lo-Fi Hip-Hop Beats to Study and Relax to',
-        artist: 'HeyCitizen',
-        artwork: 'https://files.heycitizen.xyz/Songs/Albums/Lofi-Experience/Lofi-Experience.png',
-        feedUrl: 'https://files.heycitizen.xyz/Songs/Albums/Lofi-Experience/lofi.xml',
-      },
-      {
-        id: 'tinderbox',
-        title: 'Tinderbox',
-        artist: 'Nate Johnivan',
-        artwork: 'https://d12wklypp119aj.cloudfront.net/image/d677db67-0310-4813-970e-e65927c689f1.jpg',
-        feedUrl: 'https://wavlake.com/feed/music/d677db67-0310-4813-970e-e65927c689f1',
-      },
-      {
-        id: 'deathdreams',
-        title: 'deathdreams',
-        artist: 'Survival Guide (Emily Whitehurst)',
-        artwork: 'https://static.wixstatic.com/media/484406_9138bd56c7b64a388da3b927a5bb2220~mv2.png',
-        feedUrl: 'https://static.staticsave.com/mspfiles/deathdreams.xml',
-      },
-      {
-        id: 'pony-up-daddy',
-        title: 'Pony Up Daddy',
-        artist: '$2 Holla',
-        artwork: 'https://f4.bcbits.com/img/a1480089316_16.jpg',
-        feedUrl: 'https://music.behindthesch3m3s.com/wp-content/uploads/Mike_Epting/$2Holla/pony%20up%20daddy.xml',
-      },
-      {
-        id: 'empty-passenger-seat',
-        title: 'Empty Passenger Seat',
-        artist: 'White Rabbit Records',
-        artwork: '', // Placeholder - will be extracted from feed when accessible
-        feedUrl: 'https://whiterabbitrecords.org/wp-content/uploads/2023/04/Empty-Passenger-Seat.xml',
-      },
-    ];
-
-    albumsToPin.forEach(album => {
-      if (!isPinned(album.id)) {
-        pinAlbum(album);
-      }
-    });
-  }, [pinAlbum, isPinned]);
 
   useSeoMeta({
     title: 'Podtardstr',
@@ -227,44 +128,6 @@ const Index = () => {
                   </Button>
                 </div>
               </div>
-
-              {/* Pinned Albums */}
-              {pinnedAlbums.length > 0 && (
-                <div>
-                  <h3 className="text-sm font-medium text-muted-foreground mb-3 flex items-center gap-2">
-                    <Pin className="h-4 w-4" />
-                    Pinned Albums
-                  </h3>
-                  <div className="space-y-2">
-                    {pinnedAlbums.map((album) => (
-                      <div
-                        key={album.id}
-                        className="flex items-center gap-3 p-2 rounded-md hover:bg-accent transition-colors group"
-                      >
-                        <div className="flex-shrink-0">
-                          <SecureImage
-                            src={album.artwork}
-                            alt={album.title}
-                            className="w-8 h-8 rounded object-cover"
-                          />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium truncate">{album.title}</p>
-                          <p className="text-xs text-muted-foreground truncate">{album.artist}</p>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => unpinAlbum(album.id)}
-                          className="opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-0"
-                        >
-                          <X className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
 
               <div>
                 <UserNameInput />
