@@ -250,13 +250,13 @@ export function NowPlayingModal({ open, onOpenChange }: NowPlayingModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0 bg-gradient-to-br from-background via-background to-muted [&>button]:hidden">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0 bg-black/95 backdrop-blur-lg border-gray-800 [&>button]:hidden">
         <div className="relative p-8">
           {/* Close button */}
           <Button
             variant="ghost"
             size="icon"
-            className="absolute top-4 right-4 z-10"
+            className="absolute top-4 right-4 z-10 text-gray-400 hover:text-white hover:bg-white/10"
             onClick={() => onOpenChange(false)}
           >
             <X className="h-5 w-5" />
@@ -277,8 +277,8 @@ export function NowPlayingModal({ open, onOpenChange }: NowPlayingModalProps) {
 
             {/* Track Info */}
             <div className="text-center space-y-2">
-              <h1 className="text-2xl font-bold truncate">{currentPodcast.title}</h1>
-              <p className="text-lg text-muted-foreground truncate">{currentPodcast.author}</p>
+              <h1 className="text-2xl font-bold truncate text-white">{currentPodcast.title}</h1>
+              <p className="text-lg text-gray-400 truncate">{currentPodcast.author}</p>
             </div>
 
             {/* Progress Bar */}
@@ -290,7 +290,7 @@ export function NowPlayingModal({ open, onOpenChange }: NowPlayingModalProps) {
                 onValueChange={handleSeek}
                 className="w-full"
               />
-              <div className="flex justify-between text-sm text-muted-foreground">
+              <div className="flex justify-between text-sm text-gray-400">
                 <span>{formatTime(currentTime)}</span>
                 <span>{formatTime(duration)}</span>
               </div>
@@ -298,11 +298,11 @@ export function NowPlayingModal({ open, onOpenChange }: NowPlayingModalProps) {
 
             {/* Controls */}
             <div className="flex items-center justify-center space-x-6">
-              <Button variant="ghost" size="icon" onClick={playPrevious} className="h-12 w-12">
+              <Button variant="ghost" size="icon" onClick={playPrevious} className="h-12 w-12 text-gray-400 hover:text-white hover:bg-white/10">
                 <SkipBack className="h-6 w-6" />
               </Button>
               
-              <Button onClick={handlePlayPause} size="icon" className="h-16 w-16">
+              <Button onClick={handlePlayPause} size="icon" className="h-16 w-16 bg-red-600 hover:bg-red-500 text-white">
                 {isPlaying ? (
                   <Pause className="h-8 w-8" />
                 ) : (
@@ -310,14 +310,14 @@ export function NowPlayingModal({ open, onOpenChange }: NowPlayingModalProps) {
                 )}
               </Button>
               
-              <Button variant="ghost" size="icon" onClick={playNext} className="h-12 w-12">
+              <Button variant="ghost" size="icon" onClick={playNext} className="h-12 w-12 text-gray-400 hover:text-white hover:bg-white/10">
                 <SkipForward className="h-6 w-6" />
               </Button>
             </div>
 
             {/* Volume Control */}
             <div className="flex items-center justify-center space-x-4">
-              <Button variant="ghost" size="icon" onClick={handleMute}>
+              <Button variant="ghost" size="icon" onClick={handleMute} className="text-gray-400 hover:text-white hover:bg-white/10">
                 {isMuted || volume === 0 ? (
                   <VolumeX className="h-5 w-5" />
                 ) : (
@@ -336,14 +336,14 @@ export function NowPlayingModal({ open, onOpenChange }: NowPlayingModalProps) {
             {/* Auto-Play Toggle */}
             <div className="flex items-center justify-center space-x-2 mt-4">
               <Switch id="autoplay-modal-switch" checked={autoPlay} onCheckedChange={setAutoPlay} />
-              <label htmlFor="autoplay-modal-switch" className="text-xs text-muted-foreground select-none cursor-pointer">
+              <label htmlFor="autoplay-modal-switch" className="text-xs text-gray-400 select-none cursor-pointer">
                 Auto-Play
               </label>
             </div>
 
             {/* V4V Boost Button */}
             {feedData && (
-              <div className="mt-6 pt-4 border-t border-border">
+              <div className="mt-6 pt-4 border-t border-gray-800">
                 <V4VPaymentButton 
                   valueDestinations={feedData.value?.destinations} 
                   feedUrl={feedData.url}

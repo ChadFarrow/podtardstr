@@ -85,7 +85,7 @@ export function AlbumViewEnhanced({ feedUrl }: AlbumViewEnhancedProps) {
   
   const { data: albumData, isLoading, error } = useAlbumFeed(currentFeedUrl);
   const { currentPodcast, isPlaying, playPodcast, setIsPlaying, addToQueue, clearQueue } = usePodcastPlayer();
-  const { loadingTrackId, handleMusicPlay } = useMusicPlayback();
+  const { loadingTrackId } = useMusicPlayback();
 
   const formatDuration = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
@@ -94,18 +94,31 @@ export function AlbumViewEnhanced({ feedUrl }: AlbumViewEnhancedProps) {
   };
 
   const handleTrackPlay = (track: AlbumTrack) => {
-    const trackData = {
-      id: track.id.toString(),
-      title: track.title,
-      artist: track.albumArtist || albumData?.artist || '',
-      enclosureUrl: track.enclosureUrl,
-      imageUrl: track.albumArt || track.image || albumData?.artwork || '',
-      podcastTitle: albumData?.title || '',
-      description: track.description || '',
-      value: track.value || albumData?.value,
-    };
+    const trackId = track.id.toString();
     
-    handleMusicPlay(trackData);
+    // Check if this track is already playing
+    if (isPlaying && currentPodcast?.id === trackId) {
+      setIsPlaying(false);
+      return;
+    }
+
+    // Check if we need to resume the same track
+    if (!isPlaying && currentPodcast?.id === trackId) {
+      setIsPlaying(true);
+      return;
+    }
+
+    // Play the new track
+    const podcastEpisode = {
+      id: trackId,
+      title: track.title,
+      author: track.albumArtist || albumData?.artist || '',
+      url: track.enclosureUrl,
+      imageUrl: track.albumArt || track.image || albumData?.artwork || '',
+      duration: track.duration,
+    };
+
+    playPodcast(podcastEpisode);
   };
 
   const handleAlbumPlay = () => {
