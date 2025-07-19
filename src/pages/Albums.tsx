@@ -1,7 +1,7 @@
 import { useSeoMeta } from '@unhead/react';
 import { AlbumViewEnhanced } from '@/components/AlbumViewEnhanced';
 import { LoginArea } from '@/components/auth/LoginArea';
-import { WalletStatus } from '@/components/WalletStatus';
+
 import { PodcastPlayer } from '@/components/PodcastPlayer';
 import { VersionDisplay } from '@/components/VersionDisplay';
 import { Home, Disc, Menu, X } from 'lucide-react';
@@ -36,13 +36,10 @@ const Albums = () => {
           >
             {showMenu ? <X size={20} className="text-white" /> : <Menu size={20} className="text-white" />}
           </button>
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-red-400 to-orange-400 bg-clip-text text-transparent">
-            Podtardstr Albums
-          </h1>
+
         </div>
         
         <div className="flex items-center gap-4">
-          <WalletStatus />
           <LoginArea className="max-w-60" />
         </div>
       </div>

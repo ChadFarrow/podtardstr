@@ -1,6 +1,6 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Play, Pause, Clock } from 'lucide-react';
-import { V4VPaymentButton } from '@/components/V4VPaymentButton';
+
 import { usePodcastPlayer } from '@/hooks/usePodcastPlayer';
 import { useMusicPlayback } from '@/hooks/useMusicPlayback';
 import { htmlToText } from '@/lib/html-utils';
@@ -110,16 +110,7 @@ export function AlbumTrackList({ tracks, albumTitle, albumArtist, defaultValue }
                 </div>
               )}
 
-              {/* Track-specific V4V Payment */}
-              {(track.value?.destinations || defaultValue?.destinations) && (
-                <V4VPaymentButton
-                  valueDestinations={track.value?.destinations || defaultValue?.destinations}
-                  feedUrl={track.feedUrl}
-                  totalAmount={21}
-                  contentTitle={`${track.title} - ${albumTitle}`}
-                  feedId={track.id.toString()}
-                />
-              )}
+
             </div>
           ))}
         </div>

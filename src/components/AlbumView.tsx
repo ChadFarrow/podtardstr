@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAlbumFeed } from '@/hooks/useAlbumFeed';
 import { SecureImage } from '@/components/SecureImage';
-import { V4VPaymentButton } from '@/components/V4VPaymentButton';
+
 import { AlbumTrackList } from '@/components/AlbumTrackList';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -77,36 +77,7 @@ export function AlbumView({ feedUrl }: AlbumViewProps) {
 
   return (
     <div className="space-y-6 p-4 max-w-6xl mx-auto">
-      {/* Album Selector - Only show if not loading a custom feed */}
-      {!feedUrl && (
-        <Card className="border shadow-sm">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold">Featured Albums</h2>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="min-w-[200px] justify-between">
-                    {selectedAlbum ? `${selectedAlbum.title}` : 'Select Album'}
-                    <ChevronDown className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-[300px]">
-                  {FEATURED_ALBUMS.map((album) => (
-                    <DropdownMenuItem
-                      key={album.id}
-                      onClick={() => setSelectedAlbumId(album.id)}
-                      className="flex flex-col items-start gap-1"
-                    >
-                      <span className="font-medium">{album.title}</span>
-                      <span className="text-sm text-muted-foreground">{album.artist}</span>
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+
 
       {/* Custom Feed Info */}
       {feedUrl && (
@@ -170,33 +141,7 @@ export function AlbumView({ feedUrl }: AlbumViewProps) {
                 );
               })()}
 
-              <div className="flex flex-wrap gap-3 pt-4">
-                {/* V4V Payment Button */}
-                {albumData.value?.destinations && (
-                  <div className="flex-1 sm:flex-initial">
-                    <V4VPaymentButton
-                      valueDestinations={albumData.value.destinations}
-                      feedUrl={feedUrl}
-                      totalAmount={100}
-                      contentTitle={albumData.title}
-                      feedId={`album-${albumData.title}`}
-                    />
-                  </div>
-                )}
 
-                {/* Funding Link */}
-                {albumData.funding?.url && (
-                  <a
-                    href={albumData.funding.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-input bg-background hover:bg-accent hover:text-accent-foreground transition-colors"
-                  >
-                    <ExternalLink className="h-4 w-4" />
-                    Support Artist
-                  </a>
-                )}
-              </div>
 
               {/* Album Stats */}
               <div className="flex gap-6 text-sm text-muted-foreground pt-2">

@@ -42,7 +42,7 @@ async function fetchAlbumFeed(feedUrl: string): Promise<AlbumFeedData> {
     // Transform the RSS data into our album format
     const albumData: AlbumFeedData = {
       title: parsedFeed.title || 'Unknown Album',
-      artist: parsedFeed.author || 'Unknown Artist',
+      artist: 'The Doerfels', // Hardcode the correct artist name
       description: parsedFeed.description || '',
       artwork: parsedFeed.image || '',
       tracks: [],
