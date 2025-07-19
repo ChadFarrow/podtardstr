@@ -68,7 +68,7 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
       id: 'heycitizen-experience',
       title: 'The HeyCitizen Experience',
       artist: 'HeyCitizen',
-      artwork: 'https://files.heycitizen.xyz/Songs/Albums/The-Heycitizen-Experience/The-HEYCitizen-Experience-3000x3000.jpg',
+      artwork: 'https://files.heycitizen.xyz/Songs/Albums/The-Heycitizen-Experience/The-Heycitizen-Experience.jpg',
       feedUrl: 'https://files.heycitizen.xyz/Songs/Albums/The-Heycitizen-Experience/the heycitizen experience.xml',
       description: 'An experimental journey through electronic soundscapes and indie vibes.'
     },

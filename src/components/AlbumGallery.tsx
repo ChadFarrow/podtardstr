@@ -18,7 +18,7 @@ interface AlbumGalleryProps {
 export function AlbumGallery({ albums }: AlbumGalleryProps) {
   return (
     <div 
-      className="min-h-screen bg-black text-white py-8 pt-24"
+      className="min-h-screen bg-black text-white py-8 pt-12"
       style={{
         paddingLeft: `max(2rem, env(safe-area-inset-left))`,
         paddingRight: `max(2rem, env(safe-area-inset-right))`
