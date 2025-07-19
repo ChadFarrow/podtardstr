@@ -316,7 +316,7 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
       id: 'rocknroll-breakheart',
       title: 'Rock\'n\'Roll Breakheart',
       artist: 'Rock\'n\'Roll Breakheart',
-      artwork: 'http://rocknrollbreakheart.com/msp/RNRBH/album-art.png',
+      artwork: 'https://rocknrollbreakheart.com/msp/RNRBH/album-art.png',
       feedUrl: 'https://rocknrollbreakheart.com/msp/RNRBH/rock%27n%27roll%20breakheart.xml',
       description: 'Pure rock\'n\'roll energy'
     },
