@@ -10,16 +10,15 @@ export function AlbumBackground({ artwork, children }: AlbumBackgroundProps) {
     <div className="min-h-screen bg-black text-white overflow-hidden relative">
       {/* Album Art Background */}
       <div 
-        className="absolute inset-0 bg-repeat bg-top"
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
           backgroundImage: `url(${artwork})`,
-          backgroundSize: '300px 300px',
-          filter: 'brightness(0.3) blur(1px)',
+          filter: 'brightness(0.2)',
         }}
       />
       
       {/* Dark Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-red-900/40 via-black/60 to-black/80" />
+      <div className="absolute inset-0 bg-gradient-to-br from-red-900/60 via-black/70 to-black/90" />
       
       {/* Main Content */}
       <div className="relative z-10 h-full flex flex-col">
