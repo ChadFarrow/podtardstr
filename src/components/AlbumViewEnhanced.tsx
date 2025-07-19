@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAlbumFeed } from '@/hooks/useAlbumFeed';
 import { SecureImage } from '@/components/SecureImage';
-import { V4VPaymentButton } from '@/components/V4VPaymentButton';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
@@ -185,40 +184,7 @@ export function AlbumViewEnhanced({ feedUrl }: AlbumViewEnhancedProps) {
       
       {/* Main Content */}
       <div className="relative z-10 h-full flex flex-col">
-        {/* Album Selector - Only show if not loading a custom feed */}
-        {!feedUrl && (
-          <div className="p-6">
-            <div className="max-w-6xl mx-auto">
-              <Card className="bg-black/50 backdrop-blur-sm border-gray-800">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-lg font-semibold">Featured Albums</h2>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="outline" className="min-w-[200px] justify-between bg-black/50 border-gray-700 hover:bg-black/70">
-                          {selectedAlbum ? `${selectedAlbum.title}` : 'Select Album'}
-                          <ChevronDown className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-[300px] bg-black/90 backdrop-blur-lg border-gray-800">
-                        {FEATURED_ALBUMS.map((album) => (
-                          <DropdownMenuItem
-                            key={album.id}
-                            onClick={() => setSelectedAlbumId(album.id)}
-                            className="flex flex-col items-start gap-1 hover:bg-white/10"
-                          >
-                            <span className="font-medium">{album.title}</span>
-                            <span className="text-sm text-gray-400">{album.artist}</span>
-                          </DropdownMenuItem>
-                        ))}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        )}
+
 
         {/* Hero Section */}
         <div className="flex-1 flex items-center justify-center p-8">
@@ -286,17 +252,7 @@ export function AlbumViewEnhanced({ feedUrl }: AlbumViewEnhancedProps) {
                     )}
                   </button>
                   
-                  {/* V4V Payment Button */}
-                  {albumData.value?.destinations && (
-                    <V4VPaymentButton
-                      valueDestinations={albumData.value.destinations}
-                      feedUrl={feedUrl}
-                      totalAmount={100}
-                      contentTitle={albumData.title}
-                      feedId={`album-${albumData.title}`}
-                      className="bg-transparent border-2 border-white/30 text-white hover:bg-white/10 px-8 py-4 rounded-full transition-all duration-300 flex items-center space-x-2"
-                    />
-                  )}
+
                 </div>
               </div>
             </div>
@@ -331,17 +287,6 @@ export function AlbumViewEnhanced({ feedUrl }: AlbumViewEnhancedProps) {
                     </div>
                   </div>
                   <div className="flex items-center space-x-6">
-                    {/* Track-specific V4V Payment */}
-                    {(track.value?.destinations || albumData.value?.destinations) && (
-                      <V4VPaymentButton
-                        valueDestinations={track.value?.destinations || albumData.value?.destinations}
-                        feedUrl={track.feedUrl}
-                        totalAmount={21}
-                        contentTitle={`${track.title} - ${albumData.title}`}
-                        feedId={track.id.toString()}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity"
-                      />
-                    )}
                     <span className="text-gray-400 font-mono">{formatDuration(track.duration)}</span>
                   </div>
                 </div>
