@@ -17,7 +17,7 @@ export function TrackList({ tracks, artist, onTrackPlay, isTrackPlaying }: Track
 
   return (
     <div className="p-8">
-      <div className="max-w-4xl mx-auto bg-black/60 backdrop-blur-lg rounded-3xl p-8 shadow-2xl">
+      <div className="max-w-4xl mx-auto bg-black/30 backdrop-blur-sm rounded-3xl p-8 shadow-2xl">
         <h3 className="text-2xl font-bold mb-6 text-center">Track List</h3>
         <div className="space-y-1">
           {tracks.map((track, index) => (
