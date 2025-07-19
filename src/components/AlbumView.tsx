@@ -122,9 +122,10 @@ export function AlbumView({ feedUrl }: AlbumViewProps) {
   return (
     <div className="space-y-6 p-4 max-w-6xl mx-auto">
 
-      {/* Album Selector - Left Aligned */}
+      {/* Header Section with All Albums and Selector */}
       {!feedUrl && (
-        <div className="flex justify-start">
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold">All Albums</h1>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="flex items-center gap-2">
@@ -133,7 +134,7 @@ export function AlbumView({ feedUrl }: AlbumViewProps) {
                 <ChevronDown className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-64">
+            <DropdownMenuContent align="end" className="w-64">
               {FEATURED_ALBUMS.map((album) => (
                 <DropdownMenuItem
                   key={album.id}
