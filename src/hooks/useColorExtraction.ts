@@ -20,6 +20,7 @@ export const useColorExtraction = (imageUrl: string | undefined) => {
 
     const extractColors = async () => {
       setIsLoading(true);
+      console.log('🎨 Starting color extraction for:', imageUrl);
       try {
         const colorThief = new ColorThief();
         const img = new Image();
@@ -45,12 +46,15 @@ export const useColorExtraction = (imageUrl: string | undefined) => {
             const secondary = paletteHex[1] || primary;
             const accent = paletteHex[2] || secondary;
 
-            setColors({
+            const extractedColors = {
               primary,
               secondary,
               accent,
               palette: paletteHex
-            });
+            };
+            
+            console.log('🎨 Colors extracted successfully:', extractedColors);
+            setColors(extractedColors);
           } catch (error) {
             console.error('Error extracting colors:', error);
             setColors(null);
@@ -58,7 +62,7 @@ export const useColorExtraction = (imageUrl: string | undefined) => {
         };
 
         img.onerror = () => {
-          console.error('Failed to load image for color extraction');
+          console.error('🎨 Failed to load image for color extraction:', imageUrl);
           setColors(null);
         };
 

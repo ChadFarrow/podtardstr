@@ -47,14 +47,23 @@ export function AlbumBackground({ artwork, children }: AlbumBackgroundProps) {
           colors && !isLoading
             ? {
                 background: `linear-gradient(135deg, 
-                  ${colors.primary}40 0%, 
-                  ${colors.secondary}30 50%, 
-                  ${colors.accent}20 70%,
-                  #000000e6 100%)`
+                  ${colors.primary}60 0%, 
+                  ${colors.secondary}50 50%, 
+                  ${colors.accent}40 70%,
+                  #000000cc 100%)`
               }
             : {}
         }
       />
+      
+      {/* Debug: Show extracted colors */}
+      {colors && !isLoading && (
+        <div className="absolute top-4 right-4 z-50 bg-black/80 p-2 rounded text-xs text-white">
+          <div>Primary: {colors.primary}</div>
+          <div>Secondary: {colors.secondary}</div>
+          <div>Accent: {colors.accent}</div>
+        </div>
+      )}
       
       {/* Subtle Pattern Overlay for Texture */}
       {colors && (
