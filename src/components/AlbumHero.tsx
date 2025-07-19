@@ -56,6 +56,12 @@ export function AlbumHero({
                   alt={title}
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                 />
+                
+                {/* Always visible play indicator in corner */}
+                <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-sm rounded-full p-2 opacity-60 group-hover:opacity-100 transition-opacity duration-300">
+                  <Play size={20} className="text-white" />
+                </div>
+                
                 <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-all duration-300 flex items-center justify-center">
                   <button 
                     className="opacity-0 group-hover:opacity-100 transform scale-50 group-hover:scale-100 transition-all duration-500 text-white rounded-full p-6 shadow-2xl"
