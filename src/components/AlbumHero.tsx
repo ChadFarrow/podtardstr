@@ -57,7 +57,13 @@ export function AlbumHero({
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                 />
                 <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-all duration-300 flex items-center justify-center">
-                  <button className="opacity-0 group-hover:opacity-100 transform scale-50 group-hover:scale-100 transition-all duration-500 bg-red-600 hover:bg-red-500 text-white rounded-full p-6 shadow-2xl">
+                  <button 
+                    className="opacity-0 group-hover:opacity-100 transform scale-50 group-hover:scale-100 transition-all duration-500 text-white rounded-full p-6 shadow-2xl"
+                    style={{
+                      background: `var(--album-primary, #dc2626)`,
+                      boxShadow: `0 0 30px var(--album-primary, #dc2626)40`
+                    }}
+                  >
                     {isPlaying ? (
                       <Pause size={40} />
                     ) : (
@@ -71,7 +77,11 @@ export function AlbumHero({
             {/* Play Album Button under artwork */}
             <button 
               onClick={onPlayAlbum}
-              className="bg-red-600 hover:bg-red-500 text-white font-bold px-12 py-4 rounded-full transition-all duration-300 hover:scale-105 hover:shadow-2xl flex items-center space-x-3 text-lg"
+              className="text-white font-bold px-12 py-4 rounded-full transition-all duration-300 hover:scale-105 hover:shadow-2xl flex items-center space-x-3 text-lg"
+              style={{
+                background: `var(--album-primary, #dc2626)`,
+                boxShadow: `0 10px 30px var(--album-primary, #dc2626)30`
+              }}
             >
               {isPlaying ? (
                 <><Pause size={24} /><span>Pause Album</span></>
@@ -84,7 +94,12 @@ export function AlbumHero({
           {/* Album Details */}
           <div className="text-center lg:text-left space-y-6">
             <div>
-              <p className="text-red-400 font-semibold tracking-wider uppercase text-sm mb-2">Featured Album</p>
+              <p 
+                className="font-semibold tracking-wider uppercase text-sm mb-2"
+                style={{ color: `var(--album-accent, #f87171)` }}
+              >
+                Featured Album
+              </p>
               <h1 className="text-5xl lg:text-7xl font-black text-white mb-4 leading-tight">{title}</h1>
               <h2 className="text-2xl lg:text-3xl text-gray-300 font-light mb-6">{artist}</h2>
             </div>

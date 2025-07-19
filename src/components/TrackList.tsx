@@ -17,7 +17,13 @@ export function TrackList({ tracks, artist, onTrackPlay, isTrackPlaying }: Track
 
   return (
     <div className="p-8">
-      <div className="max-w-4xl mx-auto bg-black/30 backdrop-blur-sm rounded-3xl p-8 shadow-2xl">
+      <div 
+        className="max-w-4xl mx-auto backdrop-blur-sm rounded-3xl p-8 shadow-2xl"
+        style={{
+          background: `linear-gradient(135deg, rgba(0,0,0,0.4) 0%, var(--album-primary, #000000)20 50%, rgba(0,0,0,0.6) 100%)`,
+          border: `1px solid var(--album-accent, #ffffff)20`
+        }}
+      >
         <h3 className="text-2xl font-bold mb-6 text-center">Track List</h3>
         <div className="space-y-1">
           {tracks.map((track, index) => (
@@ -30,7 +36,10 @@ export function TrackList({ tracks, artist, onTrackPlay, isTrackPlaying }: Track
                 <div className="w-8 text-center">
                   {isTrackPlaying(track) ? (
                     <div className="flex items-center justify-center">
-                      <div className="w-4 h-4 bg-red-500 rounded-full animate-pulse"></div>
+                      <div 
+                        className="w-4 h-4 rounded-full animate-pulse"
+                        style={{ backgroundColor: `var(--album-primary, #ef4444)` }}
+                      ></div>
                     </div>
                   ) : (
                     <span className="text-gray-400 group-hover:hidden text-lg">{index + 1}</span>
