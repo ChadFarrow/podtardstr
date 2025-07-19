@@ -221,11 +221,11 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
                 >
                   <Link
                     to={`/albums?feed=${encodeURIComponent(album.feedUrl)}`}
-                    className="absolute inset-0"
+                    className="absolute inset-0 z-10"
                   />
-                  <Disc size={20} className="relative z-10" />
-                  <div className="flex-1 min-w-0 relative z-10">
-                    <span className="font-medium truncate">{album.title}</span>
+                  <Disc size={20} className="relative z-20" />
+                  <div className="flex-1 min-w-0 relative z-20">
+                    <span className="font-medium block leading-tight">{album.title}</span>
                   </div>
                   <button
                     onClick={(e) => {
@@ -233,7 +233,7 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
                       e.stopPropagation();
                       unpinAlbum(album.id);
                     }}
-                    className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-white/10 rounded relative z-20"
+                    className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-white/10 rounded flex-shrink-0 relative z-30"
                   >
                     <X size={12} className="text-gray-500 hover:text-white" />
                   </button>
