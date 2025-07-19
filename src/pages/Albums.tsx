@@ -186,56 +186,56 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
             <nav className="space-y-2">
               <Link
                 to="/"
-                className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-all duration-200"
+                className="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-all duration-200"
               >
                 <Home size={20} />
                 <span className="font-medium">Back to Main App</span>
               </Link>
+              
               <Link
                 to="/albums"
-                className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-white bg-white/10"
+                className="flex items-center space-x-3 px-4 py-3 rounded-lg text-white bg-white/10"
               >
                 <Disc size={20} />
                 <span className="font-medium">All Albums</span>
               </Link>
+              
               <Link
                 to="/albums/bloodshot-lies"
-                className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-all duration-200"
+                className="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-all duration-200"
               >
                 <Disc size={20} />
                 <span className="font-medium">Bloodshot Lies</span>
               </Link>
+              
               <Link
                 to="/albums/heycitizen-experience"
-                className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-all duration-200"
+                className="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-all duration-200"
               >
                 <Disc size={20} />
                 <span className="font-medium">HeyCitizen Experience</span>
               </Link>
 
-              {/* Pinned Albums - Display as individual navigation items */}
+              {/* Pinned Albums */}
               {pinnedAlbums.map((album) => (
-                <div
+                <Link
                   key={album.id}
-                  className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-all duration-200 group relative"
+                  to={`/albums?feed=${encodeURIComponent(album.feedUrl)}`}
+                  className="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-all duration-200 group"
                 >
-                  <Link
-                    to={`/albums?feed=${encodeURIComponent(album.feedUrl)}`}
-                    className="absolute inset-0 z-10"
-                  />
-                  <Disc size={20} className="relative z-20" />
-                  <span className="font-medium block leading-tight flex-1 min-w-0 relative z-20">{album.title}</span>
+                  <Disc size={20} />
+                  <span className="font-medium flex-1">{album.title}</span>
                   <button
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
                       unpinAlbum(album.id);
                     }}
-                    className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-white/10 rounded flex-shrink-0 relative z-30"
+                    className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-white/10 rounded"
                   >
                     <X size={12} className="text-gray-500 hover:text-white" />
                   </button>
-                </div>
+                </Link>
               ))}
             </nav>
             
