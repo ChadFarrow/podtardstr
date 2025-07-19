@@ -71,7 +71,17 @@ const OTHER_ALBUMS = [
 export function AlbumViewEnhanced({ feedUrl }: AlbumViewEnhancedProps) {
   const currentFeedUrl = feedUrl || FEATURED_ALBUMS[0].feedUrl;
   
+  console.log('🎵 AlbumViewEnhanced: Loading feed URL:', currentFeedUrl);
+  
   const { data: albumData, isLoading, error } = useAlbumFeed(currentFeedUrl);
+  
+  console.log('🎵 AlbumViewEnhanced: Hook result:', { 
+    isLoading, 
+    hasError: !!error, 
+    hasData: !!albumData,
+    trackCount: albumData?.tracks?.length || 0,
+    firstTrackDuration: albumData?.tracks?.[0]?.duration || 'N/A'
+  });
   const { currentPodcast, isPlaying, playPodcast, setIsPlaying, addToQueue, clearQueue } = usePodcastPlayer();
 
   const formatDuration = (seconds: number) => {
