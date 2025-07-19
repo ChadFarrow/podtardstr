@@ -207,20 +207,14 @@ export function PodcastPlayer() {
               if (hasUserInteracted) {
                 setIsPlaying(false);
               }
-            } else {
-              // Non-iOS browsers
-              if (hasUserInteracted) {
-                setIsPlaying(false);
-              }
             }
           } else if (error.name === 'AbortError' || error.message.includes('aborted')) {
-            // Handle fetch aborted errors - this is often normal when switching tracks
-            console.log('Audio fetch was aborted (likely due to track switching)');
-            // Don't change playing state for abort errors as they're usually intentional
+            console.log('Audio fetch was aborted (likely due to rapid track switching) - this is normal');
+            // Don't change the playing state for abort errors - they're usually due to rapid clicking
+            return;
           } else if (error.name === 'NetworkError' || error.message.includes('network')) {
             console.error('Network error loading audio:', error.message);
             setIsPlaying(false);
-            // Could show a toast notification here
           } else if (error.name === 'NotSupportedError') {
             console.error('Audio format not supported:', error.message);
             setIsPlaying(false);

@@ -1,20 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useAlbumFeed } from '@/hooks/useAlbumFeed';
 import { SecureImage } from '@/components/SecureImage';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Button } from '@/components/ui/button';
-import { Play, Pause, Heart, ExternalLink, ChevronDown, Music, Clock, Shuffle, SkipBack, SkipForward, Repeat, Volume2 } from 'lucide-react';
+import { Play, Pause, Music } from 'lucide-react';
 import { htmlToText } from '@/lib/html-utils';
 import { usePodcastPlayer } from '@/hooks/usePodcastPlayer';
 import { useMusicPlayback } from '@/hooks/useMusicPlayback';
 import type { AlbumTrack } from '@/hooks/useAlbumFeed';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 
 interface AlbumViewEnhancedProps {
   feedUrl?: string;
@@ -76,16 +69,10 @@ const OTHER_ALBUMS = [
 ];
 
 export function AlbumViewEnhanced({ feedUrl }: AlbumViewEnhancedProps) {
-  const [selectedAlbumId, setSelectedAlbumId] = useState(feedUrl ? 'custom' : 'bloodshot-lies');
-  const [customFeedUrl, setCustomFeedUrl] = useState(feedUrl || '');
-  
-  const currentFeedUrl = selectedAlbumId === 'custom' ? customFeedUrl : 
-    FEATURED_ALBUMS.find(album => album.id === selectedAlbumId)?.feedUrl || 
-    FEATURED_ALBUMS[0].feedUrl;
+  const currentFeedUrl = feedUrl || FEATURED_ALBUMS[0].feedUrl;
   
   const { data: albumData, isLoading, error } = useAlbumFeed(currentFeedUrl);
   const { currentPodcast, isPlaying, playPodcast, setIsPlaying, addToQueue, clearQueue } = usePodcastPlayer();
-  const { loadingTrackId } = useMusicPlayback();
 
   const formatDuration = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
@@ -199,7 +186,6 @@ export function AlbumViewEnhanced({ feedUrl }: AlbumViewEnhancedProps) {
     );
   }
 
-  const selectedAlbum = FEATURED_ALBUMS.find(album => album.id === selectedAlbumId);
   const totalDuration = albumData?.tracks.reduce((acc, track) => acc + (track.duration || 0), 0) || 0;
   const currentYear = new Date().getFullYear();
   
