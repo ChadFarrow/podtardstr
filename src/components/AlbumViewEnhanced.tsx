@@ -108,17 +108,31 @@ export function AlbumViewEnhanced({ feedUrl }: AlbumViewEnhancedProps) {
       return;
     }
 
-    // Play the new track
-    const podcastEpisode = {
-      id: trackId,
-      title: track.title,
-      author: track.albumArtist || albumData?.artist || '',
-      url: track.enclosureUrl,
-      imageUrl: track.albumArt || track.image || albumData?.artwork || '',
-      duration: track.duration,
-    };
+    // Clear existing queue and set up new queue starting from this track
+    clearQueue();
+    
+    // Find the index of the clicked track
+    const clickedTrackIndex = albumData?.tracks.findIndex(t => t.id.toString() === trackId) || 0;
+    
+    // Convert all tracks starting from the clicked track to the format expected by the player
+    const tracksFromThisPoint = albumData?.tracks.slice(clickedTrackIndex).map(t => ({
+      id: t.id.toString(),
+      title: t.title,
+      author: t.albumArtist || albumData?.artist || '',
+      url: t.enclosureUrl,
+      imageUrl: t.albumArt || t.image || albumData?.artwork || '',
+      duration: t.duration,
+    })) || [];
+    
+    // Add remaining tracks to queue (excluding the first one which we'll play directly)
+    tracksFromThisPoint.slice(1).forEach(trackData => {
+      addToQueue(trackData);
+    });
 
-    playPodcast(podcastEpisode);
+    // Play the clicked track
+    if (tracksFromThisPoint.length > 0) {
+      playPodcast(tracksFromThisPoint[0]);
+    }
   };
 
   const handleAlbumPlay = () => {
@@ -186,8 +200,18 @@ export function AlbumViewEnhanced({ feedUrl }: AlbumViewEnhancedProps) {
   }
 
   const selectedAlbum = FEATURED_ALBUMS.find(album => album.id === selectedAlbumId);
-  const totalDuration = albumData.tracks.reduce((acc, track) => acc + (track.duration || 0), 0);
+  const totalDuration = albumData?.tracks.reduce((acc, track) => acc + (track.duration || 0), 0) || 0;
   const currentYear = new Date().getFullYear();
+  
+  const formatTotalDuration = (seconds: number) => {
+    if (seconds === 0) return 'Unknown duration';
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    if (hours > 0) {
+      return `${hours}h ${minutes}m`;
+    }
+    return `${minutes}m`;
+  };
 
   return (
     <div className="min-h-screen bg-black text-white overflow-hidden relative">
@@ -251,7 +275,7 @@ export function AlbumViewEnhanced({ feedUrl }: AlbumViewEnhancedProps) {
                 <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 text-sm text-gray-400">
                   <span className="bg-black/50 px-3 py-1 rounded-full">{currentYear}</span>
                   <span className="bg-black/50 px-3 py-1 rounded-full">{albumData.tracks.length} tracks</span>
-                  <span className="bg-black/50 px-3 py-1 rounded-full">{formatDuration(totalDuration)}</span>
+                  <span className="bg-black/50 px-3 py-1 rounded-full">{formatTotalDuration(totalDuration)}</span>
                 </div>
                 
                 <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-4">
