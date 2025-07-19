@@ -87,7 +87,7 @@ export function AlbumRecommendations({ podroll, currentFeedUrl }: AlbumRecommend
       'https://wavlake.com/feed/music/d677db67-0310-4813-970e-e65927c689f1': '/albums/tinderbox',
       'https://static.staticsave.com/mspfiles/deathdreams.xml': '/albums/deathdreams',
       'https://music.behindthesch3m3s.com/wp-content/uploads/Mike_Epting/$2Holla/pony%20up%20daddy.xml': '/albums/pony-up-daddy',
-      'https://whiterabbitrecords.org/wp-content/uploads/2023/04/Empty-Passenger-Seat.xml': '/albums/empty-passenger-seat',
+      'https://www.wavlake.com/feed/95ea253a-4058-402c-8503-204f6d3f1494': '/albums/empty-passenger-seat',
       'https://www.doerfelverse.com/feeds/ben-doerfel.xml': '/albums/ben-doerfel',
       'https://www.doerfelverse.com/feeds/intothedoerfelverse.xml': '/albums/into-the-doerfelverse',
       'https://www.sirtjthewrathful.com/wp-content/uploads/2023/08/Kurtisdrums-V1.xml': '/albums/kurtisdrums-v1',

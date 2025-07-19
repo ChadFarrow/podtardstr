@@ -163,9 +163,9 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
     {
       id: 'empty-passenger-seat',
       title: 'Empty Passenger Seat',
-      artist: 'White Rabbit Records',
-      artwork: 'https://whiterabbitrecords.org/wp-content/uploads/2023/04/empty-passenger-seat-artwork.jpg',
-      feedUrl: 'https://whiterabbitrecords.org/wp-content/uploads/2023/04/Empty-Passenger-Seat.xml',
+      artist: 'Joe Martin',
+      artwork: 'https://d12wklypp119aj.cloudfront.net/image/95ea253a-4058-402c-8503-204f6d3f1494.jpg',
+      feedUrl: 'https://www.wavlake.com/feed/95ea253a-4058-402c-8503-204f6d3f1494',
       description: 'Indie rock journeys through solitude and self-discovery.'
     },
     {
