@@ -282,10 +282,23 @@ export function PodcastPlayer() {
     // Track which podcast is now loaded
     setLoadedPodcastId(currentPodcast.id);
     
-    // If this track change was triggered by autoplay, log it
-    console.log('🎵 Track loaded for autoplay. isPlaying state:', isPlaying);
+    // If this track change was triggered and we should be playing, start playback
+    console.log('🎵 Track loaded. isPlaying state:', isPlaying);
+    if (isPlaying) {
+      console.log('🎵 Auto-starting playback for new track');
+      // Use a small delay to ensure audio source is set properly
+      setTimeout(() => {
+        if (audio.src === currentPodcast.url) {
+          audio.play().then(() => {
+            console.log('🎵 New track auto-play successful:', currentPodcast.title);
+          }).catch((error) => {
+            console.error('🎵 New track auto-play failed:', error);
+          });
+        }
+      }, 100);
+    }
 
-  }, [currentPodcast?.id, currentPodcast?.url, setCurrentTime, setDuration, loadedPodcastId, currentPodcast]);
+  }, [currentPodcast?.id, currentPodcast?.url, setCurrentTime, setDuration, loadedPodcastId, currentPodcast, isPlaying]);
 
   useEffect(() => {
     const audio = audioRef.current;
