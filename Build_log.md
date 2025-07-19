@@ -5,8 +5,8 @@
 ## 🔖 Quick Reference for Future Sessions (as of July 19, 2025)
 
 ### **Current Status**
-- **Version:** 1.153 (auto-increments on commits)
-- **Status:** 🟢 Production Ready - Enhanced Albums Page with PodRoll Support
+- **Version:** 1.167 (auto-increments on commits)
+- **Status:** 🟢 Production Ready - Enhanced Albums + Skip Button Fix + PodRoll Navigation
 - **Production URL:** https://app.podtards.com (main branch - production)
 - **Preview URL:** https://podtardstr.vercel.app (main branch - preview)
 - **Repo:** https://github.com/ChadFarrow/podtardstr
@@ -31,8 +31,13 @@
 ✅ **Enhanced Albums Page** - Immersive design with album art backgrounds and dark theme  
 ✅ **PodRoll Support** - Podcast 2.0 recommendations from RSS feeds  
 ✅ **Dark Theme Player** - Consistent red/black theme across player components  
+✅ **Component Architecture** - Modular, focused components with single responsibility  
 
 ### **Recent Critical Changes (Reference for Context)**
+- **Manual Skip Button Fix:** Fixed skip button playback issue where tracks would change but not start playing automatically (July 19, 2025)
+- **PodRoll Navigation Enhancement:** Made PodRoll recommendations clickable to navigate to album pages with same immersive functionality (July 19, 2025)
+- **AlbumRecommendations UI Polish:** Changed title to "Recommended" and added image debugging for better UX (July 19, 2025)
+- **Major Component Refactoring:** Broke down AlbumViewEnhanced.tsx (467 lines) into 5 focused components for better maintainability (July 19, 2025)
 - **Enhanced Albums Page Implementation:** Complete rebuild of albums page using immersive design with album art backgrounds and dark theme styling (July 19, 2025)
 - **PodRoll Support Added:** Full support for Podcast 2.0 PodRoll recommendations with automatic RSS feed parsing and display (July 19, 2025)
 - **Consistent Dark Theme Player:** Updated all player components to match red/black color scheme across entire application (July 19, 2025)
@@ -90,9 +95,15 @@
   - `V4VPaymentButton.tsx` - Payment logic and boost modal
   - `MusicGrid.tsx` - Grid layout and rendering
   - `PlayAllButton.tsx` - Play all functionality
+  - `AlbumBackground.tsx` - Background styling and overlay
+  - `AlbumHero.tsx` - Album art display and details
+  - `TrackList.tsx` - Track listing with controls
+  - `AlbumRecommendations.tsx` - PodRoll and static album recommendations
+  - `AlbumControls.tsx` - Custom hook for album playback logic
 - **Custom Hooks:** Separated business logic from UI components
   - `useMusicPlayback.ts` - Play/pause logic and state management
   - `usePlayAll.ts` - Queue management and batch playback
+  - `useAlbumControls.ts` - Album-specific playback controls
 - **Payment Utils:** `src/lib/payment-utils.ts` handles all Lightning payment logic
 - **Player State:** `src/hooks/usePodcastPlayer.ts` for global audio management
 - **Platform Detection:** In NowPlayingModal.tsx for Wavlake/LNBeats linking
@@ -132,9 +143,9 @@
 ## 🎯 Project Overview
 **Podtardstr** - A Nostr-based music discovery application with Value4Value (V4V) Lightning payments integrated.
 
-**Last Updated**: July 2025  
-**Version**: 1.153  
-**Status**: 🟢 Production Ready - Enhanced Albums + PodRoll
+**Last Updated**: July 19, 2025  
+**Version**: 1.167  
+**Status**: 🟢 Production Ready - Enhanced Albums + Skip Button Fix + PodRoll Navigation
 
 ---
 
@@ -169,6 +180,7 @@
 | **Split Count Display** | ✅ Complete | Recipient count visible on all boost buttons |
 | **LNBeats URL Fix** | ✅ Complete | Working album links using podcast GUID format |
 | **Enhanced Visual Hierarchy** | ✅ Complete | Proportional spacing and responsive grid layout |
+| **Component Architecture** | ✅ Complete | Modular, focused components with single responsibility |
 
 ### 🔄 **In Progress**
 | Feature | Status | Progress | Notes |
@@ -266,6 +278,60 @@
 ---
 
 ## 🎯 Recent Achievements
+
+### **July 19, 2025 - Version 1.167 - Skip Button Fix & PodRoll Navigation Polish**
+- ✅ **Manual Skip Button Fix**: Resolved critical issue where skip buttons changed tracks but didn't start playback automatically
+- ✅ **Auto-Play on Track Change**: Added explicit audio.play() call when new tracks load with isPlaying=true state
+- ✅ **Play Effect Enhancement**: Updated dependency array to trigger play effect when tracks change via skip buttons
+- ✅ **PodRoll Navigation Enhancement**: Made PodRoll recommendations fully clickable to navigate to album pages
+- ✅ **React Router Integration**: Used navigate() hook for smooth transitions between album pages instead of window.open()
+- ✅ **Consistent Album Experience**: All PodRoll items now open with same immersive album page functionality
+- ✅ **UI Polish**: Changed "Recommended Podcasts" title to "Recommended" for cleaner interface
+- ✅ **Image Debugging**: Added console logging to track image loading success/failure for PodRoll artwork
+- ✅ **Debug Cleanup**: Removed debug information from production UI for cleaner user experience
+- ✅ **Seamless Discovery**: Users can now easily explore different podcasts with consistent interface
+
+### **July 19, 2025 - Version 1.166 - Major Component Refactoring**
+- ✅ **AlbumViewEnhanced Refactoring**: Broke down large 467-line component into 5 focused, single-responsibility components
+- ✅ **AlbumBackground Component**: Extracted background styling and overlay logic (25 lines)
+- ✅ **AlbumHero Component**: Separated album art display and details section (95 lines)
+- ✅ **TrackList Component**: Created dedicated track listing component (55 lines)
+- ✅ **AlbumRecommendations Component**: Extracted PodRoll and static album recommendations (120 lines)
+- ✅ **AlbumControls Hook**: Created custom hook for album playback logic (130 lines)
+- ✅ **Main Component Reduction**: AlbumViewEnhanced reduced from 467 to 85 lines (82% reduction)
+- ✅ **Improved Maintainability**: Each component has clear, focused responsibility
+- ✅ **Enhanced Reusability**: Components can be used in other contexts
+- ✅ **Better Testing**: Smaller components are easier to test in isolation
+- ✅ **Reduced Coupling**: Changes to one component don't affect others
+- ✅ **TypeScript Interfaces**: More specific interfaces for each component
+- ✅ **Code Organization**: Clear separation of UI, logic, and data fetching
+
+### **July 19, 2025 - Version 1.165 - PodRoll Navigation & Image Fixes**
+- ✅ **PodRoll Navigation**: Fixed PodRoll recommendations to navigate to album pages instead of opening new tabs
+- ✅ **React Router Integration**: Used navigate() hook for smooth transitions between album pages
+- ✅ **URL Parameter Handling**: Album pages now properly handle feed URL parameters for dynamic content
+- ✅ **Image Debugging**: Added console logging to track image loading success/failure for PodRoll items
+- ✅ **Title Simplification**: Changed "Recommended Podcasts" to "Recommended" for cleaner UI
+- ✅ **Debug Info Removal**: Cleaned up debug information from production UI
+- ✅ **Fallback Artwork**: Enhanced PodRoll items with music-themed stock images when no artwork available
+- ✅ **Cache Busting**: Updated query keys to ensure fresh data loading
+- ✅ **Navigation Consistency**: All PodRoll items now open in the same immersive album interface
+
+### **July 19, 2025 - Version 1.164 - PodRoll Cache & Debugging**
+- ✅ **PodRoll Cache Issues**: Added debugging to identify why PodRoll section reverts to static content
+- ✅ **Cache Version Updates**: Incremented query keys to force fresh data loading
+- ✅ **Debug Information**: Added real-time debug info showing PodRoll item count and feed source
+- ✅ **Cache Strategy**: Reduced cache times for debugging PodRoll data loading
+- ✅ **Feed URL Tracking**: Debug info shows which RSS feed is currently loaded
+- ✅ **PodRoll Detection**: Real-time display of whether PodRoll data exists or not
+
+### **July 19, 2025 - Version 1.163 - PodRoll Fallback Artwork**
+- ✅ **Fallback Artwork System**: Added 6 different music-themed stock images for PodRoll items without artwork
+- ✅ **Varied Images**: Each recommendation gets a different image (banjo, drums, guitar, beach/indie, strings, microphone)
+- ✅ **Enhanced Logging**: Added detailed logging to track which items get fallback images
+- ✅ **Cache Busting**: Updated query key to ensure changes take effect immediately
+- ✅ **Visual Consistency**: PodRoll recommendations now have consistent, appealing artwork
+- ✅ **Music Theme**: All fallback images are music-themed to match the application's purpose
 
 ### **July 19, 2025 - Version 1.132 - Album Artwork & Feed Processing Fixes**
 - ✅ **HeyCitizen Album Artwork Fixed**: Completely resolved missing album artwork for "The HeyCitizen Experience" album
@@ -423,14 +489,14 @@
 ## 🚀 Next Steps
 
 ### **Immediate (This Week)**
-1. **Test Autoplay**: Verify autoplay works consistently across different browsers and devices
-2. **Test Queue Ordering**: Confirm "Play All" maintains proper 1→2→3→4 sequential order
-3. **User Testing**: Gather feedback on improved autoplay and queue experience
+1. **Test Skip Button Fix**: Verify manual skip buttons now properly start playback on track change
+2. **Test PodRoll Navigation**: Confirm PodRoll recommendations navigate smoothly to album pages
+3. **User Testing**: Gather feedback on improved navigation and playback experience
 
 ### **Short Term (Next 2 Weeks)**
-1. **Performance Optimization**: Implement code splitting
+1. **Performance Optimization**: Implement code splitting for refactored components
 2. **Offline Mode**: Enhance PWA offline capabilities
-3. **User Testing**: Gather feedback on APK experience
+3. **User Testing**: Gather feedback on improved component architecture
 
 ### **Medium Term (Next Month)**
 1. **iOS App**: Generate iOS app using Capacitor
@@ -447,79 +513,6 @@
 - [x] Mobile-responsive design
 - [x] PWA installable
 - [x] APK buildable
-- [x] TLV app name always set for all Lightning payments
-- [x] Mobile viewport optimized (no zoom/scroll issues)
-- [x] Wavlake direct album linking
-- [x] LNBeats direct album linking
-- [x] Configurable user names for payments
-- [x] Dark mode enforced throughout app
-- [x] Message support in Lightning payments
-- [x] Single-click play functionality
-- [x] Fixed bottom player positioning
-- [x] Modular component architecture with single responsibilities
-- [x] Reduced coupling between features
-
-### **Feature Goals**
-- [x] Top 100 V4V music discovery
-- [x] Lightning payment integration
-- [x] Nostr social features
-- [x] Podcast player with queue
-- [x] Cross-platform compatibility
-- [x] User name customization
-- [x] Music platform integration (Wavlake, LNBeats)
-- [x] Message support for payments
-
-### **User Experience Goals**
-- [x] Fast loading times
-- [x] Intuitive navigation
-- [x] Reliable audio playback
-- [x] Seamless payment flow
-- [x] Mobile-optimized interface
-- [x] Personalized payment experience
-- [x] Single-click play functionality
-- [x] Fixed player positioning
-- [x] Enhanced message support
-- [x] Maintainable codebase for future improvements
-
----
-
-## 🔗 Quick Links
-
-- **Preview App**: https://podtardstr.vercel.app (main branch - preview)
-- **Production App**: https://app.podtards.com (main branch - production)
-- **Repository**: https://github.com/ChadFarrow/podtardstr
-- **Documentation**: `README.md`, `APK_BUILD.md`, `DEPLOYMENT.md`
-- **Known Issues**: `.cursorrules` (Known Issues section)
-- **Build Scripts**: `scripts/build-apk.sh`
-
----
-
-## 📝 Notes
-
-- **Last Test Run**: All 15 tests passing ✅
-- **Last Build**: Successful production build ✅
-- **Last Deployment**: Version 1.132 deployed to production ✅
-- **APK Status**: Ready for generation (requires Java JDK) ✅
-- **Version**: 1.153 (auto-increments on commits) ✅
-- **Enhanced Albums Page**: ✅ IMPLEMENTED - Immersive design with album art backgrounds and dark theme
-- **PodRoll Support**: ✅ ADDED - Podcast 2.0 recommendations from RSS feeds with interactive display
-- **Dark Theme Consistency**: ✅ UPDATED - All player components match red/black color scheme
-- **Album Queue Management**: ✅ FIXED - Proper track queueing for autoplay functionality
-- **Navigation Text**: ✅ UPDATED - Changed to "Bloodshot Lies Album" and removed boost functionality
-- **Audio Playback**: ✅ FIXED - Tracks now play on both mobile and web via server-side proxy
-- **API Security**: ✅ ENHANCED - Podcast Index credentials moved to server-side only
-- **CORS Issues**: ✅ RESOLVED - Server-side proxy eliminates browser CORS restrictions
-- **Bitcoin Connect Modal**: ✅ FIXED - Event-driven connection, no page refresh needed with Alby extension
-- **Payment Error State**: ✅ FIXED - Auto-clear error state on modal open/close, no persistent errors
-- **Progress Bar Seeking**: ✅ FIXED - Click to seek works properly, removed blocking overlay
-- **Mobile Safe Area**: ✅ ADDED - Safe area insets prevent status bar collisions
-- **Platform Link Order**: ✅ UPDATED - LNBeats now appears above Wavlake in Now Playing modal
-- **Mobile Refresh Loop**: ✅ FIXED - Bitcoin Connect disabled on mobile, service worker less aggressive
-- **Payment Progress**: ✅ ADDED - Real-time visual progress tracking for boost payments
-- **Mobile UX**: ✅ IMPROVED - Clear messaging about desktop-only Lightning payments
-- **Autoplay**: ✅ COMPLETELY FIXED - Working with sequential queue ordering
-- **Queue Ordering**: ✅ FIXED - "Play All" maintains proper 1→2→3 sequence
-- **HeyCitizen Album Artwork**: ✅ FIXED - Enhanced RSS parser with iTunes namespace handling for missing album artwork
-- **Album Feed Processing**: ✅ ENHANCED - Improved V4V destination mapping and custom album view logic
-
-**Project Health**: 🟢 **Excellent** - Production ready! All core features complete with enhanced albums page featuring immersive album art backgrounds and dark theme. Added PodRoll support for Podcast 2.0 recommendations with automatic RSS parsing and interactive display. Updated all player components to match consistent red/black color scheme. Fixed album playback queue management for proper autoplay functionality. Updated navigation text and removed boost functionality from albums page. Enhanced RSS feed parsing with iTunes namespace support, Bitcoin Connect modal fixed (no page refresh needed with Alby extension), payment error state properly managed (no persistent errors), progress bar seeking working correctly, mobile safe area support added for proper display, modular component architecture implemented, audio playback working on all platforms, CORS issues resolved via server-side proxy, API security enhanced, autoplay working perfectly, sequential queue ordering fixed, PWA fully functional, LNBeats & Wavlake integration, message support, user name customization implemented, reduced coupling between features for better maintainability. Enhanced user experience with immersive album viewing, podcast recommendations, seamless wallet connections, proper error handling, and complete album artwork support. Ready for user testing and broader deployment. 
+- [x] Modular component architecture
+- [x] Single responsibility components
+- [x] Reduced component coupling 
