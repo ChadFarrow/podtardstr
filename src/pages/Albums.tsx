@@ -178,6 +178,62 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
       artwork: 'https://whiterabbitrecords.org/wp-content/uploads/2023/04/empty-passenger-seat-artwork.jpg',
       feedUrl: 'https://whiterabbitrecords.org/wp-content/uploads/2023/04/Empty-Passenger-Seat.xml',
       description: 'Indie rock journeys through solitude and self-discovery.'
+    },
+    {
+      id: 'ben-doerfel',
+      title: 'Ben Doerfel',
+      artist: 'Ben Doerfel',
+      artwork: '/placeholder-album.png',
+      feedUrl: 'https://www.doerfelverse.com/feeds/ben-doerfel.xml',
+      description: 'Solo work from Ben Doerfel'
+    },
+    {
+      id: 'into-the-doerfelverse',
+      title: 'Into the Doerfelverse',
+      artist: 'The Doerfels',
+      artwork: '/placeholder-album.png',
+      feedUrl: 'https://www.doerfelverse.com/feeds/intothedoerfelverse.xml',
+      description: 'Journey into the Doerfelverse'
+    },
+    {
+      id: 'kurtisdrums-v1',
+      title: 'Kurtisdrums V1',
+      artist: 'Kurtis',
+      artwork: '/placeholder-album.png',
+      feedUrl: 'https://www.sirtjthewrathful.com/wp-content/uploads/2023/08/Kurtisdrums-V1.xml',
+      description: 'Drum compositions by Kurtis'
+    },
+    {
+      id: 'nostalgic',
+      title: 'Nostalgic',
+      artist: 'Various',
+      artwork: '/placeholder-album.png',
+      feedUrl: 'https://www.sirtjthewrathful.com/wp-content/uploads/2023/08/Nostalgic.xml',
+      description: 'Nostalgic musical journey'
+    },
+    {
+      id: 'citybeach',
+      title: 'CityBeach',
+      artist: 'Various',
+      artwork: '/placeholder-album.png',
+      feedUrl: 'https://www.sirtjthewrathful.com/wp-content/uploads/2023/08/CityBeach.xml',
+      description: 'Urban beach vibes'
+    },
+    {
+      id: 'wrath-of-banjo',
+      title: 'Wrath of Banjo',
+      artist: 'The Doerfels',
+      artwork: '/placeholder-album.png',
+      feedUrl: 'https://www.doerfelverse.com/feeds/wrath-of-banjo.xml',
+      description: 'Banjo-driven compositions'
+    },
+    {
+      id: 'ring-that-bell',
+      title: 'Ring That Bell',
+      artist: 'J-Dog',
+      artwork: '/placeholder-album.png',
+      feedUrl: 'https://www.thisisjdog.com/media/ring-that-bell.xml',
+      description: 'Bell-themed musical collection'
     }
   ];
 
@@ -208,7 +264,14 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
   const DOERFELS_ALBUMS = [
     'bloodshot-lies',
     'music-from-the-doerfelverse',
-    'think-ep'
+    'think-ep',
+    'ben-doerfel',
+    'into-the-doerfelverse',
+    'kurtisdrums-v1',
+    'nostalgic',
+    'citybeach',
+    'wrath-of-banjo',
+    'ring-that-bell'
   ];
 
   // Get albums that belong to ChadF folder
@@ -238,63 +301,6 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
     
     // Add albums from sidebar navigation that aren't in featured albums
     const sidebarAlbums = [
-      // Additional Doerfels albums from podroll
-      {
-        id: 'ben-doerfel',
-        title: 'Ben Doerfel',
-        artist: 'Ben Doerfel',
-        artwork: '/placeholder-album.png',
-        feedUrl: 'https://www.doerfelverse.com/feeds/ben-doerfel.xml',
-        description: 'Solo work from Ben Doerfel'
-      },
-      {
-        id: 'into-the-doerfelverse',
-        title: 'Into the Doerfelverse',
-        artist: 'The Doerfels',
-        artwork: '/placeholder-album.png',
-        feedUrl: 'https://www.doerfelverse.com/feeds/intothedoerfelverse.xml',
-        description: 'Journey into the Doerfelverse'
-      },
-      {
-        id: 'kurtisdrums-v1',
-        title: 'Kurtisdrums V1',
-        artist: 'Kurtis',
-        artwork: '/placeholder-album.png',
-        feedUrl: 'https://www.sirtjthewrathful.com/wp-content/uploads/2023/08/Kurtisdrums-V1.xml',
-        description: 'Drum compositions by Kurtis'
-      },
-      {
-        id: 'nostalgic',
-        title: 'Nostalgic',
-        artist: 'Various',
-        artwork: '/placeholder-album.png',
-        feedUrl: 'https://www.sirtjthewrathful.com/wp-content/uploads/2023/08/Nostalgic.xml',
-        description: 'Nostalgic musical journey'
-      },
-      {
-        id: 'citybeach',
-        title: 'CityBeach',
-        artist: 'Various',
-        artwork: '/placeholder-album.png',
-        feedUrl: 'https://www.sirtjthewrathful.com/wp-content/uploads/2023/08/CityBeach.xml',
-        description: 'Urban beach vibes'
-      },
-      {
-        id: 'wrath-of-banjo',
-        title: 'Wrath of Banjo',
-        artist: 'The Doerfels',
-        artwork: '/placeholder-album.png',
-        feedUrl: 'https://www.doerfelverse.com/feeds/wrath-of-banjo.xml',
-        description: 'Banjo-driven compositions'
-      },
-      {
-        id: 'ring-that-bell',
-        title: 'Ring That Bell',
-        artist: 'J-Dog',
-        artwork: '/placeholder-album.png',
-        feedUrl: 'https://www.thisisjdog.com/media/ring-that-bell.xml',
-        description: 'Bell-themed musical collection'
-      },
       {
         id: 'wavlake-album',
         title: 'Wavlake Album',
@@ -489,95 +495,10 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
                         <Disc size={16} />
                         <span className="font-medium text-sm">{album.title}</span>
                       </Link>
-                    ))}
-                    
-                    {/* Additional Doerfels albums from podroll */}
-                    <Link
-                      to="/albums?feed=https://www.doerfelverse.com/feeds/ben-doerfel.xml"
-                      className={`flex items-center space-x-3 px-4 py-2 rounded-lg transition-all duration-200 ${
-                        theme === 'dark'
-                          ? 'text-gray-500 hover:text-white hover:bg-white/5'
-                          : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-                      }`}
-                    >
-                      <Disc size={16} />
-                      <span className="font-medium text-sm">Ben Doerfel</span>
-                    </Link>
-
-                    <Link
-                      to="/albums?feed=https://www.doerfelverse.com/feeds/intothedoerfelverse.xml"
-                      className={`flex items-center space-x-3 px-4 py-2 rounded-lg transition-all duration-200 ${
-                        theme === 'dark'
-                          ? 'text-gray-500 hover:text-white hover:bg-white/5'
-                          : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-                      }`}
-                    >
-                      <Disc size={16} />
-                      <span className="font-medium text-sm">Into the Doerfelverse</span>
-                    </Link>
-
-                    <Link
-                      to="/albums?feed=https://www.sirtjthewrathful.com/wp-content/uploads/2023/08/Kurtisdrums-V1.xml"
-                      className={`flex items-center space-x-3 px-4 py-2 rounded-lg transition-all duration-200 ${
-                        theme === 'dark'
-                          ? 'text-gray-500 hover:text-white hover:bg-white/5'
-                          : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-                      }`}
-                    >
-                      <Disc size={16} />
-                      <span className="font-medium text-sm">Kurtisdrums V1</span>
-                    </Link>
-
-                    <Link
-                      to="/albums?feed=https://www.sirtjthewrathful.com/wp-content/uploads/2023/08/Nostalgic.xml"
-                      className={`flex items-center space-x-3 px-4 py-2 rounded-lg transition-all duration-200 ${
-                        theme === 'dark'
-                          ? 'text-gray-500 hover:text-white hover:bg-white/5'
-                          : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-                      }`}
-                    >
-                      <Disc size={16} />
-                      <span className="font-medium text-sm">Nostalgic</span>
-                    </Link>
-
-                    <Link
-                      to="/albums?feed=https://www.sirtjthewrathful.com/wp-content/uploads/2023/08/CityBeach.xml"
-                      className={`flex items-center space-x-3 px-4 py-2 rounded-lg transition-all duration-200 ${
-                        theme === 'dark'
-                          ? 'text-gray-500 hover:text-white hover:bg-white/5'
-                          : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-                      }`}
-                    >
-                      <Disc size={16} />
-                      <span className="font-medium text-sm">CityBeach</span>
-                    </Link>
-
-                    <Link
-                      to="/albums?feed=https://www.doerfelverse.com/feeds/wrath-of-banjo.xml"
-                      className={`flex items-center space-x-3 px-4 py-2 rounded-lg transition-all duration-200 ${
-                        theme === 'dark'
-                          ? 'text-gray-500 hover:text-white hover:bg-white/5'
-                          : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-                      }`}
-                    >
-                      <Disc size={16} />
-                      <span className="font-medium text-sm">Wrath of Banjo</span>
-                    </Link>
-
-                    <Link
-                      to="/albums?feed=https://www.thisisjdog.com/media/ring-that-bell.xml"
-                      className={`flex items-center space-x-3 px-4 py-2 rounded-lg transition-all duration-200 ${
-                        theme === 'dark'
-                          ? 'text-gray-500 hover:text-white hover:bg-white/5'
-                          : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-                      }`}
-                    >
-                      <Disc size={16} />
-                      <span className="font-medium text-sm">Ring That Bell</span>
-                    </Link>
-                  </div>
-                )}
-              </div>
+                                         ))}
+                   </div>
+                 )}
+               </div>
 
               {/* ChadF Folder */}
               <div>

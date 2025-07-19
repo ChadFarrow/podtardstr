@@ -9,19 +9,7 @@ interface AlbumBackgroundProps {
 export function AlbumBackground({ artwork, children }: AlbumBackgroundProps) {
   const { colors, isLoading } = useColorExtraction(artwork);
 
-  // Create dynamic gradient based on extracted colors
-  const createDynamicGradient = () => {
-    if (!colors) {
-      return 'from-black/60 via-black/70 to-black/90';
-    }
 
-    // Create a beautiful gradient using the extracted colors
-    const primary = colors.primary + '40'; // 25% opacity
-    const secondary = colors.secondary + '30'; // 19% opacity
-    const accent = colors.accent + '20'; // 12% opacity
-
-    return `from-[${primary}] via-[${secondary}] to-[${accent}]`;
-  };
 
   // Create accent colors for UI elements
   const getAccentStyles = () => {
