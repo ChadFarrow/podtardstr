@@ -68,6 +68,13 @@ const OTHER_ALBUMS: StaticAlbum[] = [
 export function AlbumRecommendations({ podroll, currentFeedUrl }: AlbumRecommendationsProps) {
   const navigate = useNavigate();
   const hasPodroll = podroll && podroll.length > 0;
+  
+  console.log('🎯 AlbumRecommendations: Received props:', {
+    currentFeedUrl,
+    hasPodroll,
+    podrollLength: podroll?.length || 0,
+    podrollItems: podroll
+  });
 
   return (
     <div className="p-8">
