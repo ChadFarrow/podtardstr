@@ -18,7 +18,7 @@ export function AlbumBackground({ artwork, children }: AlbumBackgroundProps) {
       />
       
       {/* Dark Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-red-900/60 via-black/70 to-black/90" />
+      <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-black/70 to-black/90" />
       
       {/* Main Content */}
       <div className="relative z-10 h-full flex flex-col">
