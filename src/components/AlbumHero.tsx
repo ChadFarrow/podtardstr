@@ -43,7 +43,13 @@ export function AlbumHero({
   };
 
   return (
-    <div className="flex-1 flex items-center justify-center p-8">
+    <div 
+      className="flex-1 flex items-center justify-center py-8"
+      style={{
+        paddingLeft: `max(2rem, env(safe-area-inset-left))`,
+        paddingRight: `max(2rem, env(safe-area-inset-right))`
+      }}
+    >
       <div className="max-w-6xl w-full">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           

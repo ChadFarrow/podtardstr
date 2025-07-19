@@ -371,9 +371,13 @@ export function PodcastPlayer() {
         }`}
         style={albumColors.isActive ? {
           background: `linear-gradient(to top, ${albumColors.primary}CC 0%, ${albumColors.secondary}80 100%)`,
-          paddingBottom: `max(0.75rem, env(safe-area-inset-bottom))`
+          paddingBottom: `max(0.75rem, env(safe-area-inset-bottom))`,
+          paddingLeft: `max(0.75rem, env(safe-area-inset-left))`,
+          paddingRight: `max(0.75rem, env(safe-area-inset-right))`
         } : {
-          paddingBottom: `max(0.75rem, env(safe-area-inset-bottom))`
+          paddingBottom: `max(0.75rem, env(safe-area-inset-bottom))`,
+          paddingLeft: `max(0.75rem, env(safe-area-inset-left))`,
+          paddingRight: `max(0.75rem, env(safe-area-inset-right))`
         }}
       >
         <div className="p-3 sm:p-4 text-center text-gray-400 text-sm">
@@ -390,9 +394,13 @@ export function PodcastPlayer() {
       }`}
       style={albumColors.isActive ? {
         background: `linear-gradient(to top, ${albumColors.primary}CC 0%, ${albumColors.secondary}80 100%)`,
-        paddingBottom: `max(0.75rem, env(safe-area-inset-bottom))`
+        paddingBottom: `max(0.75rem, env(safe-area-inset-bottom))`,
+        paddingLeft: `max(0.75rem, env(safe-area-inset-left))`,
+        paddingRight: `max(0.75rem, env(safe-area-inset-right))`
       } : {
-        paddingBottom: `max(0.75rem, env(safe-area-inset-bottom))`
+        paddingBottom: `max(0.75rem, env(safe-area-inset-bottom))`,
+        paddingLeft: `max(0.75rem, env(safe-area-inset-left))`,
+        paddingRight: `max(0.75rem, env(safe-area-inset-right))`
       }}
     >
       <div className="p-3 sm:p-4">

@@ -418,12 +418,23 @@ const Albums = ({ feedUrl }: AlbumsProps) => {
 
       {/* Slide-out Menu */}
       {showMenu && (
-        <div className={`absolute top-0 left-0 h-full w-80 backdrop-blur-lg z-30 transform transition-transform duration-300 ${
-          theme === 'dark' 
-            ? 'bg-black/90' 
-            : 'bg-white/95 shadow-xl border-r border-gray-200'
-        }`}>
-          <div className="p-6">
+        <div 
+          className={`absolute top-0 h-full w-80 backdrop-blur-lg z-30 transform transition-transform duration-300 ${
+            theme === 'dark' 
+              ? 'bg-black/90' 
+              : 'bg-white/95 shadow-xl border-r border-gray-200'
+          }`}
+          style={{
+            left: `max(0px, env(safe-area-inset-left))`
+          }}
+        >
+          <div 
+            className="p-6"
+            style={{
+              paddingLeft: `max(1.5rem, env(safe-area-inset-left))`,
+              paddingRight: `max(1.5rem, env(safe-area-inset-right))`
+            }}
+          >
             <div className="flex items-center justify-between mb-8">
               <h2 className={`text-xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
                 Navigation

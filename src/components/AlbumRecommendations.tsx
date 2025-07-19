@@ -103,7 +103,13 @@ export function AlbumRecommendations({ podroll, currentFeedUrl }: AlbumRecommend
   };
 
   return (
-    <div className="p-8 pb-16">
+    <div 
+      className="py-8 pb-16"
+      style={{
+        paddingLeft: `max(2rem, env(safe-area-inset-left))`,
+        paddingRight: `max(2rem, env(safe-area-inset-right))`
+      }}
+    >
       <div className="max-w-6xl mx-auto relative">
         
         {/* Left scroll arrow */}

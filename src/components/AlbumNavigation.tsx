@@ -14,7 +14,7 @@ export function AlbumNavigation({ onMenuToggle, showMenu }: AlbumNavigationProps
 
   return (
     <div 
-      className={`absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-4 py-2 backdrop-blur-lg transition-all duration-300 ${
+      className={`absolute top-0 left-0 right-0 z-20 flex items-center justify-between py-2 backdrop-blur-lg transition-all duration-300 ${
         albumColors.isActive 
           ? 'bg-gradient-to-b to-transparent shadow-lg' 
           : theme === 'dark' 
@@ -23,9 +23,13 @@ export function AlbumNavigation({ onMenuToggle, showMenu }: AlbumNavigationProps
       }`}
       style={albumColors.isActive ? {
         background: `linear-gradient(to bottom, ${albumColors.primary}CC 0%, ${albumColors.secondary}80 50%, transparent 100%)`,
-        paddingTop: `max(0.5rem, env(safe-area-inset-top))`
+        paddingTop: `max(0.5rem, env(safe-area-inset-top))`,
+        paddingLeft: `max(1rem, env(safe-area-inset-left))`,
+        paddingRight: `max(1rem, env(safe-area-inset-right))`
       } : {
-        paddingTop: `max(0.5rem, env(safe-area-inset-top))`
+        paddingTop: `max(0.5rem, env(safe-area-inset-top))`,
+        paddingLeft: `max(1rem, env(safe-area-inset-left))`,
+        paddingRight: `max(1rem, env(safe-area-inset-right))`
       }}
     >
       <div className="flex items-center space-x-4">
